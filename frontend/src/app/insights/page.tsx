@@ -65,19 +65,31 @@ export default function InsightsPage() {
               { label: 'Preferred Length', value: memory.preferredLength, icon: '📏' },
               { label: 'Preferred Structure', value: memory.preferredStructure, icon: '🏗️' },
             ].map(item => (
-              <div key={item.label} className="rounded-xl border border-border bg-card p-4">
+              <div
+                key={item.label}
+                className="rounded-xl p-4"
+                style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
                 <div className="flex items-center gap-2 mb-2">
                   <span>{item.icon}</span>
-                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p style={{ fontSize: '12px', color: '#8a8f98' }}>{item.label}</p>
                 </div>
-                <p className="text-lg font-semibold capitalize">{item.value ?? 'Not determined yet'}</p>
+                <p
+                  className="capitalize"
+                  style={{ fontSize: '18px', fontWeight: 600, color: '#f7f8f8', letterSpacing: '-0.5px' }}
+                >
+                  {item.value ?? 'Not determined yet'}
+                </p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
-            <Brain className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">
+          <div
+            className="rounded-xl p-8 text-center"
+            style={{ border: '1px dashed rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.01)' }}
+          >
+            <Brain className="mx-auto mb-3 h-8 w-8" style={{ color: 'rgba(138,143,152,0.4)' }} />
+            <p style={{ fontSize: '13px', color: '#8a8f98' }}>
               Use Learning Mode at least 3 times to generate your first preference profile
             </p>
           </div>
@@ -92,47 +104,67 @@ export default function InsightsPage() {
         </div>
 
         {versions.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
-            <TrendingUp className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">Memory evolution history will appear here</p>
+          <div
+            className="rounded-xl p-8 text-center"
+            style={{ border: '1px dashed rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.01)' }}
+          >
+            <TrendingUp className="mx-auto mb-3 h-8 w-8" style={{ color: 'rgba(138,143,152,0.4)' }} />
+            <p style={{ fontSize: '13px', color: '#8a8f98' }}>Memory evolution history will appear here</p>
           </div>
         ) : (
           <div className="relative space-y-3">
             {/* Timeline line */}
-            <div className="absolute left-4 top-4 bottom-4 w-px bg-border" />
+            <div
+              className="absolute left-4 top-4 bottom-4 w-px"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            />
 
-            {versions.map((version, i) => (
+            {versions.map((version) => (
               <div key={version.id} className="relative flex gap-4 pl-10">
                 {/* Timeline dot */}
                 <div className="absolute left-2.5 flex h-3 w-3 items-center justify-center">
-                  <div className="h-3 w-3 rounded-full border-2 border-primary bg-background" />
+                  <div
+                    className="h-3 w-3 rounded-full border-2"
+                    style={{ borderColor: '#7170ff', backgroundColor: '#08090a' }}
+                  />
                 </div>
 
-                <div className="flex-1 rounded-xl border border-border bg-card p-4 space-y-3">
+                <div
+                  className="flex-1 rounded-xl p-4 space-y-3"
+                  style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px]">v{version.version}</Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <Badge variant="outline">v{version.version}</Badge>
+                      <span style={{ fontSize: '12px', color: '#8a8f98' }}>
                         After {version.triggerLogCount} preferences
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{formatDate(version.createdAt)}</span>
+                    <span style={{ fontSize: '12px', color: '#8a8f98' }}>{formatDate(version.createdAt)}</span>
                   </div>
 
                   {version.diff && version.diff.length > 0 ? (
                     <div className="space-y-2">
-                      <p className="text-xs font-medium">Changes from previous version:</p>
+                      <p style={{ fontSize: '12px', fontWeight: 500, color: '#d0d6e0' }}>Changes from previous version:</p>
                       {version.diff.map((change, j) => (
-                        <div key={j} className="flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2 text-xs">
-                          <span className="font-medium capitalize">{change.field.replace('preferred', '')}</span>
-                          <span className="text-muted-foreground line-through">{change.previousValue ?? 'none'}</span>
-                          <span className="text-primary">→</span>
-                          <span className="text-primary">{change.currentValue ?? 'none'}</span>
+                        <div
+                          key={j}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2"
+                          style={{ backgroundColor: 'rgba(255,255,255,0.03)', fontSize: '12px' }}
+                        >
+                          <span style={{ fontWeight: 500, color: '#d0d6e0', textTransform: 'capitalize' }}>
+                            {change.field.replace('preferred', '')}
+                          </span>
+                          <span style={{ color: '#62666d', textDecoration: 'line-through' }}>
+                            {change.previousValue ?? 'none'}
+                          </span>
+                          <span style={{ color: '#7170ff' }}>→</span>
+                          <span style={{ color: '#7170ff' }}>{change.currentValue ?? 'none'}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Initial memory established</p>
+                    <p style={{ fontSize: '12px', color: '#8a8f98' }}>Initial memory established</p>
                   )}
                 </div>
               </div>
@@ -142,14 +174,20 @@ export default function InsightsPage() {
       </section>
 
       {/* XAI explainer note */}
-      <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+      <div
+        className="rounded-xl p-4"
+        style={{
+          border: '1px solid rgba(113,112,255,0.2)',
+          backgroundColor: 'rgba(113,112,255,0.04)',
+        }}
+      >
         <div className="flex items-start gap-3">
-          <Lightbulb className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <Lightbulb className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#7170ff' }} />
           <div className="space-y-1">
-            <p className="text-sm font-medium">Why This Answer? (XAI)</p>
-            <p className="text-xs text-muted-foreground">
+            <p style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}>Why This Answer? (XAI)</p>
+            <p style={{ fontSize: '12px', color: '#8a8f98', lineHeight: 1.6 }}>
               Every response generated in Normal Mode includes an explanation you can access from the chat.
-              Click <strong>Why this answer?</strong> below any AI message to see exactly how your preference
+              Click <strong style={{ color: '#d0d6e0' }}>Why this answer?</strong> below any AI message to see exactly how your preference
               memory influenced the response strategy.
             </p>
           </div>

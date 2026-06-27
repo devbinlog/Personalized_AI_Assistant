@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import get_settings
+from app.features.assistant.router import router as assistant_router
 
 settings = get_settings()
 
@@ -44,9 +45,8 @@ async def health():
     }
 
 
-# Phase 2: AI assistant router
-# from app.api.v1.chat import router as chat_router
-# app.include_router(chat_router, prefix="/api/v1")
+# Assistant router — LangGraph rule-based pipeline
+app.include_router(assistant_router, prefix="/api/v1")
 
 # Phase 4: Preference engine router
 # from app.api.v1.preferences import router as pref_router

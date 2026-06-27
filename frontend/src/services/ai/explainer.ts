@@ -30,7 +30,7 @@ export async function generateExplanation(
   try {
     const provider = getLLMProvider()
     const memoryContext = memory
-      ? `Preference memory (v${memory.version}): tone=${memory.preferredTone}, structure=${memory.preferredStructure}, preferred=${memory.preferredStrategies.join(', ')}`
+      ? `Preference memory (v${memory.version}): tone=${memory.preferredTone}, structure=${memory.preferredStructure}, preferred=${(Array.isArray(memory.preferredStrategies) ? memory.preferredStrategies : JSON.parse(memory.preferredStrategies || '[]')).join(', ')}`
       : 'No preference memory yet'
 
     const result = await generateObject({
@@ -82,8 +82,8 @@ Generate memoryInfluence (how memory shaped this choice) and reasoningFactors (w
         messageId,
         selectedStrategy: explanation.selectedStrategy,
         confidence: explanation.confidence,
-        memoryInfluence: explanation.memoryInfluence,
-        reasoningFactors: explanation.reasoningFactors,
+        memoryInfluence: JSON.stringify(explanation.memoryInfluence),
+        reasoningFactors: JSON.stringify(explanation.reasoningFactors),
         memorySnapshot: (memory ?? {}) as never,
         rankingDetails: (explanation.rankingDetails ?? []) as never,
         promptVersion: explanation.promptVersion,

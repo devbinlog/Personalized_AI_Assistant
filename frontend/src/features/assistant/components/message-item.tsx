@@ -36,15 +36,17 @@ export function MessageItem({
     <div className={cn('flex gap-3 px-4 py-3', isUser && 'flex-row-reverse')}>
       {/* Avatar */}
       <div
-        className={cn(
-          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-          isUser ? 'bg-primary/20' : 'bg-primary/10',
-        )}
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+        style={
+          isUser
+            ? { backgroundColor: 'rgba(94,106,210,0.2)' }
+            : { backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }
+        }
       >
         {isUser ? (
-          <User className="h-4 w-4 text-primary" />
+          <User className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
         ) : (
-          <Brain className="h-4 w-4 text-primary" />
+          <Brain className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
         )}
       </div>
 
@@ -54,33 +56,72 @@ export function MessageItem({
         {!isUser && (strategy || searchUsed || taskType) && (
           <div className="flex flex-wrap gap-1.5">
             {strategy && (
-              <Badge variant="outline" className="h-5 text-[10px] gap-1">
+              <span
+                className="inline-flex items-center gap-1"
+                style={{
+                  fontSize: '10px',
+                  color: '#8a8f98',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '4px',
+                  padding: '1px 6px',
+                }}
+              >
                 <Sparkles className="h-2.5 w-2.5" />
                 {strategyLabel(strategy as never)}
-              </Badge>
+              </span>
             )}
             {searchUsed && (
-              <Badge variant="outline" className="h-5 text-[10px] gap-1 text-blue-400 border-blue-500/30">
+              <span
+                className="inline-flex items-center gap-1"
+                style={{
+                  fontSize: '10px',
+                  color: '#8a8f98',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '4px',
+                  padding: '1px 6px',
+                }}
+              >
                 <Globe className="h-2.5 w-2.5" />
                 Web search
-              </Badge>
+              </span>
             )}
             {confidence !== null && confidence !== undefined && (
-              <Badge variant="outline" className="h-5 text-[10px] text-muted-foreground">
+              <span
+                style={{
+                  fontSize: '10px',
+                  color: '#8a8f98',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '4px',
+                  padding: '1px 6px',
+                }}
+              >
                 {confidencePercent(confidence)} match
-              </Badge>
+              </span>
             )}
           </div>
         )}
 
         {/* Message bubble */}
         <div
-          className={cn(
-            'rounded-2xl px-4 py-3',
+          className="px-4 py-3"
+          style={
             isUser
-              ? 'bg-primary text-primary-foreground rounded-tr-sm'
-              : 'bg-card border border-border rounded-tl-sm',
-          )}
+              ? {
+                  backgroundColor: '#5e6ad2',
+                  color: '#ffffff',
+                  borderRadius: '12px 2px 12px 12px',
+                  fontSize: '14px',
+                }
+              : {
+                  backgroundColor: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '2px 12px 12px 12px',
+                  fontSize: '14px',
+                }
+          }
         >
           {isUser ? (
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>

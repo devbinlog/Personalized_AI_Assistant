@@ -225,22 +225,46 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
 
 function WelcomeScreen({ mode }: { mode: ConversationMode }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-        <Brain className="h-8 w-8 text-primary" />
+    <div className="flex h-full flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: '#08090a' }}>
+      <div
+        className="mb-4 flex items-center justify-center"
+        style={{
+          height: '40px',
+          width: '40px',
+          backgroundColor: 'rgba(113,112,255,0.1)',
+          borderRadius: '10px',
+        }}
+      >
+        <Brain className="h-5 w-5" style={{ color: '#7170ff' }} />
       </div>
-      <h2 className="mb-2 text-2xl font-bold">
+      <h2
+        className="mb-2"
+        style={{ color: '#f7f8f8', fontSize: '20px', fontWeight: 600, letterSpacing: '-0.5px' }}
+      >
         {mode === 'LEARNING' ? 'Learning Mode Active' : 'What can I help you with?'}
       </h2>
-      <p className="max-w-sm text-sm text-muted-foreground">
+      <p
+        className="max-w-xs text-center"
+        style={{ color: '#8a8f98', fontSize: '13px' }}
+      >
         {mode === 'LEARNING'
-          ? 'Ask anything — I\'ll generate 3 different response styles for you to choose from. Your choices train me to respond better.'
+          ? "Ask anything — I'll generate 3 different response styles for you to choose from. Your choices train me to respond better."
           : 'Your adaptive AI assistant. The more you use it, the more personalized responses become.'}
       </p>
       {mode === 'LEARNING' && (
-        <div className="mt-4 flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-xs text-primary">Preference learning enabled</span>
+        <div
+          className="mt-4 flex items-center gap-2"
+          style={{
+            backgroundColor: 'rgba(94,106,210,0.1)',
+            color: '#7170ff',
+            borderRadius: '999px',
+            padding: '4px 12px',
+            fontSize: '11px',
+            fontWeight: 500,
+          }}
+        >
+          <Sparkles className="h-3 w-3" />
+          Preference Learning Active
         </div>
       )}
     </div>

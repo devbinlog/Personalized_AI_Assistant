@@ -4,9 +4,6 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn, strategyLabel } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { STRATEGY_COLORS } from '@/lib/constants'
 import type { ResponseStrategy } from '@/types'
 
 interface Candidate {
@@ -26,78 +23,114 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0)
 
   return (
-    <div className="mx-4 space-y-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">Choose your preferred response</p>
-          <p className="text-xs text-muted-foreground">
-            3 different styles generated · Your choice trains the AI
-          </p>
-        </div>
-        <Badge variant="outline" className="text-[10px]">Learning Mode</Badge>
-      </div>
+    <div className="px-4 py-2 space-y-3">
+      <p
+        style={{
+          fontSize: '12px',
+          color: '#8a8f98',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          marginBottom: '12px',
+        }}
+      >
+        Choose a response style
+      </p>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {candidates.map((candidate) => {
           const isSelected = selectedIndex === candidate.index
           const isExpanded = expandedIndex === candidate.index
-          const colorClass = STRATEGY_COLORS[candidate.strategy] ?? ''
 
           return (
             <div
               key={candidate.index}
               className={cn(
-                'rounded-xl border bg-card transition-all duration-200 overflow-hidden',
-                isSelected ? 'candidate-card-selected border-primary' : 'border-border hover:border-primary/40',
+                'rounded-xl transition-all duration-200 overflow-hidden cursor-pointer',
+                isSelected && 'candidate-card-selected',
               )}
+              style={{
+                border: isSelected
+                  ? '1px solid rgba(113,112,255,0.4)'
+                  : '1px solid rgba(255,255,255,0.08)',
+                backgroundColor: isSelected
+                  ? 'rgba(113,112,255,0.06)'
+                  : 'rgba(255,255,255,0.02)',
+              }}
+              onMouseEnter={e => {
+                if (!isSelected) {
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.12)'
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'
+                }
+              }}
+              onMouseLeave={e => {
+                if (!isSelected) {
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'
+                }
+              }}
             >
               {/* Card header */}
               <div
-                className="flex cursor-pointer items-center gap-3 px-4 py-3"
+                className="flex items-center gap-3 px-4 py-3"
                 onClick={() => setExpandedIndex(isExpanded ? null : candidate.index)}
               >
-                <div className={cn('rounded-full border px-2 py-0.5 text-[11px] font-medium', colorClass)}>
+                <span
+                  style={{
+                    backgroundColor: 'rgba(94,106,210,0.1)',
+                    color: '#7170ff',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                  }}
+                >
                   {strategyLabel(candidate.strategy)}
-                </div>
-                <p className="flex-1 truncate text-xs text-muted-foreground">
+                </span>
+                <p
+                  className="flex-1 truncate"
+                  style={{ fontSize: '13px', color: '#8a8f98' }}
+                >
                   {candidate.content.slice(0, 80)}…
                 </p>
                 <div className="flex items-center gap-2">
-                  {isSelected && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  {isSelected && <CheckCircle2 className="h-4 w-4" style={{ color: '#7170ff' }} />}
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    <ChevronUp className="h-4 w-4" style={{ color: '#62666d' }} />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    <ChevronDown className="h-4 w-4" style={{ color: '#62666d' }} />
                   )}
                 </div>
               </div>
 
               {/* Expanded content */}
               {isExpanded && (
-                <div className="border-t border-border px-4 pb-4 pt-3">
-                  <div className="prose-chat max-h-[300px] overflow-y-auto text-sm">
+                <div
+                  className="px-4 pb-4 pt-3"
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <div className="prose-chat max-h-[300px] overflow-y-auto" style={{ fontSize: '13px', color: '#8a8f98', lineClamp: '3' }}>
                     <ReactMarkdown>{candidate.content}</ReactMarkdown>
                   </div>
                   <div className="mt-3 flex justify-end">
-                    <Button
-                      size="sm"
-                      variant={isSelected ? 'default' : 'outline'}
+                    <button
                       onClick={() => {
                         setSelectedIndex(candidate.index)
                         onSelect(candidate)
                       }}
                       disabled={isSubmitting}
-                      className="gap-2"
+                      style={{
+                        backgroundColor: '#5e6ad2',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        opacity: isSubmitting ? 0.5 : 1,
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                      }}
                     >
-                      {isSelected ? (
-                        <>
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          Selected
-                        </>
-                      ) : (
-                        'Select this response'
-                      )}
-                    </Button>
+                      {isSelected ? 'Selected' : 'Select'}
+                    </button>
                   </div>
                 </div>
               )}

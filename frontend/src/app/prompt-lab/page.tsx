@@ -61,11 +61,14 @@ export default function PromptLabPage() {
       </div>
 
       {versions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card/50 p-12 text-center">
-          <FlaskConical className="h-8 w-8 text-muted-foreground/40" />
+        <div
+          className="flex flex-col items-center justify-center gap-3 rounded-xl p-12 text-center"
+          style={{ border: '1px dashed rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.01)' }}
+        >
+          <FlaskConical className="h-8 w-8" style={{ color: 'rgba(138,143,152,0.4)' }} />
           <div>
-            <p className="text-sm font-medium">No prompt versions yet</p>
-            <p className="text-xs text-muted-foreground">Prompt versions are saved on every conversation</p>
+            <p style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}>No prompt versions yet</p>
+            <p style={{ fontSize: '12px', color: '#8a8f98' }}>Prompt versions are saved on every conversation</p>
           </div>
         </div>
       ) : (
@@ -75,42 +78,75 @@ export default function PromptLabPage() {
             const components = version.components as Record<string, string>
 
             return (
-              <div key={version.id} className="rounded-xl border border-border bg-card overflow-hidden">
+              <div
+                key={version.id}
+                className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#191a1b' }}
+              >
                 {/* Header */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : version.id)}
-                  className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-accent/50 transition-colors"
+                  className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors"
+                  style={{ backgroundColor: 'transparent' }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <Badge variant="outline" className="text-[10px] shrink-0">v{version.version}</Badge>
-                  <p className="flex-1 truncate text-sm text-muted-foreground">
+                  <Badge variant="default" className="shrink-0">v{version.version}</Badge>
+                  <p className="flex-1 truncate" style={{ fontSize: '13px', color: '#8a8f98' }}>
                     {version.systemPrompt.slice(0, 100)}…
                   </p>
                   <div className="flex items-center gap-2 shrink-0">
                     {version.tokenCount && (
-                      <span className="text-[10px] text-muted-foreground">~{version.tokenCount} tokens</span>
+                      <span style={{ fontSize: '10px', color: '#62666d' }}>~{version.tokenCount} tokens</span>
                     )}
-                    <span className="text-[10px] text-muted-foreground">
+                    <span style={{ fontSize: '10px', color: '#62666d' }}>
                       {new Date(version.createdAt).toLocaleDateString()}
                     </span>
-                    {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                    {isExpanded
+                      ? <ChevronUp className="h-4 w-4" style={{ color: '#62666d' }} />
+                      : <ChevronDown className="h-4 w-4" style={{ color: '#62666d' }} />}
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-border p-5 space-y-4">
+                  <div
+                    className="p-5 space-y-4"
+                    style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+                  >
                     {/* Full prompt */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Full System Prompt</p>
+                        <p
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 500,
+                            color: '#62666d',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                          }}
+                        >
+                          Full System Prompt
+                        </p>
                         <button
                           onClick={() => copy(version.systemPrompt, version.id)}
-                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground"
+                          className="flex items-center gap-1 transition-colors"
+                          style={{ fontSize: '10px', color: '#62666d' }}
+                          onMouseEnter={e => (e.currentTarget.style.color = '#8a8f98')}
+                          onMouseLeave={e => (e.currentTarget.style.color = '#62666d')}
                         >
                           {copied === version.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                           {copied === version.id ? 'Copied' : 'Copy'}
                         </button>
                       </div>
-                      <pre className="max-h-64 overflow-y-auto rounded-lg bg-muted p-4 text-[11px] leading-relaxed whitespace-pre-wrap font-mono">
+                      <pre
+                        className="max-h-64 overflow-y-auto rounded-lg p-4 font-mono leading-relaxed whitespace-pre-wrap"
+                        style={{
+                          backgroundColor: '#0f1011',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          fontSize: '11px',
+                          color: '#d0d6e0',
+                        }}
+                      >
                         {version.systemPrompt}
                       </pre>
                     </div>
@@ -118,11 +154,27 @@ export default function PromptLabPage() {
                     {/* Components breakdown */}
                     {Object.entries(components).filter(([k, v]) => v && k !== 'userRequest').map(([key, value]) => (
                       <div key={key} className="space-y-1">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                        <p
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 500,
+                            color: '#62666d',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                          }}
+                        >
                           {key.replace(/([A-Z])/g, ' $1').trim()}
                         </p>
-                        <div className="rounded-lg border border-border bg-muted/30 p-3">
-                          <p className="text-xs text-muted-foreground whitespace-pre-wrap">{value || '—'}</p>
+                        <div
+                          className="rounded-lg p-3"
+                          style={{ border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.02)' }}
+                        >
+                          <p
+                            className="whitespace-pre-wrap"
+                            style={{ fontSize: '12px', color: '#8a8f98' }}
+                          >
+                            {value || '—'}
+                          </p>
                         </div>
                       </div>
                     ))}

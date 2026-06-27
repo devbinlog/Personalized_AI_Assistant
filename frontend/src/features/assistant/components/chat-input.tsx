@@ -48,15 +48,12 @@ export function ChatInput({
   const busy = isStreaming || isLoading
 
   return (
-    <div className="border-t border-border bg-background/80 backdrop-blur-sm px-4 py-3">
+    <div
+      className="px-4 py-3"
+      style={{ borderTop: '1px solid rgba(255,255,255,0.06)', backgroundColor: '#0f1011' }}
+    >
       <div className="mx-auto max-w-3xl">
-        <div
-          className={cn(
-            'flex items-end gap-2 rounded-2xl border border-border bg-card px-4 py-3',
-            'focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20',
-            'transition-all duration-200',
-          )}
-        >
+        <div className="flex items-end gap-2">
           <textarea
             ref={textareaRef}
             value={value}
@@ -69,36 +66,59 @@ export function ChatInput({
             placeholder={placeholder}
             rows={1}
             className={cn(
-              'flex-1 resize-none bg-transparent text-sm outline-none',
-              'placeholder:text-muted-foreground/60',
-              'max-h-[200px] min-h-[24px]',
+              'flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none transition-colors',
+              'min-h-[44px] max-h-[200px]',
               (disabled || busy) && 'opacity-60',
             )}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#f7f8f8',
+            }}
           />
 
-          <div className="flex items-center gap-1 pb-0.5">
+          <div className="flex items-end pb-0.5">
             {busy ? (
-              <Button
-                size="icon"
-                variant="ghost"
+              <button
                 onClick={onStop}
-                className="h-8 w-8 text-destructive hover:text-destructive"
+                className="flex items-center justify-center transition-colors"
+                style={{
+                  backgroundColor: '#5e6ad2',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  height: '36px',
+                  width: '36px',
+                }}
               >
                 <Square className="h-4 w-4 fill-current" />
-              </Button>
+              </button>
             ) : (
-              <Button
-                size="icon"
+              <button
                 onClick={onSubmit}
                 disabled={!value.trim() || disabled}
-                className="h-8 w-8"
+                className="flex items-center justify-center transition-colors disabled:opacity-40"
+                style={{
+                  backgroundColor: '#5e6ad2',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  height: '36px',
+                  width: '36px',
+                }}
+                onMouseEnter={e => {
+                  if (!(!value.trim() || disabled)) {
+                    e.currentTarget.style.backgroundColor = '#7170ff'
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = '#5e6ad2'
+                }}
               >
                 <Send className="h-4 w-4" />
-              </Button>
+              </button>
             )}
           </div>
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-muted-foreground/50">
+        <p className="mt-1.5 text-center text-[10px]" style={{ color: 'rgba(98,102,109,0.7)' }}>
           Enter to send · Shift+Enter for new line
         </p>
       </div>

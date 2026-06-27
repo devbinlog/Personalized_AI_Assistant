@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { Sparkles, X, CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import type { PreferenceSuggestion } from '@/types'
 
 export function SuggestionBanner() {
@@ -42,24 +41,31 @@ export function SuggestionBanner() {
   if (!current) return null
 
   return (
-    <div className={cn(
-      'flex items-start gap-3 border-b border-primary/20 bg-primary/5 px-4 py-3',
-      'animate-fade-in',
-    )}>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-        <Sparkles className="h-4 w-4 text-primary" />
+    <div
+      className="flex items-start gap-3 animate-fade-in"
+      style={{
+        backgroundColor: 'rgba(113,112,255,0.06)',
+        borderBottom: '1px solid rgba(113,112,255,0.2)',
+        padding: '10px 16px',
+      }}
+    >
+      <div
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: 'rgba(113,112,255,0.1)' }}
+      >
+        <Sparkles className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
       </div>
-      <div className="flex-1 space-y-1">
-        <p className="text-xs font-medium text-primary">Preference suggestion</p>
-        <p className="text-sm text-foreground">{current.rationale}</p>
+      <div className="flex-1 space-y-0.5">
+        <p style={{ fontSize: '11px', fontWeight: 500, color: '#7170ff' }}>Preference suggestion</p>
+        <p style={{ fontSize: '12px', color: '#d0d6e0' }}>{current.rationale}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => respond(false)}
           disabled={isSubmitting}
-          className="h-7 gap-1 text-xs text-muted-foreground"
+          className="h-6 gap-1 text-xs"
         >
           <XCircle className="h-3 w-3" />
           No thanks
@@ -68,12 +74,17 @@ export function SuggestionBanner() {
           size="sm"
           onClick={() => respond(true)}
           disabled={isSubmitting}
-          className="h-7 gap-1 text-xs"
+          className="h-6 gap-1 text-xs"
         >
           <CheckCircle2 className="h-3 w-3" />
           Yes, apply
         </Button>
-        <button onClick={() => setCurrent(null)} className="text-muted-foreground hover:text-foreground">
+        <button
+          onClick={() => setCurrent(null)}
+          style={{ color: '#62666d' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#8a8f98')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#62666d')}
+        >
           <X className="h-4 w-4" />
         </button>
       </div>

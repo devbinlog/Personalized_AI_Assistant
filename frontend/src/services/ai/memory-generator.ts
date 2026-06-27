@@ -34,7 +34,7 @@ export async function generateMemory(
   userId: string,
   logs: Array<{
     selectedStrategy: string
-    selectedTags: string[]
+    selectedTags: string | string[]
     taskType: string
     domain: string | null
     complexity: string | null
@@ -45,10 +45,12 @@ export async function generateMemory(
   try {
     const provider = getLLMProvider()
     const logSummary = logs
-      .map(
-        (l, i) =>
-          `[${i + 1}] Strategy: ${l.selectedStrategy}, Tags: [${l.selectedTags.join(', ')}], Task: ${l.taskType}, Domain: ${l.domain ?? 'general'}`,
-      )
+      .map((l, i) => {
+        const tags = Array.isArray(l.selectedTags)
+          ? l.selectedTags
+          : JSON.parse(l.selectedTags || '[]')
+        return `[${i + 1}] Strategy: ${l.selectedStrategy}, Tags: [${tags.join(', ')}], Task: ${l.taskType}, Domain: ${l.domain ?? 'general'}`
+      })
       .join('\n')
 
     const result = await generateObject({
@@ -71,10 +73,10 @@ export async function generateMemory(
         preferredTone: data.preferredTone,
         preferredLength: data.preferredLength,
         preferredStructure: data.preferredStructure,
-        preferredStrategies: data.preferredStrategies,
-        avoidedPatterns: data.avoidedPatterns,
-        domainPreferences: data.domainPreferences as never,
-        strategyWeights: data.strategyWeights as never,
+        preferredStrategies: JSON.stringify(data.preferredStrategies),
+        avoidedPatterns: JSON.stringify(data.avoidedPatterns),
+        domainPreferences: data.domainPreferences ? JSON.stringify(data.domainPreferences) : null,
+        strategyWeights: data.strategyWeights ? JSON.stringify(data.strategyWeights) : null,
         rawSummary: data.rawSummary,
         logCount: logs.length,
       },
@@ -83,10 +85,10 @@ export async function generateMemory(
         preferredTone: data.preferredTone,
         preferredLength: data.preferredLength,
         preferredStructure: data.preferredStructure,
-        preferredStrategies: data.preferredStrategies,
-        avoidedPatterns: data.avoidedPatterns,
-        domainPreferences: data.domainPreferences as never,
-        strategyWeights: data.strategyWeights as never,
+        preferredStrategies: JSON.stringify(data.preferredStrategies),
+        avoidedPatterns: JSON.stringify(data.avoidedPatterns),
+        domainPreferences: data.domainPreferences ? JSON.stringify(data.domainPreferences) : null,
+        strategyWeights: data.strategyWeights ? JSON.stringify(data.strategyWeights) : null,
         rawSummary: data.rawSummary,
         logCount: logs.length,
         lastUpdatedAt: new Date(),
@@ -99,8 +101,8 @@ export async function generateMemory(
         data: {
           memoryId: memory.id,
           version: newVersion,
-          snapshot: data as never,
-          diff: diff as never,
+          snapshot: JSON.stringify(data),
+          diff: diff ? JSON.stringify(diff) : null,
           triggerLogCount: logs.length,
         },
       })

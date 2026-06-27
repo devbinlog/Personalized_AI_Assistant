@@ -32,7 +32,7 @@ export async function detectSuggestions(
   recentLogs: Array<{
     id: string
     selectedStrategy: string
-    selectedTags: string[]
+    selectedTags: string | string[]
     taskType: string
     domain: string | null
   }>,
@@ -43,7 +43,12 @@ export async function detectSuggestions(
   try {
     const provider = getLLMProvider()
     const logSummary = recentLogs
-      .map(l => `strategy=${l.selectedStrategy}, tags=[${l.selectedTags.join(',')}], type=${l.taskType}`)
+      .map(l => {
+        const tags = Array.isArray(l.selectedTags)
+          ? l.selectedTags
+          : JSON.parse(l.selectedTags || '[]')
+        return `strategy=${l.selectedStrategy}, tags=[${tags.join(',')}], type=${l.taskType}`
+      })
       .join('\n')
 
     const result = await generateObject({
@@ -66,7 +71,7 @@ export async function detectSuggestions(
             suggestedValue: s.suggestedValue,
             rationale: s.rationale,
             evidenceCount: s.evidenceCount,
-            triggerLogIds: recentLogs.slice(0, s.evidenceCount).map(l => l.id),
+            triggerLogIds: JSON.stringify(recentLogs.slice(0, s.evidenceCount).map(l => l.id)),
             status: 'PENDING',
           },
         }),

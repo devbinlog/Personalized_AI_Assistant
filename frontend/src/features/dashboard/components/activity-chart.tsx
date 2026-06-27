@@ -29,22 +29,22 @@ export function ActivityChart({ data }: ActivityChartProps) {
       <AreaChart data={data} margin={{ left: -16, right: 8, top: 4 }}>
         <defs>
           <linearGradient id="convGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+            <stop offset="5%" stopColor="#7170ff" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#7170ff" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="prefGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+            <stop offset="5%" stopColor="#5e6ad2" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#5e6ad2" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-        <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} />
-        <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+        <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#62666d' }} tickLine={false} />
+        <YAxis tick={{ fontSize: 10, fill: '#62666d' }} tickLine={false} axisLine={false} />
         <Tooltip
-          contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 11 }}
+          contentStyle={{ background: '#191a1b', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 11, color: '#d0d6e0' }}
         />
-        <Area type="monotone" dataKey="conversations" stroke="#8b5cf6" fill="url(#convGradient)" strokeWidth={2} name="Conversations" />
-        <Area type="monotone" dataKey="preferences" stroke="#06b6d4" fill="url(#prefGradient)" strokeWidth={2} name="Preferences" />
+        <Area type="monotone" dataKey="conversations" stroke="#7170ff" fill="url(#convGradient)" strokeWidth={2} name="Conversations" />
+        <Area type="monotone" dataKey="preferences" stroke="#5e6ad2" fill="url(#prefGradient)" strokeWidth={2} name="Preferences" />
       </AreaChart>
     </ResponsiveContainer>
   )

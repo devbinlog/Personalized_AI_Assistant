@@ -22,10 +22,16 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
   }
 
   return (
-    <div className="mx-4 rounded-xl border border-border bg-card p-4 space-y-3">
+    <div
+      className="mx-4 rounded-xl p-4 space-y-3"
+      style={{ border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.02)' }}
+    >
       <div>
-        <p className="text-sm font-medium">What made this response better? <span className="text-muted-foreground font-normal">(optional)</span></p>
-        <p className="text-xs text-muted-foreground">Your feedback helps the AI learn your style</p>
+        <p className="text-sm font-medium" style={{ color: '#f7f8f8' }}>
+          What made this response better?{' '}
+          <span style={{ color: '#8a8f98', fontWeight: 400 }}>(optional)</span>
+        </p>
+        <p style={{ fontSize: '12px', color: '#8a8f98' }}>Your feedback helps the AI learn your style</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -35,12 +41,14 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
             <button
               key={tag}
               onClick={() => toggle(tag)}
-              className={cn(
-                'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all duration-150',
-                isSelected
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
+              className="flex items-center gap-1.5 rounded-full transition-all duration-150"
+              style={{
+                border: isSelected ? '1px solid rgba(113,112,255,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                backgroundColor: isSelected ? 'rgba(113,112,255,0.1)' : 'rgba(255,255,255,0.02)',
+                color: isSelected ? '#7170ff' : '#8a8f98',
+                fontSize: '12px',
+                padding: '6px 12px',
+              }}
             >
               {isSelected && <CheckCircle2 className="h-3 w-3" />}
               {tagLabel(tag)}

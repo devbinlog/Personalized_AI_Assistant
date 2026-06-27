@@ -66,32 +66,71 @@ export default function DashboardPage() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-medium">Top Response Strategies</h3>
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <h3
+            className="mb-4"
+            style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}
+          >
+            Top Response Strategies
+          </h3>
           <StrategyChart data={stats?.topStrategies ?? []} />
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-medium">Activity (last 14 days)</h3>
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <h3
+            className="mb-4"
+            style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}
+          >
+            Activity (last 14 days)
+          </h3>
           <ActivityChart data={stats?.recentActivity ?? []} />
         </div>
       </div>
 
       {/* Memory card */}
       <div>
-        <h3 className="mb-3 text-sm font-medium">Current Preference Memory</h3>
+        <h3
+          className="mb-3"
+          style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}
+        >
+          Current Preference Memory
+        </h3>
         <MemoryCard memory={memory} onRefresh={refreshMemory} isRefreshing={isRefreshing} />
       </div>
 
       {/* Top tags */}
       {stats && stats.topTags.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-medium">Most Selected Feedback Tags</h3>
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <h3
+            className="mb-4"
+            style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}
+          >
+            Most Selected Feedback Tags
+          </h3>
           <div className="flex flex-wrap gap-2">
             {stats.topTags.map(({ tag, count }) => (
-              <div key={tag} className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
-                <span className="text-xs font-medium">{tag.replace(/_/g, ' ')}</span>
-                <span className="text-xs text-muted-foreground">{count}</span>
+              <div
+                key={tag}
+                className="flex items-center gap-2 rounded-full"
+                style={{
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  padding: '4px 12px',
+                  backgroundColor: 'rgba(113,112,255,0.06)',
+                }}
+              >
+                <span style={{ fontSize: '12px', fontWeight: 500, color: '#7170ff' }}>
+                  {tag.replace(/_/g, ' ')}
+                </span>
+                <span style={{ fontSize: '12px', color: '#62666d' }}>{count}</span>
               </div>
             ))}
           </div>
