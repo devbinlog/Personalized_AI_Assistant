@@ -1,0 +1,203 @@
+// Adaptive AI Assistant — Database Schema
+// SQLite for local dev — all JSON stored as serialized String
+// Switch provider="postgresql" for production
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversations         Conversation[]
+  preferenceMemory      PreferenceMemory?
+  preferenceLogs        PreferenceLog[]
+  promptVersions        PromptVersion[]
+  preferenceSuggestions PreferenceSuggestion[]
+
+  @@index([sessionId])
+  @@map("users")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?
+  mode      String   @default("NORMAL")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId, createdAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  taskAnalysis   String?  // JSON string
+  searchUsed     Boolean  @default(false)
+  searchQuery    String?
+  createdAt      DateTime @default(now())
+
+  conversation       Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  responseCandidates ResponseCandidate[]
+  preferenceLog      PreferenceLog?
+  explanation        ResponseExplanation?
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model ResponseCandidate {
+  id         String   @id @default(cuid())
+  messageId  String
+  strategy   String
+  content    String
+  index      Int
+  isSelected Boolean  @default(false)
+  score      Float?
+  createdAt  DateTime @default(now())
+
+  message       Message        @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  preferenceLog PreferenceLog?
+
+  @@index([messageId])
+  @@map("response_candidates")
+}
+
+model PreferenceLog {
+  id               String   @id @default(cuid())
+  userId           String
+  messageId        String   @unique
+  candidateId      String   @unique
+  selectedStrategy String
+  selectedTags     String   @default("[]") // JSON string[]
+  taskType         String
+  domain           String?
+  complexity       String?
+  userQuery        String
+  createdAt        DateTime @default(now())
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   Message           @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  candidate ResponseCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([selectedStrategy])
+  @@map("preference_logs")
+}
+
+model PreferenceMemory {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  version             Int      @default(1)
+  preferredTone       String?
+  preferredLength     String?
+  preferredStructure  String?
+  preferredStrategies String   @default("[]") // JSON string[]
+  avoidedPatterns     String   @default("[]") // JSON string[]
+  domainPreferences   String?  // JSON object
+  strategyWeights     String?  // JSON object
+  rawSummary          String?
+  logCount            Int      @default(0)
+  lastUpdatedAt       DateTime @default(now())
+  createdAt           DateTime @default(now())
+
+  user     User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions PreferenceMemoryVersion[]
+
+  @@map("preference_memories")
+}
+
+model PreferenceMemoryVersion {
+  id              String   @id @default(cuid())
+  memoryId        String
+  version         Int
+  snapshot        String   // JSON
+  diff            String?  // JSON
+  triggerLogCount Int
+  createdAt       DateTime @default(now())
+
+  memory PreferenceMemory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+
+  @@index([memoryId, version])
+  @@map("preference_memory_versions")
+}
+
+model PromptVersion {
+  id           String   @id @default(cuid())
+  userId       String
+  version      Int
+  systemPrompt String
+  components   String   // JSON
+  memoryHash   String?
+  tokenCount   Int?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, version])
+  @@map("prompt_versions")
+}
+
+model ResponseExplanation {
+  id               String   @id @default(cuid())
+  messageId        String   @unique
+  selectedStrategy String
+  confidence       Float
+  memoryInfluence  String   @default("[]") // JSON string[]
+  reasoningFactors String   @default("[]") // JSON string[]
+  memorySnapshot   String?  // JSON
+  rankingDetails   String?  // JSON
+  promptVersion    Int?
+  createdAt        DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("response_explanations")
+}
+
+model PreferenceSuggestion {
+  id             String    @id @default(cuid())
+  userId         String
+  type           String
+  currentValue   String?
+  suggestedValue String
+  rationale      String
+  evidenceCount  Int       @default(0)
+  triggerLogIds  String    @default("[]") // JSON string[]
+  status         String    @default("PENDING")
+  respondedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@map("preference_suggestions")
+}
+
+model SearchCache {
+  id        String   @id @default(cuid())
+  query     String   @unique
+  results   String   // JSON
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([query])
+  @@index([expiresAt])
+  @@map("search_cache")
+}
