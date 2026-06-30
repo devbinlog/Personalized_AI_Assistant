@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getOrCreateSession } from '@/lib/session'
+import { resolveUserId } from '@/lib/resolve-user'
 import { generateMemory, shouldUpdateMemory } from '@/services/ai/memory-generator'
 import { detectSuggestions, getPendingSuggestions } from '@/services/ai/preference-suggester'
 
 export async function POST(req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
   const body = await req.json()
   const { messageId, candidateId, selectedStrategy, selectedTags, taskType, domain, complexity, userQuery } = body
 
   try {
-    const user = await prisma.user.upsert({
-      where: { sessionId },
-      create: { sessionId },
-      update: {},
-    })
+    if (userId === 'anonymous') {
+      return NextResponse.json({ success: false, error: 'Session not found' }, { status: 401 })
+    }
 
     // Mark candidate as selected
     await prisma.responseCandidate.update({
@@ -25,7 +23,7 @@ export async function POST(req: NextRequest) {
     // Save preference log
     const log = await prisma.preferenceLog.create({
       data: {
-        userId: user.id,
+        userId,
         messageId,
         candidateId,
         selectedStrategy,
@@ -39,28 +37,28 @@ export async function POST(req: NextRequest) {
 
     // Trigger memory update if threshold reached
     let memoryUpdated = false
-    if (await shouldUpdateMemory(user.id)) {
+    if (await shouldUpdateMemory(userId)) {
       const logs = await prisma.preferenceLog.findMany({
-        where: { userId: user.id },
+        where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 50,
       })
-      await generateMemory(user.id, logs)
+      await generateMemory(userId, logs)
       memoryUpdated = true
     }
 
     // Detect preference suggestions (Phase 14)
     const recentLogs = await prisma.preferenceLog.findMany({
-      where: { userId: user.id },
+      where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 20,
     })
     const memory = await prisma.preferenceMemory
-      .findUnique({ where: { userId: user.id } })
+      .findUnique({ where: { userId } })
       .catch(() => null)
 
-    const suggestions = await detectSuggestions(user.id, recentLogs, memory as Record<string, unknown> | null)
-    const pendingSuggestions = await getPendingSuggestions(user.id)
+    const suggestions = await detectSuggestions(userId, recentLogs, memory as Record<string, unknown> | null)
+    const pendingSuggestions = await getPendingSuggestions(userId)
 
     return NextResponse.json({
       success: true,
@@ -75,16 +73,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
   const { searchParams } = new URL(req.url)
   const limit = parseInt(searchParams.get('limit') ?? '20')
 
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json({ logs: [] })
+    if (userId === 'anonymous') return NextResponse.json({ logs: [] })
 
     const logs = await prisma.preferenceLog.findMany({
-      where: { userId: user.id },
+      where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
     })

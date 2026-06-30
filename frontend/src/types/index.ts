@@ -161,6 +161,8 @@ export interface PromptComponents {
   examplesContext: string
   persona: string
   userRequest: string
+  flowContext: string
+  globalMemoryContext: string
 }
 
 export interface PromptVersion {
@@ -282,4 +284,183 @@ export interface AppSettings {
   autoSearch: boolean
   showExplanations: boolean
   showConfidence: boolean
+}
+
+// ── User Profile (장기 기억) ────────────────────
+
+export interface UserProfile {
+  id: string
+  userId: string
+  displayName: string | null
+  occupation: string | null
+  interests: string[]
+  goals: string[]
+  background: string | null
+  language: string
+  autoExtract: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ── Persona Studio ─────────────────────────────
+
+export interface Persona {
+  id: string
+  name: string
+  description: string
+  speakingStyle: string
+  tone: string
+  formalityLevel: number
+  humorLevel: number
+  empathyLevel: number
+  responseLength: string
+  pronounPolicy: string
+  allowedBehaviors: string[]
+  forbiddenBehaviors: string[]
+  fallbackBehavior: string
+  refusalBehavior: string
+  clarificationBehavior: string
+  exampleResponses: string[]
+  promptFragment: string
+  isActive: boolean
+  isDefault: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ── Conversation Flow Designer ─────────────────
+
+export interface ConversationFlowStep {
+  id: string
+  name: string
+  triggerKeywords: string[]
+  instruction: string
+  searchPolicy: 'auto' | 'always' | 'never'
+  nextStepId?: string
+}
+
+export interface ConversationFlow {
+  id: string
+  name: string
+  description: string
+  domain: string
+  triggerCondition: string
+  steps: ConversationFlowStep[]
+  fallbackPolicy: string
+  clarificationPolicy: string
+  errorRecoveryPolicy: string
+  searchPolicy: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ── Expanded Evaluation Rubric (18-dimension) ──
+
+export interface ResponseEvaluation {
+  id: string
+  messageId: string
+  candidateId: string
+  naturalness: number
+  grammar: number
+  toneConsistency: number
+  personaConsistency: number
+  instructionFollowing: number
+  factualAccuracy: number
+  hallucinationRisk: number
+  clarity: number
+  structure: number
+  completeness: number
+  specificity: number
+  actionability: number
+  readability: number
+  formatting: number
+  safety: number
+  preferenceMatch: number
+  searchGrounding: number
+  overallScore: number
+  strengths: string[]
+  weaknesses: string[]
+  improvementSuggestions: string[]
+  activePersonaId: string | null
+  activeFlowId: string | null
+  createdAt: Date
+}
+
+// ── Prompt A/B Experiments ─────────────────────
+
+export type ExperimentStatus = 'DRAFT' | 'RUNNING' | 'COMPLETED'
+
+export interface PromptExperiment {
+  id: string
+  name: string
+  description: string
+  promptA: string
+  promptB: string
+  testInputs: string[]
+  activePersonaId: string | null
+  activeFlowId: string | null
+  winner: string | null
+  status: ExperimentStatus
+  createdAt: Date
+  updatedAt: Date
+  results?: PromptExperimentResult[]
+}
+
+export interface PromptExperimentResult {
+  id: string
+  experimentId: string
+  input: string
+  outputA: string
+  outputB: string
+  evaluationA: Partial<ResponseEvaluation>
+  evaluationB: Partial<ResponseEvaluation>
+  preferredByEvaluator: 'A' | 'B' | 'tie'
+  scoreA: number
+  scoreB: number
+  notes: string
+  createdAt: Date
+}
+
+// ── Global Learning Pipeline ───────────────────
+
+export interface GlobalPreferenceMemory {
+  id: string
+  mostSelectedStrategies: Array<{ strategy: ResponseStrategy; count: number }>
+  commonReasonTags: Array<{ tag: string; count: number }>
+  domainPreferences: Array<{ domain: string; strategy: ResponseStrategy; avgScore: number }>
+  globallyAvoidedPatterns: string[]
+  highPerformingPatterns: string[]
+  lowPerformingPatterns: string[]
+  personaPerformance: Array<{ personaId: string; personaName: string; avgScore: number; useCount: number }>
+  flowPerformance: Array<{ flowId: string; flowName: string; avgScore: number; useCount: number }>
+  summary: string
+  totalLogsAnalyzed: number
+  updatedAt: Date
+}
+
+// ── Dataset Pipeline ───────────────────────────
+
+export type ExportType = 'preference' | 'evaluation' | 'experiment' | 'conversation'
+export type ExportFormat = 'json' | 'jsonl' | 'csv'
+
+export interface DatasetExport {
+  id: string
+  exportType: ExportType
+  format: ExportFormat
+  filters: Record<string, unknown>
+  recordCount: number
+  filePath: string | null
+  createdAt: Date
+}
+
+export interface DPORecord {
+  prompt: string
+  chosen: string
+  rejected: string
+  chosen_strategy: string
+  rejected_strategy: string
+  reason_tags: string[]
+  task_type: string
+  domain: string
 }

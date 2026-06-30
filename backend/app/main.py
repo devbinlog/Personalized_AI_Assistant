@@ -3,6 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import get_settings
 from app.features.assistant.router import router as assistant_router
+from app.features.persona.router import router as persona_router
+from app.features.flow.router import router as flow_router
+from app.features.evaluation.router import router as evaluation_router
+from app.features.global_memory.router import router as global_memory_router
+from app.features.datasets.router import router as datasets_router
+from app.features.experiments.router import router as experiments_router
 
 settings = get_settings()
 
@@ -48,10 +54,10 @@ async def health():
 # Assistant router — LangGraph rule-based pipeline
 app.include_router(assistant_router, prefix="/api/v1")
 
-# Phase 4: Preference engine router
-# from app.api.v1.preferences import router as pref_router
-# app.include_router(pref_router, prefix="/api/v1")
-
-# Phase 5: Memory engine router
-# from app.api.v1.memory import router as memory_router
-# app.include_router(memory_router, prefix="/api/v1")
+# Design Studio feature routers
+app.include_router(persona_router)
+app.include_router(flow_router)
+app.include_router(evaluation_router)
+app.include_router(global_memory_router)
+app.include_router(datasets_router)
+app.include_router(experiments_router)

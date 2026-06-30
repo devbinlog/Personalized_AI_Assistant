@@ -1,4 +1,4 @@
-import { Sidebar } from './sidebar'
+import { Navbar } from './navbar'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -6,9 +6,9 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-[#08090a]">
-      <Sidebar />
-      <main className="flex flex-1 flex-col overflow-hidden">{children}</main>
+    <div className="min-h-screen bg-slate-50">
+      <Navbar />
+      <main className="pt-14">{children}</main>
     </div>
   )
 }

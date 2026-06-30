@@ -9,10 +9,10 @@ import { CandidateCards } from '@/features/learning/components/candidate-cards'
 import { TagSelector } from '@/features/learning/components/tag-selector'
 import { SuggestionBanner } from '@/features/preference-manager/components/suggestion-banner'
 import { useAppStore } from '@/stores/app-store'
-import { cn } from '@/lib/utils'
 import { Brain, Sparkles } from 'lucide-react'
 import type { ConversationMode, PreferenceTag, ResponseStrategy } from '@/types'
 import type { Message } from 'ai'
+import type { AttachedFile } from './chat-input'
 
 interface ChatInterfaceProps {
   conversationId?: string
@@ -43,7 +43,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     messages,
     input,
     handleInputChange,
-    handleSubmit,
     isLoading,
     stop,
     meta,
@@ -51,25 +50,23 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     learningCandidates,
     isLearningLoading,
     sendLearningMessage,
+    submitNormal,
     clearLearningCandidates,
     setMessages,
   } = useChatStream(mode, conversationId, (newId) => {
     if (!conversationId) router.replace(`/chat/${newId}`)
   })
 
-  // Initialize with existing messages
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
       setMessages(initialMessages)
     }
   }, [])
 
-  // Auto-scroll on new content
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, learningCandidates, learningState.step])
 
-  // When candidates arrive, show them
   useEffect(() => {
     if (learningCandidates) {
       setLearningState({
@@ -81,38 +78,30 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     }
   }, [learningCandidates])
 
-  const onSend = useCallback(() => {
-    if (!input.trim()) return
+  const onSend = useCallback((files?: AttachedFile[]) => {
+    if (!input.trim() && (!files || files.length === 0)) return
     setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
     clearLearningCandidates()
-
     if (mode === 'LEARNING') {
-      sendLearningMessage(input)
+      sendLearningMessage(input, files)
       handleInputChange({ target: { value: '' } } as never)
     } else {
-      handleSubmit()
+      submitNormal(files)
     }
-  }, [input, mode, sendLearningMessage, handleSubmit, clearLearningCandidates, handleInputChange])
+  }, [input, mode, sendLearningMessage, submitNormal, clearLearningCandidates, handleInputChange])
 
   const onCandidateSelect = useCallback((candidate: { strategy: ResponseStrategy; content: string; index: number }) => {
-    setLearningState(prev => ({
-      ...prev,
-      step: 'tags',
-      selectedCandidate: candidate,
-    }))
+    setLearningState(prev => ({ ...prev, step: 'tags', selectedCandidate: candidate }))
   }, [])
 
   const onTagsSubmit = useCallback(async (tags: PreferenceTag[]) => {
     if (!learningState.selectedCandidate || !learningState.messageId) return
-
-    // Find the candidate ID from the candidates list
     const candidateRes = await fetch(`/api/conversations/${meta.conversationId ?? ''}`)
     const convData = await candidateRes.json().catch(() => ({}))
     const lastMsg = convData?.conversation?.messages?.slice(-1)[0]
     const matchingCandidate = lastMsg?.responseCandidates?.find(
       (c: { index: number }) => c.index === learningState.selectedCandidate?.index,
     )
-
     await fetch('/api/preferences', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -127,13 +116,10 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         userQuery: messages[messages.length - 1]?.content ?? '',
       }),
     }).catch(() => {})
-
-    // Add the selected response as an assistant message
     setMessages(prev => [
       ...prev,
       { id: Date.now().toString(), role: 'assistant', content: learningState.selectedCandidate!.content },
     ])
-
     setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
     clearLearningCandidates()
   }, [learningState, learningCandidates, messages, meta.conversationId, setMessages, clearLearningCandidates])
@@ -141,11 +127,9 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const showWelcome = messages.length === 0 && !isLearningLoading && !learningCandidates
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      {/* Suggestion banner (Phase 14) */}
+    <div className="flex flex-1 flex-col overflow-hidden bg-white">
       <SuggestionBanner />
 
-      {/* Message area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-none">
         {showWelcome ? (
           <WelcomeScreen mode={mode} />
@@ -168,34 +152,28 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
               )
             })}
 
-            {/* Learning mode: loading */}
             {isLearningLoading && (
               <div className="flex gap-3 px-4 py-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Brain className="h-4 w-4 text-primary animate-pulse-slow" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50">
+                  <Brain className="h-4 w-4 text-indigo-600 animate-pulse" />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3">
+                <div className="flex items-center gap-2 border border-slate-200 bg-slate-50 px-4 py-3 rounded">
                   <div className="flex gap-1">
                     {[0, 1, 2].map(i => (
-                      <span key={i} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
+                      <span key={i} className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground">Generating 3 response styles…</span>
+                  <span className="text-xs text-slate-500">응답 스타일 3가지 생성 중…</span>
                 </div>
               </div>
             )}
 
-            {/* Candidate cards */}
             {learningCandidates && learningState.step === 'candidates' && (
               <div className="py-2">
-                <CandidateCards
-                  candidates={learningCandidates.candidates as never}
-                  onSelect={onCandidateSelect}
-                />
+                <CandidateCards candidates={learningCandidates.candidates as never} onSelect={onCandidateSelect} />
               </div>
             )}
 
-            {/* Tag selector */}
             {learningState.step === 'tags' && (
               <div className="py-2">
                 <TagSelector onSubmit={onTagsSubmit} />
@@ -205,7 +183,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         )}
       </div>
 
-      {/* Input */}
       <ChatInput
         value={input}
         onChange={v => handleInputChange({ target: { value: v } } as never)}
@@ -215,8 +192,8 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         isLoading={isLearningLoading}
         placeholder={
           mode === 'LEARNING'
-            ? 'Ask anything — you\'ll choose from 3 response styles…'
-            : 'Ask me anything…'
+            ? '무엇이든 물어보세요 — 3가지 스타일 중 선택하게 됩니다…'
+            : '무엇이든 물어보세요…'
         }
       />
     </div>
@@ -225,46 +202,22 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
 
 function WelcomeScreen({ mode }: { mode: ConversationMode }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: '#08090a' }}>
-      <div
-        className="mb-4 flex items-center justify-center"
-        style={{
-          height: '40px',
-          width: '40px',
-          backgroundColor: 'rgba(113,112,255,0.1)',
-          borderRadius: '10px',
-        }}
-      >
-        <Brain className="h-5 w-5" style={{ color: '#7170ff' }} />
+    <div className="flex h-full flex-col items-center justify-center p-8 text-center bg-white">
+      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-200">
+        <Brain className="h-6 w-6 text-white" />
       </div>
-      <h2
-        className="mb-2"
-        style={{ color: '#f7f8f8', fontSize: '20px', fontWeight: 600, letterSpacing: '-0.5px' }}
-      >
-        {mode === 'LEARNING' ? 'Learning Mode Active' : 'What can I help you with?'}
+      <h2 className="mb-2 text-xl font-semibold text-slate-900 tracking-tight">
+        {mode === 'LEARNING' ? '학습 모드가 활성화됐습니다' : '무엇을 도와드릴까요?'}
       </h2>
-      <p
-        className="max-w-xs text-center"
-        style={{ color: '#8a8f98', fontSize: '13px' }}
-      >
+      <p className="max-w-sm text-sm text-slate-500 leading-relaxed">
         {mode === 'LEARNING'
-          ? "Ask anything — I'll generate 3 different response styles for you to choose from. Your choices train me to respond better."
-          : 'Your adaptive AI assistant. The more you use it, the more personalized responses become.'}
+          ? '무엇이든 물어보세요 — 3가지 다른 응답 스타일을 생성합니다. 선택할수록 AI가 당신을 더 잘 이해합니다.'
+          : '대화할수록 나를 닮아가는 AI. 응답 스타일을 학습하고 기억합니다.'}
       </p>
       {mode === 'LEARNING' && (
-        <div
-          className="mt-4 flex items-center gap-2"
-          style={{
-            backgroundColor: 'rgba(94,106,210,0.1)',
-            color: '#7170ff',
-            borderRadius: '999px',
-            padding: '4px 12px',
-            fontSize: '11px',
-            fontWeight: 500,
-          }}
-        >
+        <div className="mt-4 flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700">
           <Sparkles className="h-3 w-3" />
-          Preference Learning Active
+          선호도 학습 활성화됨
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-# Adaptive AI Assistant — Claude Code Project Guide
+# Personalized AI Assistant — Claude Code Project Guide
 
 This file gives Claude Code full context when resuming this project in a new session.
 

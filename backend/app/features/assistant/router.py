@@ -35,6 +35,9 @@ class ChatRequest(BaseModel):
     session_id: str = "default"
     conversation_history: list = []
     memory: dict = {}
+    active_persona: dict = {}
+    active_flow: dict = {}
+    global_memory: dict = {}
 
 
 class ChatResponse(BaseModel):
@@ -44,6 +47,7 @@ class ChatResponse(BaseModel):
     explanation: Optional[dict] = None
     task_analysis: dict
     system_prompt: str
+    evaluation_rubric: list = []
 
 
 # ── Endpoints ─────────────────────────────────────────────────
@@ -77,17 +81,25 @@ async def chat(req: ChatRequest):
         "explanation": {},
         "memory": req.memory,
         "prompt_version": 0,
+        "active_persona": req.active_persona,
+        "active_flow": req.active_flow,
+        "global_memory": req.global_memory,
+        "evaluation_rubric": [],
     }
 
     result = graph.invoke(initial_state)
 
+    # Return ranked_candidates (include scores) — fall back to unscored candidates
+    candidates = result.get("ranked_candidates") or result.get("candidates", [])
+
     return ChatResponse(
         mode=req.mode,
-        candidates=result.get("candidates", []),
+        candidates=candidates,
         best_candidate=result.get("best_candidate"),
         explanation=result.get("explanation"),
         task_analysis=result.get("task_analysis", {}),
         system_prompt=result.get("system_prompt", ""),
+        evaluation_rubric=result.get("evaluation_rubric", []),
     )
 
 

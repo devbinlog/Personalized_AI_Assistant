@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getOrCreateSession } from '@/lib/session'
+import { resolveUserId } from '@/lib/resolve-user'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(_req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
 
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json({ conversations: [] })
+    if (userId === 'anonymous') return NextResponse.json({ conversations: [] })
 
     const conversations = await prisma.conversation.findMany({
-      where: { userId: user.id },
+      where: { userId },
       orderBy: { updatedAt: 'desc' },
       take: 50,
       include: {
@@ -25,17 +26,15 @@ export async function GET(_req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
 
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
+  if (userId === 'anonymous') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    await prisma.conversation.deleteMany({ where: { id, userId: user.id } })
+    await prisma.conversation.deleteMany({ where: { id, userId } })
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Delete failed' }, { status: 500 })

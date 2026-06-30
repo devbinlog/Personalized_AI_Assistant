@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # Feature flags
     enable_web_search: bool = True
     enable_learning_mode: bool = True
-    enable_mcp: bool = False  # Enable in Phase 7
+    enable_mcp: bool = True
     learning_candidates_count: int = 3
     memory_update_threshold: int = 5
 

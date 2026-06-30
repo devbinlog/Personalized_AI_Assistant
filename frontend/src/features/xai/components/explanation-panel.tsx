@@ -38,10 +38,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
       <button
         onClick={loadExplanation}
         disabled={isLoading}
-        className="flex items-center gap-1.5 transition-colors"
-        style={{ fontSize: '11px', color: '#62666d' }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#7170ff')}
-        onMouseLeave={e => (e.currentTarget.style.color = '#62666d')}
+        className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-600 transition-colors"
       >
         <Lightbulb className="h-3 w-3" />
         {isLoading ? 'Loading explanation…' : 'Why this answer?'}
@@ -49,15 +46,13 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
       </button>
 
       {isOpen && explanation && (
-        <div
-          className="mt-2 rounded-xl p-4 space-y-4 animate-fade-in"
-          style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
-        >
+        <div className="mt-2 rounded-xl border border-slate-200 bg-white overflow-hidden animate-fade-in">
+          <div className="px-4 py-3 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4" style={{ color: '#7170ff' }} />
-              <span className="text-sm font-medium" style={{ color: '#f7f8f8' }}>Response Explanation</span>
+              <Brain className="h-4 w-4 text-indigo-500" />
+              <span className="text-sm font-semibold text-slate-900">Response Explanation</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline">
@@ -72,24 +67,12 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {/* Memory influence */}
           {explanation.memoryInfluence.length > 0 && (
             <div className="space-y-2">
-              <p
-                style={{
-                  fontSize: '10px',
-                  color: '#62666d',
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                 How your preferences shaped this
               </p>
               <ul className="space-y-1">
                 {explanation.memoryInfluence.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2" style={{ fontSize: '12px', color: '#d0d6e0' }}>
-                    <span
-                      className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: '#7170ff' }}
-                    />
+                  <li key={i} className="pl-3 border-l-2 border-indigo-200 text-xs text-slate-600">
                     {item}
                   </li>
                 ))}
@@ -100,24 +83,13 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {/* Reasoning factors */}
           {explanation.reasoningFactors.length > 0 && (
             <div className="space-y-2">
-              <p
-                style={{
-                  fontSize: '10px',
-                  color: '#62666d',
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                 Why this response was best
               </p>
               <ul className="space-y-1">
                 {explanation.reasoningFactors.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2" style={{ fontSize: '12px', color: '#d0d6e0' }}>
-                    <span
-                      className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: '#7170ff' }}
-                    />
+                  <li key={i} className="text-xs text-slate-600 flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400" />
                     {item}
                   </li>
                 ))}
@@ -128,41 +100,27 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {/* Ranking details */}
           {explanation.rankingDetails && explanation.rankingDetails.length > 1 && (
             <div className="space-y-2">
-              <p
-                style={{
-                  fontSize: '10px',
-                  color: '#62666d',
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                 All candidates scored
               </p>
               <div className="space-y-1">
                 {explanation.rankingDetails
                   .sort((a, b) => b.score - a.score)
                   .map((detail, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <span className="w-24" style={{ fontSize: '12px', color: '#8a8f98' }}>
+                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                      <span className="text-xs text-slate-600">
                         {strategyLabel(detail.strategy)}
                       </span>
-                      <div
-                        className="flex-1 h-1.5 rounded-full overflow-hidden"
-                        style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
-                      >
+                      <div className="mx-3 flex-1 h-1.5 rounded-full overflow-hidden bg-slate-100">
                         <div
-                          className="h-full rounded-full transition-all"
+                          className="h-full rounded-full transition-all bg-indigo-500"
                           style={{
                             width: `${detail.score * 100}%`,
-                            backgroundColor: i === 0 ? '#7170ff' : 'rgba(255,255,255,0.1)',
+                            opacity: i === 0 ? 1 : 0.35,
                           }}
                         />
                       </div>
-                      <span
-                        className="w-8 text-right"
-                        style={{ fontSize: '10px', color: '#8a8f98' }}
-                      >
+                      <span className="text-xs font-medium text-slate-900">
                         {Math.round(detail.score * 100)}
                       </span>
                     </div>
@@ -171,9 +129,10 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
             </div>
           )}
 
-          <div className="flex items-center gap-1.5" style={{ fontSize: '10px', color: 'rgba(98,102,109,0.7)' }}>
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
             <Info className="h-3 w-3" />
             Product-level reasoning only · No internal LLM chain-of-thought exposed
+          </div>
           </div>
         </div>
       )}

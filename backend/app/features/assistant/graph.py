@@ -65,6 +65,12 @@ class AssistantState(TypedDict):
     # Memory
     memory: dict
 
+    # Design Studio fields
+    active_persona: dict       # loaded persona from personas table (or empty dict)
+    active_flow: dict          # loaded conversation flow (or empty dict)
+    global_memory: dict        # aggregated global preference patterns (or empty dict)
+    evaluation_rubric: list    # 18-dimension evaluations per candidate
+
 
 # ── Helper functions ─────────────────────────────────────────
 
@@ -237,22 +243,30 @@ def search_node(state: AssistantState) -> dict:
 
 
 def mcp_router_node(state: AssistantState) -> dict:
-    """Determine which MCP tool servers are needed based on message keywords."""
+    """Determine which MCP tool servers are needed, filtered by enabled settings."""
+    from app.core.config import get_settings
+    settings = get_settings()
+
+    if not settings.enable_mcp:
+        return {"mcp_tools_needed": []}
+
     msg = state["user_message"].lower()
     tools = []
-    if any(w in msg for w in ["calendar", "schedule", "meeting", "event"]):
+    if settings.mcp_google_calendar_enabled and any(w in msg for w in ["calendar", "schedule", "meeting", "event"]):
         tools.append("google-calendar")
-    if any(w in msg for w in ["github", "repository", "commit", "pull request", "pr"]):
+    if settings.mcp_github_enabled and any(w in msg for w in ["github", "repository", "commit", "pull request", "pr"]):
         tools.append("github")
-    if any(w in msg for w in ["notion", "page", "database"]):
+    if settings.mcp_notion_enabled and any(w in msg for w in ["notion", "page", "database"]):
         tools.append("notion")
-    if any(w in msg for w in ["email", "gmail", "send", "inbox"]):
+    if settings.mcp_gmail_enabled and any(w in msg for w in ["email", "gmail", "send", "inbox"]):
         tools.append("gmail")
+    if settings.mcp_web_search_enabled and any(w in msg for w in ["search", "latest", "recent", "news", "current"]):
+        tools.append("web-search")
     return {"mcp_tools_needed": tools}
 
 
 def context_builder_node(state: AssistantState) -> dict:
-    """Merge task analysis, search results, and memory into a context string."""
+    """Merge task analysis, search results, memory, persona, and flow into a context string."""
     context_parts = []
 
     ta = state["task_analysis"]
@@ -271,21 +285,50 @@ def context_builder_node(state: AssistantState) -> dict:
         if memory.get("preferredLength"):
             context_parts.append(f"User prefers {memory['preferredLength']} responses")
 
+    # Persona context
+    active_persona = state.get("active_persona", {})
+    if active_persona.get("name"):
+        context_parts.append(
+            f"Active persona: {active_persona['name']} | tone={active_persona.get('tone', 'helpful')} | style={active_persona.get('speakingStyle', 'professional')}"
+        )
+
+    # Flow context
+    active_flow = state.get("active_flow", {})
+    if active_flow.get("name"):
+        context_parts.append(f"Active conversation flow: {active_flow['name']}")
+
     return {"context": "\n".join(context_parts)}
 
 
 def prompt_builder_node(state: AssistantState) -> dict:
-    """Dynamically assemble the system prompt from context and memory."""
+    """Dynamically assemble the system prompt from context, memory, persona, and global memory."""
     base = "You are an Adaptive AI Personal Assistant. Be direct, accurate, and genuinely helpful."
+
+    # Use active persona's prompt fragment if available
+    active_persona = state.get("active_persona", {})
+    if active_persona.get("promptFragment"):
+        base = active_persona["promptFragment"]
+    elif active_persona.get("tone"):
+        base += f" Respond in a {active_persona['tone']} tone with {active_persona.get('speakingStyle', 'professional')} style."
 
     context = state.get("context", "")
     memory = state.get("memory", {})
+    global_memory = state.get("global_memory", {})
 
     prompt_parts = [base]
     if context:
         prompt_parts.append(f"\nContext:\n{context}")
     if memory.get("rawSummary"):
         prompt_parts.append(f"\nUser preferences:\n{memory['rawSummary']}")
+
+    # Global memory summary
+    if global_memory.get("summary"):
+        prompt_parts.append(f"\nGlobal learning insights:\n{global_memory['summary']}")
+
+    # Active flow instruction
+    active_flow = state.get("active_flow", {})
+    if active_flow.get("fallbackPolicy"):
+        prompt_parts.append(f"\nConversation flow instruction:\n{active_flow['fallbackPolicy']}")
 
     return {
         "system_prompt": "\n".join(prompt_parts),
@@ -310,8 +353,13 @@ def candidate_generator_node(state: AssistantState) -> dict:
 
 
 def evaluation_node(state: AssistantState) -> dict:
-    """Score each candidate on multiple quality dimensions using rule-based heuristics."""
+    """Score each candidate on 8 quality dimensions plus 18-dimension rubric."""
     evaluations = []
+    rubric = []
+
+    active_persona = state.get("active_persona", {})
+    active_flow = state.get("active_flow", {})
+
     for c in state.get("candidates", []):
         content = c["content"]
         strategy = c["strategy"]
@@ -320,6 +368,7 @@ def evaluation_node(state: AssistantState) -> dict:
         has_structure = "##" in content or "1." in content or "→" in content
         has_table = "|" in content and "---" in content
 
+        # 8 original dimensions
         scores = {
             "structure": 0.9 if has_structure else 0.5,
             "readability": min(1.0, 0.6 + (word_count / 300) * 0.3),
@@ -331,7 +380,6 @@ def evaluation_node(state: AssistantState) -> dict:
             "taskMatch": 0.8,
         }
         avg = sum(scores.values()) / len(scores)
-
         evaluations.append({
             "index": c["index"],
             "strategy": strategy,
@@ -339,16 +387,44 @@ def evaluation_node(state: AssistantState) -> dict:
             "overall": round(avg, 3),
         })
 
-    return {"evaluations": evaluations}
+        # 18-dimension rubric
+        persona_bonus = 0.05 if active_persona.get("name") else 0
+        flow_bonus = 0.05 if active_flow.get("name") else 0
+        rubric.append({
+            "index": c["index"],
+            "strategy": strategy,
+            "naturalness": min(1.0, 0.7 + (word_count / 500) * 0.2),
+            "grammar": 0.85,
+            "toneConsistency": min(1.0, 0.75 + persona_bonus),
+            "personaConsistency": min(1.0, 0.7 + persona_bonus),
+            "instructionFollowing": min(1.0, 0.8 + flow_bonus),
+            "factualAccuracy": 0.8,
+            "hallucinationRisk": 0.15,
+            "clarity": min(1.0, 0.75 + (word_count / 400) * 0.1),
+            "structure": scores["structure"],
+            "completeness": scores["completeness"],
+            "specificity": scores["specificity"],
+            "actionability": 0.8 if "→" in content or "step" in content.lower() else 0.65,
+            "readability": scores["readability"],
+            "formatting": scores["formatting"],
+            "safety": 0.95,
+            "preferenceMatch": scores["preferenceMatch"],
+            "searchGrounding": 0.6 if state.get("search_results") else 0.4,
+            "overallScore": round(avg + persona_bonus * 0.5, 3),
+        })
+
+    return {"evaluations": evaluations, "evaluation_rubric": rubric}
 
 
 def ranking_node(state: AssistantState) -> dict:
-    """Rank candidates using evaluation scores and apply memory preference boost."""
+    """Rank candidates using evaluation scores and 18-dim rubric when available."""
     candidates = state.get("candidates", [])
     evaluations = state.get("evaluations", [])
+    rubric = state.get("evaluation_rubric", [])
     memory = state.get("memory", {})
 
     eval_map = {e["index"]: e for e in evaluations}
+    rubric_map = {r["index"]: r for r in rubric}
 
     preferred = []
     try:
@@ -360,16 +436,28 @@ def ranking_node(state: AssistantState) -> dict:
     ranked = []
     for c in candidates:
         ev = eval_map.get(c["index"], {})
-        base_score = ev.get("overall", 0.7)
-        memory_bonus = 0.1 if c["strategy"] in preferred else 0.0
-        final_score = min(1.0, base_score + memory_bonus)
+        rb = rubric_map.get(c["index"], {})
+
+        if rb:
+            # New 18-dim formula
+            final_score = (
+                rb.get("overallScore", 0.7) * 0.40 +
+                rb.get("preferenceMatch", 0.5) * 0.25 +
+                rb.get("personaConsistency", 0.7) * 0.15 +
+                rb.get("instructionFollowing", 0.8) * 0.10 +
+                rb.get("searchGrounding", 0.5) * 0.10
+            )
+        else:
+            base_score = ev.get("overall", 0.7)
+            memory_bonus = 0.1 if c["strategy"] in preferred else 0.0
+            final_score = min(1.0, base_score + memory_bonus)
 
         ranked.append({
             **c,
-            "score": final_score,
+            "score": round(min(1.0, final_score), 3),
             "reasons": [
-                f"Strategy '{c['strategy']}' scores {base_score:.2f}",
-                "Memory preference bonus applied" if memory_bonus > 0 else "No memory preference match",
+                f"Strategy '{c['strategy']}' scored {final_score:.2f}",
+                "Memory preference boost applied" if c["strategy"] in preferred else "No memory preference match",
             ],
         })
 
@@ -381,26 +469,37 @@ def ranking_node(state: AssistantState) -> dict:
 
 
 def explainability_node(state: AssistantState) -> dict:
-    """Generate a human-readable explanation for why the best response was selected."""
+    """Generate a human-readable explanation including persona and flow influence."""
     best = state.get("best_candidate", {})
     memory = state.get("memory", {})
     ranked = state.get("ranked_candidates", [])
+    active_persona = state.get("active_persona", {})
+    active_flow = state.get("active_flow", {})
+    global_memory = state.get("global_memory", {})
 
     memory_influence = []
+    if active_persona.get("name"):
+        memory_influence.append(
+            f"'{active_persona['name']}' persona guided the {active_persona.get('tone', 'helpful')} tone and {active_persona.get('speakingStyle', 'professional')} style"
+        )
     if memory.get("preferredTone"):
-        memory_influence.append(f"Tone preference '{memory['preferredTone']}' guided the writing style")
+        memory_influence.append(f"Tone preference '{memory['preferredTone']}' shaped the writing style")
     if memory.get("preferredLength"):
-        memory_influence.append(f"Length preference '{memory['preferredLength']}' shaped response depth")
+        memory_influence.append(f"Length preference '{memory['preferredLength']}' determined response depth")
     if memory.get("preferredStrategies"):
-        memory_influence.append("Past selections influenced strategy ranking")
+        memory_influence.append("Past strategy selections influenced candidate ranking")
     if not memory_influence:
         memory_influence = ["No preference memory yet — building your profile as you interact"]
 
     reasoning = [
         f"Selected '{best.get('strategy', 'default')}' strategy for this task type",
-        f"Score: {best.get('score', 0.7):.0%} preference alignment",
+        f"Score: {best.get('score', 0.7):.0%} overall quality",
         f"Evaluated {len(ranked)} candidate responses",
     ]
+    if active_flow.get("name"):
+        reasoning.append(f"'{active_flow['name']}' conversation flow shaped the response structure")
+    if global_memory.get("summary"):
+        reasoning.append(f"Global patterns: {global_memory.get('summary', '')[:80]}")
 
     return {
         "explanation": {
@@ -411,6 +510,8 @@ def explainability_node(state: AssistantState) -> dict:
             "rankingDetails": [
                 {"strategy": c["strategy"], "score": c["score"]} for c in ranked
             ],
+            "activePersona": active_persona.get("name"),
+            "activeFlow": active_flow.get("name"),
         }
     }
 

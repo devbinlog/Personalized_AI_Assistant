@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Sparkles, X, CheckCircle2, XCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import type { PreferenceSuggestion } from '@/types'
 
 export function SuggestionBanner() {
@@ -41,52 +40,37 @@ export function SuggestionBanner() {
   if (!current) return null
 
   return (
-    <div
-      className="flex items-start gap-3 animate-fade-in"
-      style={{
-        backgroundColor: 'rgba(113,112,255,0.06)',
-        borderBottom: '1px solid rgba(113,112,255,0.2)',
-        padding: '10px 16px',
-      }}
-    >
-      <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: 'rgba(113,112,255,0.1)' }}
-      >
-        <Sparkles className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
-      </div>
-      <div className="flex-1 space-y-0.5">
-        <p style={{ fontSize: '11px', fontWeight: 500, color: '#7170ff' }}>Preference suggestion</p>
-        <p style={{ fontSize: '12px', color: '#d0d6e0' }}>{current.rationale}</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => respond(false)}
-          disabled={isSubmitting}
-          className="h-6 gap-1 text-xs"
-        >
-          <XCircle className="h-3 w-3" />
-          No thanks
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => respond(true)}
-          disabled={isSubmitting}
-          className="h-6 gap-1 text-xs"
-        >
-          <CheckCircle2 className="h-3 w-3" />
-          Yes, apply
-        </Button>
-        <button
-          onClick={() => setCurrent(null)}
-          style={{ color: '#62666d' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#8a8f98')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#62666d')}
-        >
-          <X className="h-4 w-4" />
-        </button>
+    <div className="border-b border-indigo-100 bg-indigo-50 px-4 py-3 animate-fade-in">
+      <div className="mx-auto max-w-3xl flex items-start gap-3">
+        <Sparkles className="h-4 w-4 text-indigo-500 mt-0.5 shrink-0" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-indigo-900">Preference suggestion</p>
+          <p className="text-xs text-indigo-600 mt-0.5">{current.rationale}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => respond(false)}
+            disabled={isSubmitting}
+            className="flex items-center gap-1 rounded-lg border border-indigo-200 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+          >
+            <XCircle className="h-3 w-3" />
+            No thanks
+          </button>
+          <button
+            onClick={() => respond(true)}
+            disabled={isSubmitting}
+            className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          >
+            <CheckCircle2 className="h-3 w-3" />
+            Yes, apply
+          </button>
+          <button
+            onClick={() => setCurrent(null)}
+            className="text-indigo-400 hover:text-indigo-600 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   )

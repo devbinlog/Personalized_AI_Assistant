@@ -11,6 +11,9 @@ import {
   Plus,
   Brain,
   Sparkles,
+  Users2,
+  GitBranch,
+  Database,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/lib/constants'
@@ -46,6 +49,33 @@ const NAV_ITEMS = [
     href: ROUTES.SETTINGS,
     icon: Settings,
     description: 'Preferences & config',
+  },
+]
+
+const DESIGN_NAV_ITEMS = [
+  {
+    label: 'Persona Studio',
+    href: ROUTES.PERSONA_STUDIO,
+    icon: Users2,
+    description: 'Manage AI personas',
+  },
+  {
+    label: 'Flow Designer',
+    href: ROUTES.FLOW_DESIGNER,
+    icon: GitBranch,
+    description: 'Design conversation flows',
+  },
+  {
+    label: 'Experiments',
+    href: ROUTES.EXPERIMENTS,
+    icon: FlaskConical,
+    description: 'A/B test prompts',
+  },
+  {
+    label: 'Datasets',
+    href: ROUTES.DATASETS,
+    icon: Database,
+    description: 'Export training data',
   },
 ]
 
@@ -120,13 +150,57 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 px-2 py-1">
+      <nav className="space-y-0.5 px-2 py-1">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === ROUTES.CHAT
               ? pathname === ROUTES.CHAT || pathname.startsWith('/chat/')
               : pathname.startsWith(item.href)
 
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'group flex items-center gap-2.5 rounded-md transition-colors',
+              )}
+              style={{
+                paddingLeft: isActive ? '6px' : '8px',
+                paddingRight: '8px',
+                paddingTop: '6px',
+                paddingBottom: '6px',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: isActive ? '#f7f8f8' : '#8a8f98',
+                backgroundColor: isActive ? 'rgba(113,112,255,0.08)' : 'transparent',
+                borderLeft: isActive ? '2px solid #7170ff' : '2px solid transparent',
+              }}
+            >
+              <item.icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="flex-1">{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* AI Design section */}
+      <div className="px-3 pt-3 pb-1">
+        <span
+          style={{
+            display: 'block',
+            fontSize: '10px',
+            fontWeight: 500,
+            color: '#62666d',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}
+        >
+          AI Design
+        </span>
+      </div>
+      <nav className="flex-1 space-y-0.5 px-2 py-1">
+        {DESIGN_NAV_ITEMS.map((item) => {
+          const isActive = pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}

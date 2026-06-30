@@ -1,7 +1,7 @@
 import { generateObject } from 'ai'
 import { z } from 'zod'
 import { getLLMProvider } from './provider'
-import type { PreferenceMemory, ResponseStrategy, ResponseExplanation, ConfidenceBreakdown } from '@/types'
+import type { PreferenceMemory, ResponseStrategy, ResponseExplanation, ConfidenceBreakdown, Persona, ConversationFlow, GlobalPreferenceMemory } from '@/types'
 import type { RankedCandidate } from './ranker'
 import type { CandidateEvaluation } from './evaluator'
 import { prisma } from '@/lib/prisma'
@@ -21,6 +21,9 @@ export async function generateExplanation(
   evaluation: CandidateEvaluation | undefined,
   memory: PreferenceMemory | null,
   promptVersion: number,
+  activePersona?: Persona | null,
+  activeFlow?: ConversationFlow | null,
+  globalMemory?: GlobalPreferenceMemory | null,
 ): Promise<ResponseExplanation> {
   const confidence = computeConfidence(selectedCandidate, evaluation, memory)
 
@@ -59,6 +62,21 @@ Generate memoryInfluence (how memory shaped this choice) and reasoningFactors (w
       `${selectedCandidate.strategy} strategy scored highest for this query type`,
       ...selectedCandidate.rankDetails.reasons,
     ]
+  }
+
+  // Append persona/flow/global memory influence
+  if (activePersona) {
+    memoryInfluence.unshift(
+      `'${activePersona.name}' persona guided the ${activePersona.tone} tone and ${activePersona.speakingStyle} style`,
+    )
+  }
+  if (activeFlow) {
+    reasoningFactors.push(`'${activeFlow.name}' conversation flow shaped the response structure`)
+  }
+  if (globalMemory?.mostSelectedStrategies?.[0]) {
+    reasoningFactors.push(
+      `Global patterns: ${globalMemory.mostSelectedStrategies[0].strategy} is the most effective strategy across all users`,
+    )
   }
 
   const explanation: Omit<ResponseExplanation, 'id' | 'createdAt'> = {

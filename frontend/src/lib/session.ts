@@ -12,11 +12,14 @@ export async function getOrCreateSession(): Promise<string> {
   }
 
   try {
-    await prisma.user.upsert({
-      where: { sessionId },
-      create: { sessionId },
-      update: {},
-    })
+    // Only upsert when sessionId is not null/undefined
+    if (sessionId) {
+      await prisma.user.upsert({
+        where: { sessionId },
+        create: { sessionId },
+        update: {},
+      })
+    }
   } catch {
     // DB not available — continue with session ID only
   }
@@ -26,7 +29,22 @@ export async function getOrCreateSession(): Promise<string> {
 
 export async function getUserBySession(sessionId: string) {
   try {
+    if (!sessionId) return null
     return await prisma.user.findUnique({ where: { sessionId } })
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Returns a userId from either an authenticated NextAuth session user id
+ * or falls back to the anonymous sessionId.
+ */
+export async function getUserIdFromSession(sessionId: string): Promise<string | null> {
+  try {
+    if (!sessionId) return null
+    const user = await prisma.user.findUnique({ where: { sessionId } })
+    return user?.id ?? null
   } catch {
     return null
   }

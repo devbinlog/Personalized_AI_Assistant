@@ -2,9 +2,8 @@
 
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { cn, strategyLabel, confidencePercent } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { Brain, Globe, User, Sparkles } from 'lucide-react'
 import type { Message } from 'ai'
 import { ExplanationPanel } from '@/features/xai/components/explanation-panel'
@@ -31,74 +30,45 @@ export function MessageItem({
 }: MessageItemProps) {
   const isUser = message.role === 'user'
   const { settings } = useAppStore()
+  const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
 
   return (
     <div className={cn('flex gap-3 px-4 py-3', isUser && 'flex-row-reverse')}>
       {/* Avatar */}
       <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-        style={
+        className={cn(
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
           isUser
-            ? { backgroundColor: 'rgba(94,106,210,0.2)' }
-            : { backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }
-        }
-      >
-        {isUser ? (
-          <User className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
-        ) : (
-          <Brain className="h-3.5 w-3.5" style={{ color: '#7170ff' }} />
+            ? 'bg-indigo-100'
+            : 'border border-slate-200 bg-white',
         )}
+      >
+        {isUser
+          ? <User className="h-3.5 w-3.5 text-indigo-600" />
+          : <Brain className="h-3.5 w-3.5 text-indigo-600" />
+        }
       </div>
 
       {/* Content */}
-      <div className={cn('flex-1 max-w-3xl space-y-2', isUser && 'flex flex-col items-end')}>
+      <div className={cn('flex-1 max-w-3xl space-y-1.5', isUser && 'flex flex-col items-end')}>
         {/* Meta badges */}
-        {!isUser && (strategy || searchUsed || taskType) && (
+        {!isUser && (strategy || searchUsed) && (
           <div className="flex flex-wrap gap-1.5">
             {strategy && (
-              <span
-                className="inline-flex items-center gap-1"
-                style={{
-                  fontSize: '10px',
-                  color: '#8a8f98',
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '4px',
-                  padding: '1px 6px',
-                }}
-              >
-                <Sparkles className="h-2.5 w-2.5" />
+              <span className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500">
+                <Sparkles className="h-2.5 w-2.5 text-indigo-500" />
                 {strategyLabel(strategy as never)}
               </span>
             )}
             {searchUsed && (
-              <span
-                className="inline-flex items-center gap-1"
-                style={{
-                  fontSize: '10px',
-                  color: '#8a8f98',
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '4px',
-                  padding: '1px 6px',
-                }}
-              >
+              <span className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500">
                 <Globe className="h-2.5 w-2.5" />
-                Web search
+                웹 검색
               </span>
             )}
-            {confidence !== null && confidence !== undefined && (
-              <span
-                style={{
-                  fontSize: '10px',
-                  color: '#8a8f98',
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '4px',
-                  padding: '1px 6px',
-                }}
-              >
-                {confidencePercent(confidence)} match
+            {!isMock && confidence !== null && confidence !== undefined && (
+              <span className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500">
+                {confidencePercent(confidence)} 일치
               </span>
             )}
           </div>
@@ -106,45 +76,34 @@ export function MessageItem({
 
         {/* Message bubble */}
         <div
-          className="px-4 py-3"
-          style={
+          className={cn(
+            'px-4 py-3 text-sm leading-relaxed',
             isUser
-              ? {
-                  backgroundColor: '#5e6ad2',
-                  color: '#ffffff',
-                  borderRadius: '12px 2px 12px 12px',
-                  fontSize: '14px',
-                }
-              : {
-                  backgroundColor: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: '2px 12px 12px 12px',
-                  fontSize: '14px',
-                }
-          }
+              ? 'rounded-[12px_2px_12px_12px] bg-indigo-600 text-white'
+              : 'rounded-[2px_12px_12px_12px] border border-slate-100 bg-slate-50 text-slate-800',
+          )}
         >
           {isUser ? (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+            <p className="whitespace-pre-wrap">{message.content}</p>
           ) : (
             <div className="prose-chat text-sm">
               <ReactMarkdown
                 components={{
                   code({ className, children, ...props }) {
                     const match = /language-(\w+)/.exec(className || '')
-                    const isInline = !match
-                    if (isInline) {
+                    if (!match) {
                       return (
-                        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs" {...props}>
+                        <code className="rounded bg-white border border-slate-200 px-1 py-0.5 font-mono text-xs text-slate-700" {...props}>
                           {children}
                         </code>
                       )
                     }
                     return (
                       <SyntaxHighlighter
-                        style={oneDark as never}
+                        style={oneLight as never}
                         language={match[1]}
                         PreTag="div"
-                        className="!rounded-lg !text-xs !mt-2"
+                        className="!rounded-lg !text-xs !mt-2 !border !border-slate-200"
                       >
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
@@ -154,15 +113,12 @@ export function MessageItem({
               >
                 {message.content}
               </ReactMarkdown>
-              {isStreaming && (
-                <span className="streaming-cursor ml-0.5" />
-              )}
+              {isStreaming && <span className="streaming-cursor ml-0.5" />}
             </div>
           )}
         </div>
 
-        {/* XAI — "Why this answer?" button (assistant messages only, not while streaming) */}
-        {!isUser && !isStreaming && messageId && settings.showExplanations && (
+        {!isMock && !isUser && !isStreaming && messageId && settings.showExplanations && (
           <ExplanationPanel
             messageId={messageId}
             initialConfidence={confidence}

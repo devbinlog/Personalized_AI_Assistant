@@ -1,19 +1,22 @@
 // Adaptive AI Assistant — Database Schema
-// SQLite for local dev — all JSON stored as serialized String
-// Switch provider="postgresql" for production
+// PostgreSQL — JSON fields stored as String for compatibility with existing serialization layer
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id        String   @id @default(cuid())
-  sessionId String   @unique
+  email     String?  @unique
+  password  String?
+  name      String?
+  role      String   @default("USER")
+  sessionId String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -22,15 +25,51 @@ model User {
   preferenceLogs        PreferenceLog[]
   promptVersions        PromptVersion[]
   preferenceSuggestions PreferenceSuggestion[]
+  userSettings          UserSettings?
+  userProfile           UserProfile?
 
   @@index([sessionId])
   @@map("users")
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String?
+  occupation  String?
+  interests   String   @default("[]") // JSON string[]
+  goals       String   @default("[]") // JSON string[]
+  background  String?
+  language    String   @default("ko")
+  autoExtract Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSettings {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  defaultMode      String   @default("NORMAL")
+  autoSearch       Boolean  @default(true)
+  showExplanations Boolean  @default(true)
+  showConfidence   Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
 }
 
 model Conversation {
   id        String   @id @default(cuid())
   userId    String
   title     String?
+  summary   String?
   mode      String   @default("NORMAL")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,10 +91,11 @@ model Message {
   searchQuery    String?
   createdAt      DateTime @default(now())
 
-  conversation       Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  responseCandidates ResponseCandidate[]
-  preferenceLog      PreferenceLog?
-  explanation        ResponseExplanation?
+  conversation        Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  responseCandidates  ResponseCandidate[]
+  preferenceLog       PreferenceLog?
+  explanation         ResponseExplanation?
+  responseEvaluation  ResponseEvaluation?
 
   @@index([conversationId, createdAt])
   @@map("messages")
@@ -200,4 +240,150 @@ model SearchCache {
   @@index([query])
   @@index([expiresAt])
   @@map("search_cache")
+}
+
+model Persona {
+  id                    String   @id @default(cuid())
+  name                  String
+  description           String
+  speakingStyle         String   @default("professional")
+  tone                  String   @default("helpful")
+  formalityLevel        Int      @default(3)
+  humorLevel            Int      @default(2)
+  empathyLevel          Int      @default(3)
+  responseLength        String   @default("medium")
+  pronounPolicy         String   @default("I")
+  allowedBehaviors      String   @default("[]")
+  forbiddenBehaviors    String   @default("[]")
+  fallbackBehavior      String   @default("")
+  refusalBehavior       String   @default("")
+  clarificationBehavior String   @default("")
+  exampleResponses      String   @default("[]")
+  promptFragment        String   @default("")
+  isActive              Boolean  @default(false)
+  isDefault             Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("personas")
+}
+
+model ConversationFlow {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String
+  domain              String   @default("general")
+  triggerCondition    String
+  steps               String   @default("[]")
+  fallbackPolicy      String
+  clarificationPolicy String
+  errorRecoveryPolicy String
+  searchPolicy        String   @default("auto")
+  isActive            Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("conversation_flows")
+}
+
+model ResponseEvaluation {
+  id                     String   @id @default(cuid())
+  messageId              String   @unique
+  candidateId            String
+  naturalness            Float    @default(0)
+  grammar                Float    @default(0)
+  toneConsistency        Float    @default(0)
+  personaConsistency     Float    @default(0)
+  instructionFollowing   Float    @default(0)
+  factualAccuracy        Float    @default(0)
+  hallucinationRisk      Float    @default(0)
+  clarity                Float    @default(0)
+  structure              Float    @default(0)
+  completeness           Float    @default(0)
+  specificity            Float    @default(0)
+  actionability          Float    @default(0)
+  readability            Float    @default(0)
+  formatting             Float    @default(0)
+  safety                 Float    @default(1)
+  preferenceMatch        Float    @default(0)
+  searchGrounding        Float    @default(0)
+  overallScore           Float    @default(0)
+  strengths              String   @default("[]")
+  weaknesses             String   @default("[]")
+  improvementSuggestions String   @default("[]")
+  activePersonaId        String?
+  activeFlowId           String?
+  createdAt              DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("response_evaluations")
+}
+
+model PromptExperiment {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  promptA         String
+  promptB         String
+  testInputs      String   @default("[]")
+  activePersonaId String?
+  activeFlowId    String?
+  winner          String?
+  status          String   @default("DRAFT")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  results PromptExperimentResult[]
+
+  @@map("prompt_experiments")
+}
+
+model PromptExperimentResult {
+  id                   String   @id @default(cuid())
+  experimentId         String
+  input                String
+  outputA              String
+  outputB              String
+  evaluationA          String
+  evaluationB          String
+  preferredByEvaluator String   @default("tie")
+  scoreA               Float    @default(0)
+  scoreB               Float    @default(0)
+  notes                String   @default("")
+  createdAt            DateTime @default(now())
+
+  experiment PromptExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@index([experimentId])
+  @@map("prompt_experiment_results")
+}
+
+model GlobalPreferenceMemory {
+  id                      String   @id @default(cuid())
+  mostSelectedStrategies  String   @default("[]")
+  commonReasonTags        String   @default("[]")
+  domainPreferences       String   @default("[]")
+  globallyAvoidedPatterns String   @default("[]")
+  highPerformingPatterns  String   @default("[]")
+  lowPerformingPatterns   String   @default("[]")
+  personaPerformance      String   @default("[]")
+  flowPerformance         String   @default("[]")
+  summary                 String   @default("")
+  totalLogsAnalyzed       Int      @default(0)
+  updatedAt               DateTime @default(now())
+
+  @@map("global_preference_memory")
+}
+
+model DatasetExport {
+  id          String   @id @default(cuid())
+  exportType  String
+  format      String
+  filters     String   @default("{}")
+  recordCount Int      @default(0)
+  filePath    String?
+  createdAt   DateTime @default(now())
+
+  @@map("dataset_exports")
 }

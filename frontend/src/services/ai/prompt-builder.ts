@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { hashString } from '@/lib/utils'
-import type { PreferenceMemory, TaskAnalysis, PromptComponents } from '@/types'
+import type { PreferenceMemory, TaskAnalysis, PromptComponents, Persona, ConversationFlow, GlobalPreferenceMemory, UserProfile } from '@/types'
 
 const BASE_PERSONA = `You are an Adaptive AI Personal Assistant — a highly capable AI that handles any request.
 
@@ -13,14 +13,43 @@ export function buildSystemPrompt(
   memory: PreferenceMemory | null,
   recentExamples: string[],
   searchContext: string | null,
+  activePersona?: Persona | null,
+  activeFlow?: ConversationFlow | null,
+  globalMemory?: GlobalPreferenceMemory | null,
+  userProfile?: UserProfile | null,
+  recentSummaries?: string[],
 ): { systemPrompt: string; components: PromptComponents } {
+  // Priority: persona → profile → flow → task → local memory → global memory → summaries → examples → search
+  const personaFragment = activePersona?.promptFragment
+    ? activePersona.promptFragment
+    : activePersona
+      ? `Respond in a ${activePersona.tone} tone with ${activePersona.speakingStyle} style.`
+      : BASE_PERSONA
+
+  const profileContext = userProfile ? buildProfileContext(userProfile) : ''
+  const flowContext = activeFlow
+    ? `CONVERSATION FLOW (${activeFlow.name}):\n${activeFlow.fallbackPolicy}`
+    : ''
+
   const taskContext = buildTaskContext(taskAnalysis)
   const memoryContext = memory ? buildMemoryContext(memory) : ''
+  const globalMemoryContext =
+    globalMemory?.summary
+      ? `GLOBAL LEARNING INSIGHTS:\n${globalMemory.summary}`
+      : ''
+  const summariesContext =
+    recentSummaries && recentSummaries.length > 0
+      ? `RECENT CONVERSATION CONTEXT:\n${recentSummaries.join('\n---\n')}`
+      : ''
   const examplesContext = recentExamples.length > 0 ? buildExamplesContext(recentExamples) : ''
 
-  let systemPrompt = BASE_PERSONA
+  let systemPrompt = personaFragment
+  if (profileContext) systemPrompt += `\n\n${profileContext}`
+  if (flowContext) systemPrompt += `\n\n${flowContext}`
   if (taskContext) systemPrompt += `\n\n${taskContext}`
   if (memoryContext) systemPrompt += `\n\n${memoryContext}`
+  if (globalMemoryContext) systemPrompt += `\n\n${globalMemoryContext}`
+  if (summariesContext) systemPrompt += `\n\n${summariesContext}`
   if (examplesContext) systemPrompt += `\n\n${examplesContext}`
   if (searchContext) systemPrompt += `\n\n${searchContext}`
 
@@ -30,8 +59,10 @@ export function buildSystemPrompt(
       taskContext,
       memoryContext,
       examplesContext,
-      persona: BASE_PERSONA,
+      persona: personaFragment,
       userRequest: '',
+      flowContext,
+      globalMemoryContext,
     },
   }
 }
@@ -58,6 +89,23 @@ function buildMemoryContext(memory: PreferenceMemory): string {
 
 function buildExamplesContext(examples: string[]): string {
   return `RECENT HIGH-QUALITY EXAMPLES:\n${examples.slice(0, 2).map((e, i) => `[${i + 1}] ${e}`).join('\n\n')}`
+}
+
+function buildProfileContext(profile: UserProfile): string {
+  const lines: string[] = ['USER PROFILE (personalize responses based on this):']
+  if (profile.displayName) lines.push(`- Name: ${profile.displayName}`)
+  if (profile.occupation) lines.push(`- Occupation: ${profile.occupation}`)
+  const interests = Array.isArray(profile.interests)
+    ? profile.interests
+    : JSON.parse(profile.interests as unknown as string || '[]')
+  if (interests.length > 0) lines.push(`- Interests: ${interests.join(', ')}`)
+  const goals = Array.isArray(profile.goals)
+    ? profile.goals
+    : JSON.parse(profile.goals as unknown as string || '[]')
+  if (goals.length > 0) lines.push(`- Current goals: ${goals.join(', ')}`)
+  if (profile.background) lines.push(`- Background: ${profile.background}`)
+  lines.push(`- Language preference: ${profile.language}`)
+  return lines.join('\n')
 }
 
 export async function savePromptVersion(

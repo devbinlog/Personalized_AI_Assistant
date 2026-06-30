@@ -1,6 +1,6 @@
 import type { ResponseStrategy, PreferenceTag } from '@/types'
 
-export const APP_NAME = 'Adaptive AI Assistant'
+export const APP_NAME = 'Personalized AI Assistant'
 export const APP_VERSION = '0.1.0'
 
 // Session cookie name
@@ -60,6 +60,12 @@ export const ROUTES = {
   PROMPT_LAB: '/prompt-lab',
   INSIGHTS: '/insights',
   SETTINGS: '/settings',
+  PERSONA_STUDIO: '/persona-studio',
+  FLOW_DESIGNER: '/flow-designer',
+  DATASETS: '/datasets',
+  EXPERIMENTS: '/prompt-lab/experiments',
+  GLOBAL_LEARNING: '/dashboard/global-learning',
+  RUBRIC: '/dashboard/rubric',
 } as const
 
 // API routes
@@ -74,14 +80,14 @@ export const API_ROUTES = {
 
 // Strategy color mapping for UI
 export const STRATEGY_COLORS: Record<ResponseStrategy, string> = {
-  CONCISE: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  STRUCTURED: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  PROFESSIONAL: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-  ANALYTICAL: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  FRIENDLY: 'bg-green-500/10 text-green-400 border-green-500/20',
-  ACTIONABLE: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  EDUCATIONAL: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  CREATIVE: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-  DIRECT: 'bg-red-500/10 text-red-400 border-red-500/20',
-  COMPREHENSIVE: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  CONCISE: 'bg-blue-50 text-blue-700 border-blue-100',
+  STRUCTURED: 'bg-purple-50 text-purple-700 border-purple-100',
+  PROFESSIONAL: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+  ANALYTICAL: 'bg-cyan-50 text-cyan-700 border-cyan-100',
+  FRIENDLY: 'bg-green-50 text-green-700 border-green-100',
+  ACTIONABLE: 'bg-orange-50 text-orange-700 border-orange-100',
+  EDUCATIONAL: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+  CREATIVE: 'bg-pink-50 text-pink-700 border-pink-100',
+  DIRECT: 'bg-red-50 text-red-700 border-red-100',
+  COMPREHENSIVE: 'bg-violet-50 text-violet-700 border-violet-100',
 }

@@ -23,20 +23,12 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0)
 
   return (
-    <div className="px-4 py-2 space-y-3">
-      <p
-        style={{
-          fontSize: '12px',
-          color: '#8a8f98',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          marginBottom: '12px',
-        }}
-      >
+    <div className="px-4 py-3">
+      <p className="mb-3 text-xs font-medium text-slate-500">
         Choose a response style
       </p>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {candidates.map((candidate) => {
           const isSelected = selectedIndex === candidate.index
           const isExpanded = expandedIndex === candidate.index
@@ -45,95 +37,54 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
             <div
               key={candidate.index}
               className={cn(
-                'rounded-xl transition-all duration-200 overflow-hidden cursor-pointer',
-                isSelected && 'candidate-card-selected',
+                'rounded-xl border bg-white p-4 cursor-pointer transition-all hover:border-indigo-300 hover:shadow-sm overflow-hidden',
+                isSelected
+                  ? 'border-indigo-400 bg-indigo-50 shadow-sm'
+                  : 'border-slate-200',
               )}
-              style={{
-                border: isSelected
-                  ? '1px solid rgba(113,112,255,0.4)'
-                  : '1px solid rgba(255,255,255,0.08)',
-                backgroundColor: isSelected
-                  ? 'rgba(113,112,255,0.06)'
-                  : 'rgba(255,255,255,0.02)',
-              }}
-              onMouseEnter={e => {
-                if (!isSelected) {
-                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.12)'
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (!isSelected) {
-                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'
-                }
-              }}
             >
               {/* Card header */}
               <div
-                className="flex items-center gap-3 px-4 py-3"
+                className="flex items-center gap-2"
                 onClick={() => setExpandedIndex(isExpanded ? null : candidate.index)}
               >
-                <span
-                  style={{
-                    backgroundColor: 'rgba(94,106,210,0.1)',
-                    color: '#7170ff',
-                    fontSize: '11px',
-                    fontWeight: 500,
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                  }}
-                >
+                <span className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500">
                   {strategyLabel(candidate.strategy)}
                 </span>
-                <p
-                  className="flex-1 truncate"
-                  style={{ fontSize: '13px', color: '#8a8f98' }}
-                >
-                  {candidate.content.slice(0, 80)}…
-                </p>
-                <div className="flex items-center gap-2">
-                  {isSelected && <CheckCircle2 className="h-4 w-4" style={{ color: '#7170ff' }} />}
+                <div className="ml-auto flex items-center gap-1">
+                  {isSelected && <CheckCircle2 className="h-4 w-4 text-indigo-600" />}
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" style={{ color: '#62666d' }} />
+                    <ChevronUp className="h-4 w-4 text-slate-400" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" style={{ color: '#62666d' }} />
+                    <ChevronDown className="h-4 w-4 text-slate-400" />
                   )}
                 </div>
               </div>
 
-              {/* Expanded content */}
-              {isExpanded && (
-                <div
-                  className="px-4 pb-4 pt-3"
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-                >
-                  <div className="prose-chat max-h-[300px] overflow-y-auto" style={{ fontSize: '13px', color: '#8a8f98', lineClamp: '3' }}>
-                    <ReactMarkdown>{candidate.content}</ReactMarkdown>
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <button
-                      onClick={() => {
-                        setSelectedIndex(candidate.index)
-                        onSelect(candidate)
-                      }}
-                      disabled={isSubmitting}
-                      style={{
-                        backgroundColor: '#5e6ad2',
-                        color: '#ffffff',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        opacity: isSubmitting ? 0.5 : 1,
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      {isSelected ? 'Selected' : 'Select'}
-                    </button>
-                  </div>
+              {/* Preview / expanded content */}
+              {isExpanded ? (
+                <div className="mt-3 max-h-[300px] overflow-y-auto text-sm text-slate-700 leading-relaxed prose-chat">
+                  <ReactMarkdown>{candidate.content}</ReactMarkdown>
                 </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-700 leading-relaxed line-clamp-4">
+                  {candidate.content}
+                </p>
               )}
+
+              <button
+                onClick={() => {
+                  setSelectedIndex(candidate.index)
+                  onSelect(candidate)
+                }}
+                disabled={isSubmitting}
+                className={cn(
+                  'mt-4 w-full rounded-lg bg-indigo-600 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors',
+                  isSubmitting && 'opacity-50 cursor-not-allowed',
+                )}
+              >
+                {isSelected ? 'Selected' : 'Select'}
+              </button>
             </div>
           )
         })}

@@ -3,6 +3,7 @@
 import { useChat } from 'ai/react'
 import { useState, useCallback, useRef } from 'react'
 import type { ConversationMode, TaskAnalysis } from '@/types'
+import type { AttachedFile } from '../components/chat-input'
 
 interface LearningResponse {
   mode: 'LEARNING'
@@ -80,7 +81,12 @@ export function useChatStream(
     },
   })
 
-  const sendLearningMessage = useCallback(async (userMessage: string) => {
+  const submitNormal = useCallback((files?: AttachedFile[]) => {
+    const opts = files && files.length > 0 ? { body: { files } } : undefined
+    chat.handleSubmit(undefined, opts)
+  }, [chat])
+
+  const sendLearningMessage = useCallback(async (userMessage: string, files?: AttachedFile[]) => {
     setIsLearningLoading(true)
     setLearningCandidates(null)
 
@@ -92,6 +98,7 @@ export function useChatStream(
           messages: [{ role: 'user', content: userMessage }],
           mode: 'LEARNING',
           conversationId: meta.conversationId,
+          files: files && files.length > 0 ? files : undefined,
         }),
       })
 
@@ -116,6 +123,7 @@ export function useChatStream(
     learningCandidates,
     isLearningLoading,
     sendLearningMessage,
+    submitNormal,
     clearLearningCandidates: () => setLearningCandidates(null),
   }
 }

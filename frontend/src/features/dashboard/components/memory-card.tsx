@@ -1,8 +1,6 @@
 'use client'
 
-import { Brain, RefreshCw, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Brain, RefreshCw } from 'lucide-react'
 import { strategyLabel } from '@/lib/utils'
 import type { PreferenceMemory } from '@/types'
 
@@ -15,35 +13,33 @@ interface MemoryCardProps {
 export function MemoryCard({ memory, onRefresh, isRefreshing }: MemoryCardProps) {
   if (!memory) {
     return (
-      <div
-        className="flex flex-col items-center justify-center gap-3 rounded-xl p-8 text-center"
-        style={{ border: '1px dashed rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.01)' }}
-      >
-        <Brain className="h-8 w-8" style={{ color: 'rgba(138,143,152,0.4)' }} />
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
+        <Brain className="h-8 w-8 text-slate-300" />
         <div>
-          <p style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}>No preference memory yet</p>
-          <p style={{ fontSize: '12px', color: '#8a8f98' }}>Use Learning Mode 3+ times to generate your first memory</p>
+          <p className="text-sm font-semibold text-slate-900">No preference memory yet</p>
+          <p className="text-xs text-slate-400">Use Learning Mode 3+ times to generate your first memory</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className="rounded-xl p-5 space-y-4"
-      style={{ backgroundColor: '#191a1b', border: '1px solid rgba(255,255,255,0.08)' }}
-    >
+    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5" style={{ color: '#7170ff' }} />
-          <span style={{ fontSize: '13px', fontWeight: 500, color: '#f7f8f8' }}>Preference Memory</span>
-          <Badge variant="outline">v{memory.version}</Badge>
+          <Brain className="h-5 w-5 text-indigo-500" />
+          <span className="text-sm font-semibold text-slate-900">Preference Memory</span>
+          <span className="text-xs text-slate-400 ml-1">v{memory.version}</span>
         </div>
-        <Button size="sm" variant="ghost" onClick={onRefresh} disabled={isRefreshing} className="h-7 gap-1.5 text-xs">
+        <button
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors disabled:opacity-50"
+        >
           <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
-        </Button>
+        </button>
       </div>
 
       {/* Memory details */}
@@ -55,23 +51,12 @@ export function MemoryCard({ memory, onRefresh, isRefreshing }: MemoryCardProps)
         ].map(item => (
           <div
             key={item.label}
-            className="rounded-lg p-3"
-            style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+            className="rounded-xl border border-slate-100 p-3"
           >
-            <p
-              style={{
-                fontSize: '10px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: '#62666d',
-              }}
-            >
+            <p className="text-[10px] uppercase tracking-wider text-slate-400">
               {item.label}
             </p>
-            <p
-              className="mt-1 capitalize"
-              style={{ fontSize: '13px', fontWeight: 500, color: '#d0d6e0' }}
-            >
+            <p className="mt-1 capitalize text-sm text-slate-600">
               {item.value ?? '—'}
             </p>
           </div>
@@ -81,19 +66,12 @@ export function MemoryCard({ memory, onRefresh, isRefreshing }: MemoryCardProps)
       {/* Preferred strategies */}
       {memory.preferredStrategies.length > 0 && (
         <div className="space-y-2">
-          <p style={{ fontSize: '12px', fontWeight: 500, color: '#8a8f98' }}>Preferred Strategies</p>
+          <p className="text-xs font-medium text-slate-500">Preferred Strategies</p>
           <div className="flex flex-wrap gap-1.5">
             {memory.preferredStrategies.map(s => (
               <span
                 key={s}
-                style={{
-                  backgroundColor: 'rgba(94,106,210,0.1)',
-                  color: '#7170ff',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                }}
+                className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
               >
                 {strategyLabel(s as never)}
               </span>
@@ -104,15 +82,12 @@ export function MemoryCard({ memory, onRefresh, isRefreshing }: MemoryCardProps)
 
       {/* Summary */}
       {memory.rawSummary && (
-        <div
-          className="rounded-lg p-3"
-          style={{ border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.02)' }}
-        >
-          <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#8a8f98' }}>{memory.rawSummary}</p>
+        <div className="rounded-xl border border-slate-100 p-3">
+          <p className="text-sm text-slate-600 leading-relaxed">{memory.rawSummary}</p>
         </div>
       )}
 
-      <p style={{ fontSize: '10px', color: '#62666d' }}>
+      <p className="text-xs text-slate-400">
         Based on {memory.logCount} preference selections · Last updated: {new Date(memory.lastUpdatedAt).toLocaleDateString()}
       </p>
     </div>
