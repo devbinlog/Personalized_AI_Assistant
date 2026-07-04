@@ -44,7 +44,7 @@ export function SuggestionBanner() {
       <div className="mx-auto max-w-3xl flex items-start gap-3">
         <Sparkles className="h-4 w-4 text-indigo-500 mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-indigo-900">Preference suggestion</p>
+          <p className="text-sm font-medium text-indigo-900">선호도 업데이트 제안</p>
           <p className="text-xs text-indigo-600 mt-0.5">{current.rationale}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -54,7 +54,7 @@ export function SuggestionBanner() {
             className="flex items-center gap-1 rounded-lg border border-indigo-200 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 transition-colors disabled:opacity-50"
           >
             <XCircle className="h-3 w-3" />
-            No thanks
+            괜찮아요
           </button>
           <button
             onClick={() => respond(true)}
@@ -62,7 +62,7 @@ export function SuggestionBanner() {
             className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
           >
             <CheckCircle2 className="h-3 w-3" />
-            Yes, apply
+            적용하기
           </button>
           <button
             onClick={() => setCurrent(null)}

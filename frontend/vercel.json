@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/global-learning",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}

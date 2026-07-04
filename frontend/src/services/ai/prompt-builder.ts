@@ -2,11 +2,32 @@ import { prisma } from '@/lib/prisma'
 import { hashString } from '@/lib/utils'
 import type { PreferenceMemory, TaskAnalysis, PromptComponents, Persona, ConversationFlow, GlobalPreferenceMemory, UserProfile } from '@/types'
 
-const BASE_PERSONA = `You are an Adaptive AI Personal Assistant — a highly capable AI that handles any request.
+function buildBasePersona(): string {
+  const now = new Date()
+  // Always use KST (UTC+9) regardless of server location
+  const kstDate = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric', month: 'long', day: 'numeric',
+  }).format(now)
+  const kstTime = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).format(now)
+  const kstIsoDate = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Seoul',
+  }).format(now) // gives YYYY-MM-DD
+
+  return `You are an Adaptive AI Personal Assistant — a highly capable AI that handles any request.
 
 You help with: programming, writing, research, planning, translation, productivity, career coaching, interview prep, learning, decision making, brainstorming, and any other task.
 
-Be direct, accurate, and genuinely helpful. Adapt your response to the user's needs.`
+Be direct, accurate, and genuinely helpful. Adapt your response to the user's needs.
+
+CURRENT DATE AND TIME (KST, Korea Standard Time UTC+9): ${kstDate} ${kstTime} (${kstIsoDate})
+When answering questions about current events, trending content, rankings, recent releases, prices, or anything time-sensitive — use this date as your reference. If web search results are provided in the context, prioritize them over your training data. If no search results are provided and the answer may have changed since your training, explicitly acknowledge that your information may be outdated.
+
+LANGUAGE RULE: Always detect the language of the user's latest message and respond in that exact same language. If the user writes in Korean, respond in Korean. If in English, respond in English. Never switch languages unless explicitly asked.`
+}
 
 export function buildSystemPrompt(
   taskAnalysis: TaskAnalysis,
@@ -24,7 +45,7 @@ export function buildSystemPrompt(
     ? activePersona.promptFragment
     : activePersona
       ? `Respond in a ${activePersona.tone} tone with ${activePersona.speakingStyle} style.`
-      : BASE_PERSONA
+      : buildBasePersona()
 
   const profileContext = userProfile ? buildProfileContext(userProfile) : ''
   const flowContext = activeFlow
@@ -125,7 +146,7 @@ export async function savePromptVersion(
         userId,
         version,
         systemPrompt,
-        components: components as never,
+        components: JSON.stringify(components) as never,
         memoryHash: memoryId ? hashString(memoryId) : null,
         tokenCount: Math.ceil(systemPrompt.length / 4),
       },

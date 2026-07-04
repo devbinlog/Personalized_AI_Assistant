@@ -32,7 +32,6 @@ function SignInForm() {
     if (result?.error) {
       setError('이메일 또는 비밀번호가 올바르지 않습니다.')
     } else {
-      // 익명 세션 데이터를 로그인 계정으로 이전
       await fetch('/api/auth/migrate-session', { method: 'POST' }).catch(() => {})
       router.push(callbackUrl)
       router.refresh()
@@ -41,16 +40,14 @@ function SignInForm() {
 
   return (
     <div className="w-full max-w-md">
-      {/* Logo */}
       <div className="flex flex-col items-center mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 mb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-700 mb-4">
           <Brain className="h-6 w-6 text-white" />
         </div>
         <h1 className="text-xl font-bold text-slate-900">로그인</h1>
         <p className="mt-1 text-sm text-slate-500">Personalized AI Assistant에 오신 것을 환영합니다</p>
       </div>
 
-      {/* Card */}
       <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
         {error && (
           <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -61,37 +58,33 @@ function SignInForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              이메일
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">이메일</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100 focus:outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              비밀번호
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">비밀번호</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100 focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             로그인
@@ -100,10 +93,7 @@ function SignInForm() {
 
         <p className="mt-6 text-center text-sm text-slate-500">
           계정이 없으신가요?{' '}
-          <Link
-            href="/auth/signup"
-            className="font-medium text-indigo-600 hover:text-indigo-700"
-          >
+          <Link href="/auth/signup" className="font-medium text-slate-700 hover:text-slate-900 underline underline-offset-2">
             회원가입
           </Link>
         </p>
@@ -117,7 +107,7 @@ export default function SignInPage() {
     <Suspense fallback={
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 mb-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-700 mb-4">
             <Brain className="h-6 w-6 text-white" />
           </div>
         </div>

@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getOrCreateSession } from '@/lib/session'
+import { resolveUserId } from '@/lib/resolve-user'
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
   const { id } = await params
 
+  if (userId === 'anonymous') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const conversation = await prisma.conversation.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId },
       include: {
         messages: {
           orderBy: { createdAt: 'asc' },

@@ -12,20 +12,20 @@ type ExportConfig = {
 const EXPORT_TYPES = [
   {
     type: 'preference' as const,
-    label: 'Preference Dataset',
-    description: 'DPO-format dataset with chosen/rejected response pairs from user selections',
+    label: '선호도 데이터셋',
+    description: 'DPO 형식 — 사용자 선택 기반 선택/비선택 응답 쌍',
     icon: '🎯',
   },
   {
     type: 'evaluation' as const,
-    label: 'Evaluation Dataset',
-    description: '18-dimension quality scores per message for rubric analysis and model training',
+    label: '평가 데이터셋',
+    description: '18차원 품질 점수 — 루브릭 분석 및 모델 학습용',
     icon: '📊',
   },
   {
     type: 'conversation' as const,
-    label: 'Conversation Dataset',
-    description: 'Full conversation histories with role-labeled messages',
+    label: '대화 데이터셋',
+    description: '역할 레이블이 붙은 전체 대화 기록',
     icon: '💬',
   },
 ]
@@ -50,7 +50,7 @@ export default function DatasetsPage() {
 
       if (!res.ok) {
         const err = await res.json()
-        alert(err.error || 'Export failed')
+        alert(err.error || '내보내기 실패')
         return
       }
 
@@ -77,17 +77,15 @@ export default function DatasetsPage() {
         <div className="flex items-center gap-3">
           <Database className="h-5 w-5 text-indigo-600" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Dataset Export</h1>
-            <p className="text-sm text-slate-500">
-              Export training data for fine-tuning and analysis
-            </p>
+            <h1 className="text-2xl font-bold text-slate-900">데이터셋 내보내기</h1>
+            <p className="text-sm text-slate-500">파인튜닝 및 분석용 학습 데이터 내보내기</p>
           </div>
         </div>
 
         {/* Export type selection */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6 space-y-4 shadow-sm">
           <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Dataset Type
+            데이터셋 유형
           </label>
           <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
             {EXPORT_TYPES.map(t => (
@@ -112,7 +110,7 @@ export default function DatasetsPage() {
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Output Format</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">출력 형식</label>
               <div className="flex gap-2">
                 {(['json', 'jsonl', 'csv'] as const).map(f => (
                   <button
@@ -131,7 +129,7 @@ export default function DatasetsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Record Limit</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">레코드 수 제한</label>
               <input
                 type="number"
                 value={config.limit}
@@ -152,14 +150,13 @@ export default function DatasetsPage() {
             className="flex items-center gap-2 rounded-xl px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
           >
             <Download className="h-4 w-4" />
-            {exporting ? 'Exporting...' : `Export ${selected.label}`}
+            {exporting ? '내보내는 중...' : `${selected.label} 내보내기`}
           </button>
 
-          {/* Last export info */}
           {lastExport && (
             <div className="px-4 py-2.5 rounded-xl border border-emerald-100 bg-emerald-50">
               <span className="text-sm text-emerald-700">
-                Exported {lastExport.count} records as {lastExport.format.toUpperCase()} ({lastExport.type})
+                {lastExport.count}개 레코드를 {lastExport.format.toUpperCase()}로 내보냈습니다 ({lastExport.type})
               </span>
             </div>
           )}
@@ -168,17 +165,17 @@ export default function DatasetsPage() {
         {/* Format descriptions */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
-            Format Guide
+            형식 안내
           </div>
           <div className="space-y-2">
             <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">JSON</span> — Pretty-printed array, ideal for inspection
+              <span className="font-semibold text-slate-900">JSON</span> — 보기 좋게 정렬된 배열, 검사용으로 적합
             </div>
             <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">JSONL</span> — One record per line, optimized for LLM fine-tuning pipelines
+              <span className="font-semibold text-slate-900">JSONL</span> — 한 줄에 레코드 하나, LLM 파인튜닝 파이프라인에 최적화
             </div>
             <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">CSV</span> — Spreadsheet-compatible, good for analysis in Excel/Sheets
+              <span className="font-semibold text-slate-900">CSV</span> — 스프레드시트 호환, Excel/Sheets 분석에 적합
             </div>
           </div>
         </div>

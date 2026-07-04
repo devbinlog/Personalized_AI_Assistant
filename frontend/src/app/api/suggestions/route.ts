@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getOrCreateSession } from '@/lib/session'
+import { resolveUserId } from '@/lib/resolve-user'
 import { respondToSuggestion, getPendingSuggestions } from '@/services/ai/preference-suggester'
 
 export async function GET(_req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
+  if (userId === 'anonymous') return NextResponse.json({ suggestions: [] })
 
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json({ suggestions: [] })
-
-    const suggestions = await getPendingSuggestions(user.id)
+    const suggestions = await getPendingSuggestions(userId)
     return NextResponse.json({ suggestions })
   } catch {
     return NextResponse.json({ suggestions: [] })
@@ -23,11 +21,8 @@ export async function POST(req: NextRequest) {
   try {
     await respondToSuggestion(suggestionId, accepted)
 
-    // If accepted, apply suggestion to preference memory
     if (accepted) {
-      const suggestion = await prisma.preferenceSuggestion.findUnique({
-        where: { id: suggestionId },
-      })
+      const suggestion = await prisma.preferenceSuggestion.findUnique({ where: { id: suggestionId } })
       if (suggestion) {
         const updateData: Record<string, unknown> = {}
         if (suggestion.type === 'tone') updateData.preferredTone = suggestion.suggestedValue

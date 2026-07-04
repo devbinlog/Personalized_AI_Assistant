@@ -161,7 +161,7 @@ export default function PersonaStudioPage() {
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Users2 className="h-4 w-4 text-indigo-600" />
-            <span className="text-sm font-semibold text-slate-900">Personas</span>
+            <span className="text-sm font-semibold text-slate-900">페르소나</span>
             <span className="text-xs text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">
               {personas.length}
             </span>
@@ -170,13 +170,13 @@ export default function PersonaStudioPage() {
             onClick={startNew}
             className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
           >
-            <Plus className="h-3.5 w-3.5" /> New
+            <Plus className="h-3.5 w-3.5" /> 새로만들기
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-8 text-center text-sm text-slate-400">Loading...</div>
+            <div className="py-8 text-center text-sm text-slate-400">불러오는 중...</div>
           ) : (
             personas.map(p => (
               <button
@@ -188,7 +188,7 @@ export default function PersonaStudioPage() {
                   <span className={`text-sm font-medium ${selected?.id === p.id ? 'text-indigo-700' : 'text-slate-700'}`}>{p.name}</span>
                   {p.isActive && (
                     <span className="rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] px-1.5 py-0.5">
-                      Active
+                      활성
                     </span>
                   )}
                 </div>
@@ -207,10 +207,10 @@ export default function PersonaStudioPage() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm">
                 <Users2 className="h-7 w-7 text-slate-300" />
               </div>
-              <p className="text-sm text-slate-400">Select a persona or create a new one</p>
+              <p className="text-sm text-slate-400">페르소나를 선택하거나 새로 만드세요</p>
               {activePersona && (
                 <p className="mt-2 text-xs text-emerald-600 font-medium">
-                  Active: {activePersona.name}
+                  활성: {activePersona.name}
                 </p>
               )}
             </div>
@@ -221,10 +221,10 @@ export default function PersonaStudioPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">
-                  {isNew ? 'New Persona' : form.name || 'Edit Persona'}
+                  {isNew ? '새 페르소나' : form.name || '페르소나 편집'}
                 </h1>
                 <p className="text-sm text-slate-500 mt-0.5">
-                  Configure personality, tone, and behavioral rules
+                  성격, 어조, 행동 규칙을 설정하세요
                 </p>
               </div>
               <div className="flex gap-2">
@@ -234,13 +234,13 @@ export default function PersonaStudioPage() {
                       onClick={() => activate(selected.id)}
                       className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
                     >
-                      {selected.isActive ? <><Check className="h-3.5 w-3.5" /> Active</> : <><Zap className="h-3.5 w-3.5" /> Activate</>}
+                      {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
                     </button>
                     <button
                       onClick={() => remove(selected.id)}
                       className="flex items-center gap-1.5 rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete
+                      <Trash2 className="h-3.5 w-3.5" /> 삭제
                     </button>
                   </>
                 )}
@@ -249,26 +249,26 @@ export default function PersonaStudioPage() {
                   disabled={saving}
                   className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
                 >
-                  <Save className="h-3.5 w-3.5" /> {saving ? 'Saving...' : 'Save'}
+                  <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
                 </button>
               </div>
             </div>
 
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">Basic Info</h2>
-                {field('name', 'Name')}
-                {field('description', 'Description')}
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">기본 정보</h2>
+                {field('name', '이름')}
+                {field('description', '설명')}
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">Personality</h2>
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">성격</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {(
                     [
-                      ['tone', 'Tone', ['helpful', 'professional', 'friendly', 'analytical', 'motivational', 'precise']],
-                      ['speakingStyle', 'Speaking Style', ['professional', 'conversational', 'formal', 'technical', 'coaching', 'academic']],
-                      ['responseLength', 'Response Length', ['short', 'medium', 'long']],
+                      ['tone', '어조', ['helpful', 'professional', 'friendly', 'analytical', 'motivational', 'precise']],
+                      ['speakingStyle', '말하기 스타일', ['professional', 'conversational', 'formal', 'technical', 'coaching', 'academic']],
+                      ['responseLength', '응답 길이', ['short', 'medium', 'long']],
                     ] as const
                   ).map(([key, label, opts]) => (
                     <div key={key}>
@@ -286,7 +286,7 @@ export default function PersonaStudioPage() {
                   {(['formalityLevel', 'empathyLevel'] as const).map(key => (
                     <div key={key}>
                       <label className="block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        {key === 'formalityLevel' ? 'Formality' : 'Empathy'}: {form[key]}/5
+                        {key === 'formalityLevel' ? '격식도' : '공감도'}: {form[key]}/5
                       </label>
                       <input
                         type="range" min="1" max="5"
@@ -300,15 +300,15 @@ export default function PersonaStudioPage() {
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">System Prompt</h2>
-                {field('promptFragment', 'Prompt Fragment (injected into system prompt)', 'textarea')}
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">시스템 프롬프트</h2>
+                {field('promptFragment', '프롬프트 조각 (시스템 프롬프트에 삽입됨)', 'textarea')}
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">Behavior Policies</h2>
-                {field('fallbackBehavior', 'Fallback Behavior')}
-                {field('refusalBehavior', 'Refusal Behavior')}
-                {field('clarificationBehavior', 'Clarification Behavior')}
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">행동 정책</h2>
+                {field('fallbackBehavior', '기본 응답 정책')}
+                {field('refusalBehavior', '거절 응답 정책')}
+                {field('clarificationBehavior', '명확화 응답 정책')}
               </div>
             </div>
           </div>

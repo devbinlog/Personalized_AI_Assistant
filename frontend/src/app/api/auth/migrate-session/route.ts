@@ -36,12 +36,20 @@ export async function POST(_req: NextRequest) {
   }
 
   try {
-    // 모든 관계 테이블을 로그인 계정으로 이전
+    // 게스트 대화는 이전하지 않고 삭제 (로그인 전 기록은 계정에 남기지 않음)
+    const anonConversations = await prisma.conversation.findMany({
+      where: { userId: anonUser.id },
+      select: { id: true },
+    })
+    if (anonConversations.length > 0) {
+      const convIds = anonConversations.map(c => c.id)
+      await prisma.responseCandidate.deleteMany({ where: { message: { conversationId: { in: convIds } } } })
+      await prisma.message.deleteMany({ where: { conversationId: { in: convIds } } })
+      await prisma.conversation.deleteMany({ where: { userId: anonUser.id } })
+    }
+
+    // 나머지 학습 데이터는 계정으로 이전
     await prisma.$transaction([
-      prisma.conversation.updateMany({
-        where: { userId: anonUser.id },
-        data: { userId: authUserId },
-      }),
       prisma.preferenceLog.updateMany({
         where: { userId: anonUser.id },
         data: { userId: authUserId },

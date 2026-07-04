@@ -1,11 +1,12 @@
 # Personalized AI Assistant
 
-> **기존 AI는 수억 명을 학습해서 모든 사람에게 같은 AI를 준다.**
-> **이 프로젝트는 반대다. 내가 직접 AI를 학습시켜 나만의 AI를 만든다.**
+Personalized AI Assistant는 사용자의 선택을 학습하여, 대화를 이어갈수록 사용자에게 가장 알맞은 AI 경험을 제공하는 개인화 AI 비서입니다.
+
+**배포 URL**: https://personalized-ai-assistant-devbinlogs-projects.vercel.app
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2.x-orange?style=flat-square)](https://langchain-ai.github.io/langgraph)
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)

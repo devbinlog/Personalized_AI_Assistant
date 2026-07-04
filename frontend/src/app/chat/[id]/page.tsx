@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import { ChatInterface } from '@/features/assistant/components/chat-interface'
+import { prisma } from '@/lib/prisma'
+import { resolveUserId } from '@/lib/resolve-user'
 
 export const metadata: Metadata = { title: 'Chat' }
 
@@ -12,18 +14,23 @@ export default async function ConversationPage({ params }: Props) {
 
   let initialMessages = undefined
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/conversations/${id}`, {
-      cache: 'no-store',
-    })
-    const data = await res.json()
-    if (data.conversation?.messages) {
-      initialMessages = data.conversation.messages.map((m: { id: string; role: string; content: string }) => ({
-        id: m.id,
-        role: m.role.toLowerCase(),
-        content: m.content,
-      }))
+    const userId = await resolveUserId()
+    if (userId !== 'anonymous') {
+      const conversation = await prisma.conversation.findFirst({
+        where: { id, userId },
+        include: {
+          messages: { orderBy: { createdAt: 'asc' } },
+        },
+      })
+      if (conversation?.messages) {
+        initialMessages = conversation.messages.map(m => ({
+          id: m.id,
+          role: m.role.toLowerCase() as 'user' | 'assistant',
+          content: m.content,
+        }))
+      }
     }
   } catch {}
 
-  return <ChatInterface conversationId={id} initialMessages={initialMessages} />
+  return <ChatInterface key={id} conversationId={id} initialMessages={initialMessages} />
 }

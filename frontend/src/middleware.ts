@@ -5,7 +5,7 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token
     if (req.nextUrl.pathname.startsWith('/admin') && token?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/auth/signin', req.url))
+      return NextResponse.redirect(new URL('/', req.url))
     }
     return NextResponse.next()
   },
@@ -16,4 +16,15 @@ export default withAuth(
   },
 )
 
-export const config = { matcher: ['/admin/:path*'] }
+export const config = {
+  matcher: [
+    '/admin/:path*',
+    '/profile/:path*',
+    '/datasets/:path*',
+    '/flow-designer/:path*',
+    '/persona-studio/:path*',
+    '/prompt-lab/:path*',
+    '/insights/:path*',
+    '/dashboard/:path*',
+  ],
+}

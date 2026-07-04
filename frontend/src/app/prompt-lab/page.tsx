@@ -40,9 +40,9 @@ export default function PromptLabPage() {
           <div className="flex items-center gap-3">
             <FlaskConical className="h-5 w-5 text-indigo-600" />
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Prompt Lab</h1>
+              <h1 className="text-2xl font-bold text-slate-900">프롬프트 랩</h1>
               <p className="text-sm text-slate-500">
-                Inspect how your preferences dynamically shape every system prompt
+                선호도가 시스템 프롬프트를 어떻게 동적으로 구성하는지 확인하세요
               </p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function PromptLabPage() {
             className="gap-2"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            새로고침
           </Button>
         </div>
 
@@ -64,8 +64,8 @@ export default function PromptLabPage() {
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
             <FlaskConical className="h-8 w-8 text-slate-300" />
             <div>
-              <p className="text-sm font-semibold text-slate-900">No prompt versions yet</p>
-              <p className="text-xs text-slate-500">Prompt versions are saved on every conversation</p>
+              <p className="text-sm font-semibold text-slate-900">아직 프롬프트 버전이 없습니다</p>
+              <p className="text-xs text-slate-500">대화할 때마다 프롬프트 버전이 자동으로 저장됩니다</p>
             </div>
           </div>
         ) : (
@@ -107,14 +107,14 @@ export default function PromptLabPage() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                            Full System Prompt
+                            전체 시스템 프롬프트
                           </p>
                           <button
                             onClick={() => copy(version.systemPrompt, version.id)}
                             className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
                           >
                             {copied === version.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                            {copied === version.id ? 'Copied' : 'Copy'}
+                            {copied === version.id ? '복사됨' : '복사'}
                           </button>
                         </div>
                         <pre className="max-h-64 overflow-y-auto rounded-lg border border-slate-100 bg-slate-50 p-4 font-mono leading-relaxed whitespace-pre-wrap text-[11px] text-slate-600">

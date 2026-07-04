@@ -82,7 +82,7 @@ export default function HomePage() {
           <div className="flex items-center gap-6">
             <Link
               href="/chat"
-              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-700 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-slate-600"
             >
               채팅 시작하기
               <ArrowRight className="h-4 w-4" />
@@ -160,7 +160,7 @@ export default function HomePage() {
           </h2>
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 self-start rounded-full bg-indigo-600 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 lg:self-auto"
+            className="inline-flex items-center gap-2 self-start rounded-full bg-slate-700 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-600 lg:self-auto"
           >
             채팅 시작하기
             <ArrowRight className="h-4 w-4" />

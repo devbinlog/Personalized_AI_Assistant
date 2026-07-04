@@ -12,7 +12,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className="relative h-5 w-9 rounded-full transition-colors focus:outline-none"
-      style={{ backgroundColor: checked ? '#4f46e5' : '#e2e8f0' }}
+      style={{ backgroundColor: checked ? '#0f172a' : '#e2e8f0' }}
     >
       <span
         className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform shadow-sm"
@@ -80,32 +80,32 @@ export function SettingsClient() {
   const settingRows = [
     {
       icon: Sparkles,
-      label: 'Learning Mode',
-      description: 'Show 3 response styles to choose from — teaches the AI your preferences',
+      label: '학습 모드',
+      description: '3가지 응답 스타일 중 선택 — 선택할수록 AI가 선호도를 학습합니다',
       checked: mode === 'LEARNING',
       onChange: handleMode,
-      iconCls: 'text-indigo-500',
+      iconCls: 'text-slate-600',
     },
     {
       icon: Search,
-      label: 'Automatic Web Search',
-      description: 'Let the assistant decide when real-time search would improve its answer',
+      label: '자동 웹 검색',
+      description: '실시간 검색이 도움이 될 때 어시스턴트가 자동으로 검색합니다',
       checked: settings.autoSearch,
       onChange: (v: boolean) => handleSetting('autoSearch', v),
       iconCls: 'text-emerald-500',
     },
     {
       icon: Lightbulb,
-      label: 'Show Explanations',
-      description: 'Display "Why this answer?" button after each response',
+      label: '설명 표시',
+      description: '각 응답 아래 "왜 이 답변인가?" 버튼을 표시합니다',
       checked: settings.showExplanations,
       onChange: (v: boolean) => handleSetting('showExplanations', v),
-      iconCls: 'text-amber-500',
+      iconCls: 'text-slate-600',
     },
     {
       icon: BarChart2,
-      label: 'Show Confidence Score',
-      description: 'Display how well the response matches your preference profile',
+      label: '일치율 표시',
+      description: '응답이 선호도 프로필과 얼마나 일치하는지 표시합니다',
       checked: settings.showConfidence,
       onChange: (v: boolean) => handleSetting('showConfidence', v),
       iconCls: 'text-violet-500',
@@ -113,12 +113,13 @@ export function SettingsClient() {
   ]
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-slate-50 p-6">
+    <div className="flex flex-1 flex-col overflow-auto p-6 md:p-10" style={{ backgroundColor: '#fafaf9' }}>
+      <div className="mx-auto w-full max-w-xl">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-          <p className="mt-1 text-sm text-slate-500">Configure your assistant preferences</p>
+          <h1 className="text-2xl font-bold" style={{ color: '#1c1917' }}>설정</h1>
+          <p className="mt-1 text-sm" style={{ color: '#78716c' }}>어시스턴트 환경설정</p>
         </div>
 
         {/* Sync indicator */}
@@ -141,7 +142,7 @@ export function SettingsClient() {
         </div>
       </div>
 
-      <div className="max-w-lg">
+      <div>
         {/* Settings card */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           {settingRows.map((row) => (
@@ -168,6 +169,7 @@ export function SettingsClient() {
             설정이 서버에 저장되어 다른 기기에서 접속해도 유지됩니다. AI는 선택 내역을 통해 자동으로 취향을 학습합니다.
           </p>
         </div>
+      </div>
       </div>
     </div>
   )

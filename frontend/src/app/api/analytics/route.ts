@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getOrCreateSession } from '@/lib/session'
+import { resolveUserId } from '@/lib/resolve-user'
 import type { DashboardStats } from '@/types'
 
 export async function GET(_req: NextRequest) {
-  const sessionId = await getOrCreateSession()
+  const userId = await resolveUserId()
+  if (userId === 'anonymous') return NextResponse.json(emptyStats())
 
   try {
-    const user = await prisma.user.findUnique({ where: { sessionId } })
-    if (!user) return NextResponse.json(emptyStats())
-
     const [
       totalConversations,
       totalMessages,
@@ -20,31 +18,16 @@ export async function GET(_req: NextRequest) {
       preferenceLogs,
       recentConvs,
     ] = await Promise.all([
-      prisma.conversation.count({ where: { userId: user.id } }),
-      prisma.message.count({
-        where: { conversation: { userId: user.id } },
-      }),
-      prisma.preferenceLog.count({ where: { userId: user.id } }),
-      prisma.conversation.count({ where: { userId: user.id, mode: 'LEARNING' } }),
-      prisma.preferenceMemory.findUnique({ where: { userId: user.id } }),
-      prisma.promptVersion.findFirst({
-        where: { userId: user.id },
-        orderBy: { version: 'desc' },
-      }),
-      prisma.preferenceLog.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        take: 100,
-      }),
-      prisma.conversation.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        take: 30,
-        select: { createdAt: true },
-      }),
+      prisma.conversation.count({ where: { userId } }),
+      prisma.message.count({ where: { conversation: { userId } } }),
+      prisma.preferenceLog.count({ where: { userId } }),
+      prisma.conversation.count({ where: { userId, mode: 'LEARNING' } }),
+      prisma.preferenceMemory.findUnique({ where: { userId } }),
+      prisma.promptVersion.findFirst({ where: { userId }, orderBy: { version: 'desc' } }),
+      prisma.preferenceLog.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 100 }),
+      prisma.conversation.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 30, select: { createdAt: true } }),
     ])
 
-    // Top strategies
     const strategyCounts = preferenceLogs.reduce<Record<string, number>>((acc, l) => {
       acc[l.selectedStrategy] = (acc[l.selectedStrategy] ?? 0) + 1
       return acc
@@ -54,11 +37,8 @@ export async function GET(_req: NextRequest) {
       .slice(0, 5)
       .map(([strategy, count]) => ({ strategy: strategy as never, count }))
 
-    // Top tags
     const tagCounts = preferenceLogs.reduce<Record<string, number>>((acc, l) => {
-      for (const tag of l.selectedTags) {
-        acc[tag] = (acc[tag] ?? 0) + 1
-      }
+      for (const tag of l.selectedTags) acc[tag] = (acc[tag] ?? 0) + 1
       return acc
     }, {})
     const topTags = Object.entries(tagCounts)
@@ -66,7 +46,6 @@ export async function GET(_req: NextRequest) {
       .slice(0, 5)
       .map(([tag, count]) => ({ tag: tag as never, count }))
 
-    // Activity by day (last 14 days)
     const activityMap = new Map<string, { conversations: number; preferences: number }>()
     for (const conv of recentConvs) {
       const day = conv.createdAt.toISOString().split('T')[0]

@@ -2,6 +2,7 @@
 
 import { useChat } from 'ai/react'
 import { useState, useCallback, useRef } from 'react'
+import type { Message } from 'ai'
 import type { ConversationMode, TaskAnalysis } from '@/types'
 import type { AttachedFile } from '../components/chat-input'
 
@@ -26,6 +27,7 @@ export function useChatStream(
   mode: ConversationMode,
   conversationId?: string,
   onConversationCreated?: (id: string) => void,
+  onStreamFinish?: (text: string) => void,
 ) {
   const [meta, setMeta] = useState<ChatMeta>({
     conversationId: conversationId ?? null,
@@ -41,6 +43,7 @@ export function useChatStream(
   // Maps ai-message-id → database message id for XAI panel lookups
   const [messageIdMap, setMessageIdMap] = useState<Record<string, string>>({})
   const pendingDbMessageId = useRef<string | null>(null)
+  const messagesRef = useRef<Message[]>([])
 
   const chat = useChat({
     api: '/api/chat',
@@ -70,20 +73,33 @@ export function useChatStream(
       }))
     },
     onFinish: (message) => {
-      // Associate the completed ai message id with the DB message id
       if (pendingDbMessageId.current) {
         setMessageIdMap(prev => ({ ...prev, [message.id]: pendingDbMessageId.current! }))
         pendingDbMessageId.current = null
       }
+      const text = typeof message.content === 'string' ? message.content : ''
+      if (text) onStreamFinish?.(text)
     },
     onError: (err) => {
       console.error('Chat stream error:', err)
     },
   })
 
+  // Keep messages ref in sync for history access inside callbacks
+  messagesRef.current = chat.messages
+
   const submitNormal = useCallback((files?: AttachedFile[]) => {
     const opts = files && files.length > 0 ? { body: { files } } : undefined
     chat.handleSubmit(undefined, opts)
+  }, [chat])
+
+  // Used by voice mode: bypasses the `input` state, sends text directly via append
+  const submitNormalWithText = useCallback((text: string, files?: AttachedFile[]) => {
+    const bodyExtra = files && files.length > 0 ? { files } : {}
+    chat.append(
+      { role: 'user', content: text },
+      { body: bodyExtra },
+    )
   }, [chat])
 
   const sendLearningMessage = useCallback(async (userMessage: string, files?: AttachedFile[]) => {
@@ -91,11 +107,17 @@ export function useChatStream(
     setLearningCandidates(null)
 
     try {
+      // Build history from all existing messages (user message already added to UI by caller)
+      const history = messagesRef.current
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .map(m => ({ role: m.role as 'user' | 'assistant', content: typeof m.content === 'string' ? m.content : '' }))
+        .filter(m => m.content !== userMessage || m.role !== 'user') // exclude the just-added user msg
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: userMessage }],
+          messages: [...history, { role: 'user', content: userMessage }],
           mode: 'LEARNING',
           conversationId: meta.conversationId,
           files: files && files.length > 0 ? files : undefined,
@@ -124,6 +146,7 @@ export function useChatStream(
     isLearningLoading,
     sendLearningMessage,
     submitNormal,
+    submitNormalWithText,
     clearLearningCandidates: () => setLearningCandidates(null),
   }
 }

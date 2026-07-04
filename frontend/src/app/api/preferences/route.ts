@@ -7,25 +7,40 @@ import { detectSuggestions, getPendingSuggestions } from '@/services/ai/preferen
 export async function POST(req: NextRequest) {
   const userId = await resolveUserId()
   const body = await req.json()
-  const { messageId, candidateId, selectedStrategy, selectedTags, taskType, domain, complexity, userQuery } = body
+  const {
+    conversationId,
+    selectedContent,
+    selectedStrategy,
+    selectedTags,
+    taskType,
+    domain,
+    complexity,
+    userQuery,
+    taskAnalysis,
+  } = body
 
   try {
     if (userId === 'anonymous') {
       return NextResponse.json({ success: false, error: 'Session not found' }, { status: 401 })
     }
 
-    // Mark candidate as selected
-    await prisma.responseCandidate.update({
-      where: { id: candidateId },
-      data: { isSelected: true },
+    // 사용자가 선택한 후보로 ASSISTANT 메시지 저장
+    const savedMsg = await prisma.message.create({
+      data: {
+        conversationId,
+        role: 'ASSISTANT',
+        content: selectedContent ?? '',
+        taskAnalysis: taskAnalysis ? JSON.stringify(taskAnalysis) as never : null,
+        searchUsed: false,
+      },
     })
 
     // Save preference log
     const log = await prisma.preferenceLog.create({
       data: {
         userId,
-        messageId,
-        candidateId,
+        messageId: savedMsg.id,
+        candidateId: savedMsg.id,
         selectedStrategy,
         selectedTags: selectedTags ?? [],
         taskType,

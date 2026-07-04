@@ -41,7 +41,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
         className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-600 transition-colors"
       >
         <Lightbulb className="h-3 w-3" />
-        {isLoading ? 'Loading explanation…' : 'Why this answer?'}
+        {isLoading ? '설명 불러오는 중…' : '왜 이 답변인가?'}
         {explanation && (isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}
       </button>
 
@@ -51,15 +51,15 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4 text-indigo-500" />
-              <span className="text-sm font-semibold text-slate-900">Response Explanation</span>
+              <Brain className="h-4 w-4 text-slate-600" />
+              <span className="text-sm font-semibold text-slate-900">응답 설명</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline">
                 {strategyLabel(explanation.selectedStrategy)}
               </Badge>
               <Badge variant="success">
-                {confidencePercent(explanation.confidence)} confidence
+                {confidencePercent(explanation.confidence)} 일치
               </Badge>
             </div>
           </div>
@@ -68,11 +68,11 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {explanation.memoryInfluence.length > 0 && (
             <div className="space-y-2">
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                How your preferences shaped this
+                선호도가 이 응답에 미친 영향
               </p>
               <ul className="space-y-1">
                 {explanation.memoryInfluence.map((item, i) => (
-                  <li key={i} className="pl-3 border-l-2 border-indigo-200 text-xs text-slate-600">
+                  <li key={i} className="pl-3 border-l-2 border-slate-300 text-xs text-slate-600">
                     {item}
                   </li>
                 ))}
@@ -84,12 +84,12 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {explanation.reasoningFactors.length > 0 && (
             <div className="space-y-2">
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                Why this response was best
+                이 응답이 선택된 이유
               </p>
               <ul className="space-y-1">
                 {explanation.reasoningFactors.map((item, i) => (
                   <li key={i} className="text-xs text-slate-600 flex items-start gap-2">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400" />
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-500" />
                     {item}
                   </li>
                 ))}
@@ -101,7 +101,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
           {explanation.rankingDetails && explanation.rankingDetails.length > 1 && (
             <div className="space-y-2">
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                All candidates scored
+                전체 후보 점수
               </p>
               <div className="space-y-1">
                 {explanation.rankingDetails
@@ -113,7 +113,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
                       </span>
                       <div className="mx-3 flex-1 h-1.5 rounded-full overflow-hidden bg-slate-100">
                         <div
-                          className="h-full rounded-full transition-all bg-indigo-500"
+                          className="h-full rounded-full transition-all bg-slate-600"
                           style={{
                             width: `${detail.score * 100}%`,
                             opacity: i === 0 ? 1 : 0.35,
@@ -131,7 +131,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
 
           <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
             <Info className="h-3 w-3" />
-            Product-level reasoning only · No internal LLM chain-of-thought exposed
+            제품 수준 설명만 제공 · LLM 내부 추론 과정은 노출되지 않습니다
           </div>
           </div>
         </div>

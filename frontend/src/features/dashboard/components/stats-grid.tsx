@@ -9,42 +9,12 @@ interface StatsGridProps {
 
 export function StatsGrid({ stats }: StatsGridProps) {
   const items = [
-    {
-      label: 'Conversations',
-      value: stats.totalConversations,
-      icon: MessageSquare,
-      iconCls: 'text-indigo-500',
-    },
-    {
-      label: 'Preference Logs',
-      value: stats.totalPreferenceLogs,
-      icon: Layers,
-      iconCls: 'text-emerald-500',
-    },
-    {
-      label: 'Memory Version',
-      value: `v${stats.memoryVersion}`,
-      icon: Brain,
-      iconCls: 'text-violet-500',
-    },
-    {
-      label: 'Prompt Version',
-      value: `v${stats.promptVersion}`,
-      icon: Zap,
-      iconCls: 'text-amber-500',
-    },
-    {
-      label: 'Total Messages',
-      value: stats.totalMessages,
-      icon: TrendingUp,
-      iconCls: 'text-sky-500',
-    },
-    {
-      label: 'Learning Sessions',
-      value: stats.learningModeConversations,
-      icon: BookOpen,
-      iconCls: 'text-rose-500',
-    },
+    { label: '대화 수', value: stats.totalConversations, icon: MessageSquare, iconCls: 'text-indigo-500' },
+    { label: '선호도 로그', value: stats.totalPreferenceLogs, icon: Layers, iconCls: 'text-emerald-500' },
+    { label: '메모리 버전', value: `v${stats.memoryVersion}`, icon: Brain, iconCls: 'text-violet-500' },
+    { label: '프롬프트 버전', value: `v${stats.promptVersion}`, icon: Zap, iconCls: 'text-slate-600' },
+    { label: '총 메시지', value: stats.totalMessages, icon: TrendingUp, iconCls: 'text-sky-500' },
+    { label: '학습 세션', value: stats.learningModeConversations, icon: BookOpen, iconCls: 'text-rose-500' },
   ]
 
   return (

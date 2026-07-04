@@ -38,18 +38,18 @@ export default function RubricPage() {
         <div className="flex items-center gap-3">
           <BarChart3 className="h-5 w-5 text-indigo-600" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Rubric Analysis</h1>
-            <p className="text-sm text-slate-500">18-dimension response quality breakdown</p>
+            <h1 className="text-2xl font-bold text-slate-900">루브릭 분석</h1>
+            <p className="text-sm text-slate-500">18차원 응답 품질 상세 분석</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-sm text-slate-400">Loading...</div>
+          <div className="text-center py-10 text-sm text-slate-400">불러오는 중...</div>
         ) : totalEvaluations === 0 ? (
           <div className="rounded-2xl border border-slate-100 bg-white text-center py-16 shadow-sm">
             <BarChart3 className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-            <p className="text-sm text-slate-600">No evaluation data yet.</p>
-            <p className="text-xs text-slate-400 mt-1.5">Use Normal Mode to generate AI responses — each one gets evaluated automatically.</p>
+            <p className="text-sm text-slate-600">아직 평가 데이터가 없습니다.</p>
+            <p className="text-xs text-slate-400 mt-1.5">일반 모드에서 AI 응답을 생성하면 자동으로 평가됩니다.</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -57,22 +57,22 @@ export default function RubricPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
                 <div className="text-2xl font-bold text-slate-900">{totalEvaluations}</div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">Evaluations</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">평가 횟수</div>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
                 <div className="text-2xl font-bold text-slate-900">{(overallAvg * 100).toFixed(0)}%</div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">Overall Score</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">전체 점수</div>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
                 <div className="text-2xl font-bold text-slate-900">18</div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">Dimensions</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">평가 차원</div>
               </div>
             </div>
 
             {/* Strongest & weakest */}
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Strongest</div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">강점</div>
                 <div className="divide-y divide-slate-100">
                   {strongest.filter(d => d.key !== 'overallScore').map(d => (
                     <div key={d.key} className="flex items-center justify-between py-2">
@@ -85,7 +85,7 @@ export default function RubricPage() {
                 </div>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Needs Work</div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">개선 필요</div>
                 <div className="divide-y divide-slate-100">
                   {weakest.filter(d => d.key !== 'overallScore').map(d => (
                     <div key={d.key} className="flex items-center justify-between py-2">
@@ -102,7 +102,7 @@ export default function RubricPage() {
             {/* Full dimension grid */}
             <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
               <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">
-                All Dimensions
+                전체 차원
               </div>
               <div className="divide-y divide-slate-100">
                 {displayDims.map(dim => (

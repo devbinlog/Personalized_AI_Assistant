@@ -1,12 +1,11 @@
-import { Navbar } from '@/components/layout/navbar'
+import { AppShell } from '@/components/layout/app-shell'
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen flex-col bg-white">
-      <Navbar />
-      <main className="flex flex-1 flex-col overflow-auto pt-14 bg-slate-50">
+    <AppShell>
+      <div className="flex-1 overflow-auto" style={{ backgroundColor: '#f9f9fb' }}>
         {children}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }

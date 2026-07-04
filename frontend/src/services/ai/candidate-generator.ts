@@ -34,19 +34,45 @@ export interface GeneratedCandidate {
   index: number
 }
 
+interface ImageFile {
+  content: string  // base64
+  mimeType: string
+}
+
+type MultiModalContent =
+  | string
+  | Array<{ type: 'text'; text: string } | { type: 'image'; image: string; mimeType: string }>
+
 export async function generateCandidates(
   userMessage: string,
   systemPrompt: string,
   conversationHistory: Array<{ role: string; content: string }>,
   taskAnalysis: TaskAnalysis,
   _memory?: PreferenceMemory | null,
+  imageFiles?: ImageFile[],
 ): Promise<GeneratedCandidate[]> {
   const provider = getLLMProvider()
   const strategies = pickStrategies(taskAnalysis.taskType)
 
+  const userContent: MultiModalContent =
+    imageFiles && imageFiles.length > 0
+      ? [
+          { type: 'text', text: userMessage },
+          ...imageFiles.map(f => ({ type: 'image' as const, image: f.content, mimeType: f.mimeType })),
+        ]
+      : userMessage
+
   const candidatePromises = strategies.map(async (strategy, index) => {
     const instruction = STRATEGY_INSTRUCTIONS[strategy]
-    const augmentedSystem = `${systemPrompt}\n\n---\nRESPONSE STYLE: ${instruction}\nStrategy: ${strategy}`
+    const augmentedSystem = `${systemPrompt}
+
+---
+RESPONSE STYLE FOR THIS CANDIDATE: ${instruction}
+
+CRITICAL RULES (must follow without exception):
+1. LANGUAGE: Detect the language of the user's message and respond ENTIRELY in that exact same language. Korean message → respond 100% in Korean. English message → respond 100% in English. Never mix languages.
+2. NO META-COMMENTARY: Do NOT include any text like "Context applied:", "Task:", "Complexity:", "Domain:", "Strategy:", or any analysis/labeling about the task itself. Just respond to the user naturally.
+3. Respond directly to what the user said — do not describe or quote the user's message back to them.`
 
     const { text } = await generateText({
       model: provider.getModel(),
@@ -56,7 +82,7 @@ export async function generateCandidates(
           role: m.role as 'user' | 'assistant',
           content: m.content,
         })),
-        { role: 'user', content: userMessage },
+        { role: 'user', content: userContent as never },
       ],
       maxTokens: 1500,
     })

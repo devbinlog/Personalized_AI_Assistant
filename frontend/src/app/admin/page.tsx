@@ -11,6 +11,9 @@ import {
   Shield,
   ChevronRight,
   Loader2,
+  Trash2,
+  Search,
+  RefreshCw,
 } from 'lucide-react'
 
 type AdminUser = {
@@ -41,8 +44,12 @@ export default function AdminPage() {
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [updatingRole, setUpdatingRole] = useState<string | null>(null)
+  const [deletingUser, setDeletingUser] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'ALL' | 'ADMIN' | 'USER'>('ALL')
 
   const isAdmin = (session?.user as { role?: string })?.role === 'ADMIN'
+  const myId = (session?.user as { id?: string })?.id
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -96,6 +103,21 @@ export default function AdminPage() {
     }
   }
 
+  async function deleteUser(userId: string, userName: string | null) {
+    if (!confirm(`"${userName ?? '사용자'}"를 삭제하시겠습니까? 모든 데이터가 함께 삭제됩니다.`)) return
+    setDeletingUser(userId)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' })
+      if (res.ok) {
+        setUsers(prev => prev.filter(u => u.id !== userId))
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDeletingUser(null)
+    }
+  }
+
   if (status === 'loading') {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -114,18 +136,36 @@ export default function AdminPage() {
   }
 
   const STAT_CARDS = [
-    { label: '총 사용자 수', value: stats?.totalUsers ?? 0, icon: Users, iconCls: 'text-indigo-500' },
+    { label: '총 사용자 수', value: stats?.totalUsers ?? 0, icon: Users, iconCls: 'text-slate-700' },
     { label: '총 대화 수', value: stats?.totalConversations ?? 0, icon: MessageSquare, iconCls: 'text-emerald-500' },
     { label: '총 학습 로그 수', value: stats?.totalPreferenceLogs ?? 0, icon: BookOpen, iconCls: 'text-violet-500' },
-    { label: '오늘 신규 가입', value: stats?.todayActivity ?? 0, icon: Activity, iconCls: 'text-amber-500' },
+    { label: '오늘 신규 가입', value: stats?.todayActivity ?? 0, icon: Activity, iconCls: 'text-slate-500' },
   ]
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch =
+      !searchQuery ||
+      u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter
+    return matchesSearch && matchesRole
+  })
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">관리자 대시보드</h1>
-        <p className="mt-1 text-sm text-slate-500">플랫폼 사용 현황 및 사용자 관리</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">관리자 대시보드</h1>
+          <p className="mt-1 text-sm text-slate-500">플랫폼 사용 현황 및 사용자 관리</p>
+        </div>
+        <button
+          onClick={fetchUsers}
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          새로고침
+        </button>
       </div>
 
       {/* Stats */}
@@ -144,17 +184,40 @@ export default function AdminPage() {
 
       {/* Users table */}
       <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-900">사용자 목록</h2>
-          <span className="text-xs text-slate-400">{users.length}명</span>
+        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-100">
+          <h2 className="text-sm font-semibold text-slate-900 shrink-0">사용자 목록</h2>
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="이름 또는 이메일 검색…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              />
+            </div>
+            <select
+              value={roleFilter}
+              onChange={e => setRoleFilter(e.target.value as 'ALL' | 'ADMIN' | 'USER')}
+              className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300"
+            >
+              <option value="ALL">전체</option>
+              <option value="ADMIN">관리자</option>
+              <option value="USER">사용자</option>
+            </select>
+          </div>
+          <span className="text-xs text-slate-400 shrink-0">{filteredUsers.length}명</span>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
           </div>
-        ) : users.length === 0 ? (
-          <div className="py-16 text-center text-sm text-slate-400">등록된 사용자가 없습니다.</div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="py-16 text-center text-sm text-slate-400">
+            {searchQuery ? '검색 결과가 없습니다.' : '등록된 사용자가 없습니다.'}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -169,8 +232,8 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-slate-50 border-b border-slate-100 transition-colors last:border-b-0">
                     <td className="px-6 py-3.5">
                       <p className="text-sm text-slate-900">{user.name ?? '—'}</p>
                       <p className="text-xs text-slate-400 mt-0.5">
@@ -179,9 +242,9 @@ export default function AdminPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                           user.role === 'ADMIN'
-                            ? 'bg-indigo-50 border border-indigo-100 text-indigo-700'
+                            ? 'bg-slate-700 text-white'
                             : 'bg-slate-100 text-slate-600'
                         }`}
                       >
@@ -198,18 +261,35 @@ export default function AdminPage() {
                       {new Date(user.createdAt).toLocaleDateString('ko-KR')}
                     </td>
                     <td className="px-4 py-3.5">
-                      <button
-                        onClick={() => toggleRole(user.id, user.role)}
-                        disabled={updatingRole === user.id}
-                        className="flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
-                      >
-                        {updatingRole === user.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <ChevronRight className="h-3 w-3" />
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => toggleRole(user.id, user.role)}
+                          disabled={updatingRole === user.id || user.id === myId}
+                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-40"
+                          title={user.id === myId ? '자신의 역할은 변경할 수 없습니다' : ''}
+                        >
+                          {updatingRole === user.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <ChevronRight className="h-3 w-3" />
+                          )}
+                          {user.role === 'ADMIN' ? '권한 해제' : '관리자로'}
+                        </button>
+                        {user.id !== myId && (
+                          <button
+                            onClick={() => deleteUser(user.id, user.name ?? user.email)}
+                            disabled={deletingUser === user.id}
+                            className="flex items-center gap-1 rounded-lg border border-red-100 px-2 py-1 text-xs text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                          >
+                            {deletingUser === user.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3 w-3" />
+                            )}
+                            삭제
+                          </button>
                         )}
-                        {user.role === 'ADMIN' ? '권한 해제' : '관리자로'}
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

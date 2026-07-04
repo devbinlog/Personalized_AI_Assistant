@@ -25,9 +25,11 @@ import { generateExplanation } from '@/services/ai/explainer'
 import { maybeSummarizeConversation } from '@/services/ai/conversation-summarizer'
 import { resolvePersonaForTask } from '@/services/ai/persona-manager'
 import { searchWeb, buildSearchContext } from '@/services/search/tavily'
+import { searchWithOpenAI } from '@/services/search/openai-search'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateSession, setSessionCookie } from '@/lib/session'
 import { resolveUserContext } from '@/lib/resolve-user'
+import { rateLimit } from '@/lib/rate-limit'
 import type { ConversationMode } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -36,9 +38,21 @@ export const maxDuration = 60
 // ── Attached file type (mirrors chat-input.tsx) ───────────────
 type AttachedFile = {
   name: string
-  type: 'image' | 'text'
-  content: string   // base64 for images, plain text for text
+  type: 'image' | 'text' | 'pdf'
+  content: string   // base64 for images/pdf, plain text for text
   mimeType: string
+}
+
+async function extractPdfText(base64: string): Promise<string> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>
+    const buffer = Buffer.from(base64, 'base64')
+    const data = await pdfParse(buffer)
+    return data.text.slice(0, 8000)
+  } catch {
+    return '[PDF 텍스트 추출 실패]'
+  }
 }
 
 // ── LangGraph backend response types ─────────────────────────
@@ -68,6 +82,22 @@ type BackendResponse = {
 export async function POST(req: NextRequest) {
   const sessionId = await getOrCreateSession()
 
+  // Rate limit: 20 requests per minute per session
+  const rl = rateLimit(`chat:${sessionId}`, 20, 60_000)
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rl.reset - Date.now()) / 1000)),
+          'X-RateLimit-Limit': '20',
+          'X-RateLimit-Remaining': '0',
+        },
+      },
+    )
+  }
+
   const body = await req.json()
   const {
     messages,
@@ -84,12 +114,24 @@ export async function POST(req: NextRequest) {
   const rawUserMessage = messages[messages.length - 1]?.content ?? ''
   const history = messages.slice(0, -1)
 
-  // Inject text file contents into the user message
+  // Inject text + PDF contents into the user message; keep images separate for vision
   const textFiles = files?.filter(f => f.type === 'text') ?? []
   const imageFiles = files?.filter(f => f.type === 'image') ?? []
-  const fileContext = textFiles
-    .map(f => `[첨부 파일: ${f.name}]\n\`\`\`\n${f.content}\n\`\`\``)
-    .join('\n\n')
+  const pdfFiles = files?.filter(f => f.type === 'pdf') ?? []
+
+  // Extract text from PDFs server-side
+  const pdfTexts = await Promise.all(
+    pdfFiles.map(async f => {
+      const text = await extractPdfText(f.content)
+      return `[PDF 첨부: ${f.name}]\n${text}`
+    }),
+  )
+
+  const fileContext = [
+    ...textFiles.map(f => `[첨부 파일: ${f.name}]\n\`\`\`\n${f.content}\n\`\`\``),
+    ...pdfTexts,
+  ].join('\n\n')
+
   const userMessage = fileContext
     ? `${rawUserMessage}\n\n${fileContext}`
     : rawUserMessage
@@ -176,12 +218,25 @@ export async function POST(req: NextRequest) {
   const activePersona = await resolvePersonaForTask(taskAnalysis.taskType)
 
   // ── 4. Web Search (if needed) ────────────────────────────
-  // Skip if backend already handled search in its pipeline
+  // Priority: Tavily (if key set) → OpenAI search (if key set) → skip
   let searchContext: string | null = null
   if (!backend && taskAnalysis.needsWebSearch) {
-    const searchQuery = userMessage.slice(0, 200)
-    const results = await searchWeb(searchQuery)
-    searchContext = buildSearchContext(results)
+    const baseQuery = userMessage.slice(0, 180)
+    const hasTavily = !!process.env.TAVILY_API_KEY
+    const hasOpenAI = !!process.env.OPENAI_API_KEY
+
+    let searchResults
+    if (hasTavily) {
+      const searchDays =
+        taskAnalysis.taskType === 'SEARCH_REQUIRED' ? 14
+        : taskAnalysis.taskType === 'RESEARCH' ? 180
+        : 90
+      searchResults = await searchWeb(baseQuery, 7, searchDays)
+    } else if (hasOpenAI) {
+      searchResults = await searchWithOpenAI(baseQuery)
+    }
+
+    if (searchResults) searchContext = buildSearchContext(searchResults)
   }
 
   // ── 5. Build prompt ──────────────────────────────────────
@@ -214,36 +269,12 @@ export async function POST(req: NextRequest) {
   if (mode === 'LEARNING') {
     const candidates = (
       backend?.candidates ??
-      await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory)
+      await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
     ) as Awaited<ReturnType<typeof generateCandidates>>
 
-    // Save assistant message with candidates
-    let savedMessageId: string | undefined
-    try {
-      const savedMsg = await prisma.message.create({
-        data: {
-          conversationId: convId!,
-          role: 'ASSISTANT',
-          content: candidates[0]?.content ?? '',
-          taskAnalysis: taskAnalysis as never,
-          searchUsed: taskAnalysis.needsWebSearch,
-        },
-      })
-      savedMessageId = savedMsg.id
-
-      await Promise.all(
-        candidates.map(c =>
-          prisma.responseCandidate.create({
-            data: {
-              messageId: savedMsg.id,
-              strategy: c.strategy,
-              content: c.content,
-              index: c.index,
-            },
-          }),
-        ),
-      )
-    } catch {}
+    // 학습 모드: 사용자가 선택하기 전까지 ASSISTANT 메시지 저장 안 함
+    // 후보만 임시로 USER 메시지 ID에 연결해두고, /api/preferences에서 선택 시 저장
+    const savedMessageId = undefined
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -268,7 +299,7 @@ export async function POST(req: NextRequest) {
   // ── 7. NORMAL MODE: generate → evaluate → rank → stream ──
   const candidates = (
     backend?.candidates ??
-    await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory)
+    await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
   ) as Awaited<ReturnType<typeof generateCandidates>>
 
   // Use backend ranking when available, otherwise rank locally
@@ -295,7 +326,7 @@ export async function POST(req: NextRequest) {
         conversationId: convId!,
         role: 'ASSISTANT',
         content: best.content,
-        taskAnalysis: taskAnalysis as never,
+        taskAnalysis: JSON.stringify(taskAnalysis) as never,
         searchUsed: taskAnalysis.needsWebSearch,
       },
     })
@@ -315,6 +346,38 @@ export async function POST(req: NextRequest) {
         }),
       ),
     )
+
+    // Save evaluation for best candidate
+    const bestEval = evaluations.find((e: { index: number }) => e.index === best.index)
+    const bestCandidate = ranked.find((c: { index: number }) => c.index === best.index)
+    if (bestEval && bestCandidate) {
+      await prisma.responseEvaluation.upsert({
+        where: { messageId: savedMsg.id },
+        create: {
+          messageId: savedMsg.id,
+          candidateId: bestCandidate.id ?? savedMsg.id,
+          naturalness: bestEval.professionalism ?? 0.7,
+          grammar: bestEval.readability ?? 0.7,
+          toneConsistency: bestEval.professionalism ?? 0.7,
+          personaConsistency: bestEval.professionalism ?? 0.7,
+          instructionFollowing: bestEval.taskMatch ?? 0.7,
+          factualAccuracy: bestEval.taskMatch ?? 0.7,
+          hallucinationRisk: 0.1,
+          clarity: bestEval.readability ?? 0.7,
+          structure: bestEval.structure ?? 0.7,
+          completeness: bestEval.completeness ?? 0.7,
+          specificity: bestEval.specificity ?? 0.7,
+          actionability: bestEval.specificity ?? 0.7,
+          readability: bestEval.readability ?? 0.7,
+          formatting: bestEval.formatting ?? 0.7,
+          safety: 1.0,
+          preferenceMatch: bestEval.preferenceMatch ?? 0.5,
+          searchGrounding: taskAnalysis.needsWebSearch ? 0.8 : 0.5,
+          overallScore: bestEval.overall ?? 0.7,
+        },
+        update: {},
+      }).catch(() => {})
+    }
 
     // XAI explanation
     await generateExplanation(

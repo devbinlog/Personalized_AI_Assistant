@@ -23,10 +23,10 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
   return (
     <div className="border-t border-slate-200 bg-white px-4 py-4">
       <p className="mb-1 text-sm font-semibold text-slate-900">
-        What made this response better?{' '}
-        <span className="font-normal text-slate-500">(optional)</span>
+        이 응답이 더 나았던 이유는?{' '}
+        <span className="font-normal text-slate-500">(선택)</span>
       </p>
-      <p className="mb-4 text-xs text-slate-500">Your feedback helps the AI learn your style</p>
+      <p className="mb-4 text-xs text-slate-500">선택할수록 AI가 당신의 스타일을 더 잘 학습합니다</p>
 
       <div className="flex flex-wrap gap-2 mb-5">
         {PREFERENCE_TAGS.map(tag => {
@@ -59,14 +59,14 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
           )}
         >
           <Send className="h-3.5 w-3.5" />
-          Save preference
+          선호도 저장
         </button>
         <button
           onClick={() => onSubmit([])}
           disabled={isSubmitting}
           className="rounded-xl border border-slate-200 px-5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
         >
-          Skip
+          건너뛰기
         </button>
       </div>
     </div>

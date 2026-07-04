@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { MessageSquarePlus, Trash2, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDate } from '@/lib/utils'
+import { useAppStore } from '@/stores/app-store'
 
 interface Conversation {
   id: string
@@ -22,21 +23,30 @@ interface ConversationSidebarProps {
 
 export function ConversationSidebar({ collapsed, onToggle }: ConversationSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const resetChat = useAppStore(s => s.resetChat)
+  const chatResetKey = useAppStore(s => s.chatResetKey)
+  const sidebarRefreshKey = useAppStore(s => s.sidebarRefreshKey)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
 
+  function handleNewChat() {
+    resetChat()
+    router.push('/chat')
+  }
+
   const load = useCallback(async () => {
     const res = await fetch('/api/conversations').catch(() => null)
-    if (!res?.ok) return
+    if (!res?.ok) { setLoading(false); return }
     const data = await res.json()
     setConversations(data.conversations ?? [])
     setLoading(false)
   }, [])
 
   useEffect(() => { load() }, [load])
-
-  // 현재 대화가 바뀌면 목록 새로고침
   useEffect(() => { load() }, [pathname, load])
+  useEffect(() => { if (chatResetKey > 0) setTimeout(load, 800) }, [chatResetKey, load])
+  useEffect(() => { if (sidebarRefreshKey > 0) load() }, [sidebarRefreshKey, load])
 
   async function deleteConversation(id: string, e: React.MouseEvent) {
     e.preventDefault()
@@ -67,13 +77,13 @@ export function ConversationSidebar({ collapsed, onToggle }: ConversationSidebar
 
       {collapsed ? (
         <div className="flex flex-col items-center gap-3 pt-4 px-2">
-          <Link
-            href="/chat"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-colors"
+          <button
+            onClick={handleNewChat}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors"
             title="새 대화"
           >
             <MessageSquarePlus className="h-4 w-4" />
-          </Link>
+          </button>
           {conversations.slice(0, 8).map(c => (
             <Link
               key={c.id}
@@ -81,7 +91,7 @@ export function ConversationSidebar({ collapsed, onToggle }: ConversationSidebar
               className={cn(
                 'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
                 activeId === c.id
-                  ? 'bg-indigo-50 text-indigo-600'
+                  ? 'bg-slate-100 text-slate-900'
                   : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700',
               )}
               title={c.title ?? '대화'}
@@ -95,13 +105,13 @@ export function ConversationSidebar({ collapsed, onToggle }: ConversationSidebar
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">대화 기록</span>
-            <Link
-              href="/chat"
-              className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+            <button
+              onClick={handleNewChat}
+              className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
             >
               <MessageSquarePlus className="h-3.5 w-3.5" />
               새 대화
-            </Link>
+            </button>
           </div>
 
           {/* List */}
@@ -126,7 +136,7 @@ export function ConversationSidebar({ collapsed, onToggle }: ConversationSidebar
                       className={cn(
                         'group flex items-center justify-between rounded-lg px-2.5 py-2 text-sm transition-colors',
                         activeId === c.id
-                          ? 'bg-indigo-50 text-indigo-700'
+                          ? 'bg-slate-100 text-slate-800'
                           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                       )}
                     >

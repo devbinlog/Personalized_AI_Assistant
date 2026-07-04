@@ -59,3 +59,24 @@ export async function PATCH(
 
   return NextResponse.json({ user: updated })
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user as { role?: string }).role !== 'ADMIN') {
+    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+  }
+
+  const { id } = await params
+
+  // Prevent self-deletion
+  const me = session.user as { id?: string }
+  if (me?.id === id) {
+    return NextResponse.json({ error: '자신의 계정은 삭제할 수 없습니다.' }, { status: 400 })
+  }
+
+  await prisma.user.delete({ where: { id } })
+  return NextResponse.json({ ok: true })
+}

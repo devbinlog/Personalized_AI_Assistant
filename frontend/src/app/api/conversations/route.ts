@@ -6,10 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(_req: NextRequest) {
   const userId = await resolveUserId()
+  if (userId === 'anonymous') return NextResponse.json({ conversations: [] })
 
   try {
-    if (userId === 'anonymous') return NextResponse.json({ conversations: [] })
-
     const conversations = await prisma.conversation.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },

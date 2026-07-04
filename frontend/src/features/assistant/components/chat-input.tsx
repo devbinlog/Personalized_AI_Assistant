@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useCallback, useState, useEffect, type KeyboardEvent } from 'react'
-import { Send, Square, Paperclip, X, FileText, Image as ImageIcon, Mic, MicOff } from 'lucide-react'
+import { Send, Square, Paperclip, X, FileText, Image as ImageIcon, Mic, MicOff, Headphones, HeadphoneOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Web Speech API types (not in default TS lib)
@@ -36,8 +36,8 @@ declare global {
 
 export interface AttachedFile {
   name: string
-  type: 'image' | 'text'
-  content: string   // base64 for image, plain text for text files
+  type: 'image' | 'text' | 'pdf'
+  content: string   // base64 for image/pdf, plain text for text files
   mimeType: string
 }
 
@@ -45,11 +45,14 @@ interface ChatInputProps {
   value: string
   onChange: (value: string) => void
   onSubmit: (files?: AttachedFile[]) => void
+  onVoiceSubmit?: (text: string, files?: AttachedFile[]) => void
   onStop?: () => void
   isStreaming?: boolean
   isLoading?: boolean
   disabled?: boolean
   placeholder?: string
+  voiceMode?: boolean
+  onVoiceModeChange?: (enabled: boolean) => void
 }
 
 const ACCEPTED = '.txt,.md,.ts,.tsx,.js,.jsx,.py,.json,.csv,.pdf,image/*'
@@ -59,19 +62,26 @@ export function ChatInput({
   value,
   onChange,
   onSubmit,
+  onVoiceSubmit,
   onStop,
   isStreaming,
   isLoading,
   disabled,
   placeholder = '무엇이든 물어보세요…',
+  voiceMode = false,
+  onVoiceModeChange,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const recognitionRef = useRef<ISpeechRecognition | null>(null)
+  const attachedFilesRef = useRef<AttachedFile[]>([])
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
+
+  // Keep ref in sync for use inside STT callbacks
+  attachedFilesRef.current = attachedFiles
 
   useEffect(() => {
     setSpeechSupported(
@@ -98,12 +108,23 @@ export function ChatInput({
 
     rec.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript
-      onChange(value ? `${value} ${transcript}` : transcript)
-      // Auto-resize textarea
-      requestAnimationFrame(() => {
-        const el = textareaRef.current
-        if (el) { el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 200)}px` }
-      })
+      if (!transcript.trim()) return
+
+      if (voiceMode && onVoiceSubmit) {
+        // Voice mode: pass transcript text directly to bypass stale `input` closure
+        const files = attachedFilesRef.current
+        onVoiceSubmit(transcript, files.length > 0 ? files : undefined)
+        setAttachedFiles([])
+        onChange('')
+      } else {
+        // Normal mic: just fill the text field
+        const newValue = value ? `${value} ${transcript}` : transcript
+        onChange(newValue)
+        requestAnimationFrame(() => {
+          const el = textareaRef.current
+          if (el) { el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 200)}px` }
+        })
+      }
     }
     rec.onerror = () => setIsRecording(false)
     rec.onend = () => setIsRecording(false)
@@ -111,7 +132,7 @@ export function ChatInput({
     recognitionRef.current = rec
     rec.start()
     setIsRecording(true)
-  }, [isRecording, value, onChange])
+  }, [isRecording, value, onChange, voiceMode, onVoiceSubmit])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -143,6 +164,13 @@ export function ChatInput({
       if (file.type.startsWith('image/')) {
         const base64 = await readAsBase64(file)
         results.push({ name: file.name, type: 'image', content: base64, mimeType: file.type })
+      } else if (file.type === 'application/pdf') {
+        if (file.size > 10_000_000) {
+          setFileError(`${file.name} PDF가 너무 큽니다 (최대 10MB)`)
+          continue
+        }
+        const base64 = await readAsBase64(file)
+        results.push({ name: file.name, type: 'pdf', content: base64, mimeType: 'application/pdf' })
       } else {
         if (file.size > MAX_TEXT_BYTES) {
           setFileError(`${file.name} 파일이 너무 큽니다 (최대 50KB)`)
@@ -169,7 +197,7 @@ export function ChatInput({
   const busy = isStreaming || isLoading
 
   return (
-    <div className="border-t border-slate-200 bg-white px-4 py-3">
+    <div className="px-4 py-3" style={{ borderTop: '1px solid #e7e5e4', backgroundColor: '#ffffff' }}>
       <div className="mx-auto max-w-3xl space-y-2">
         {/* File previews */}
         {attachedFiles.length > 0 && (
@@ -177,11 +205,12 @@ export function ChatInput({
             {attachedFiles.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-600"
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs"
+                style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9', color: '#374151' }}
               >
                 {f.type === 'image'
-                  ? <ImageIcon className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-                  : <FileText className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                  ? <ImageIcon className="h-3.5 w-3.5 shrink-0" style={{ color: '#334155' }} />
+                  : <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: f.type === 'pdf' ? '#ef4444' : '#334155' }} />
                 }
                 <span className="max-w-[140px] truncate">{f.name}</span>
                 <button
@@ -205,7 +234,10 @@ export function ChatInput({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={busy || disabled || attachedFiles.length >= 3}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ border: '1px solid #e7e5e4', color: '#9ca3af' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#334155' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.color = '#9ca3af' }}
             title="파일 첨부 (이미지, 텍스트, 코드)"
           >
             <Paperclip className="h-4 w-4" />
@@ -221,27 +253,45 @@ export function ChatInput({
 
           {/* Voice input button */}
           {speechSupported && (
-            <button
-              type="button"
-              onClick={toggleRecording}
-              disabled={busy || disabled}
-              title={isRecording ? '녹음 중지' : '음성 입력'}
-              className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
-                isRecording
-                  ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100'
-                  : 'border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-500',
-              )}
-            >
-              {isRecording ? (
-                <span className="relative flex h-4 w-4 items-center justify-center">
-                  <span className="absolute h-4 w-4 animate-ping rounded-full bg-red-400 opacity-60" />
-                  <MicOff className="h-3.5 w-3.5" />
-                </span>
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={toggleRecording}
+                disabled={busy || disabled}
+                title={isRecording ? '녹음 중지' : '음성 입력'}
+                className={cn(
+                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
+                  isRecording
+                    ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100'
+                    : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
+                )}
+              >
+                {isRecording ? (
+                  <span className="relative flex h-4 w-4 items-center justify-center">
+                    <span className="absolute h-4 w-4 animate-ping rounded-full bg-red-400 opacity-60" />
+                    <MicOff className="h-3.5 w-3.5" />
+                  </span>
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </button>
+
+              {/* Voice conversation mode toggle */}
+              <button
+                type="button"
+                onClick={() => onVoiceModeChange?.(!voiceMode)}
+                disabled={disabled}
+                title={voiceMode ? '음성 대화 모드 끄기' : '음성 대화 모드 켜기 (말하면 자동 전송 + AI 음성 응답)'}
+                className={cn(
+                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
+                  voiceMode
+                    ? 'border-slate-400 bg-slate-100 text-slate-900'
+                    : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
+                )}
+              >
+                {voiceMode ? <Headphones className="h-4 w-4" /> : <HeadphoneOff className="h-4 w-4" />}
+              </button>
+            </>
           )}
 
           <textarea
@@ -256,17 +306,26 @@ export function ChatInput({
             placeholder={placeholder}
             rows={1}
             className={cn(
-              'flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100',
-              'min-h-[44px] max-h-[200px]',
+              'flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none transition-colors min-h-[44px] max-h-[200px]',
               (disabled || busy) && 'opacity-60',
             )}
+            style={{
+              border: '1px solid #e7e5e4',
+              backgroundColor: '#fafaf9',
+              color: '#1c1917',
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196,181,253,0.2)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.backgroundColor = '#fafaf9'; e.currentTarget.style.boxShadow = 'none' }}
           />
 
           <div className="flex items-end pb-0.5">
             {busy ? (
               <button
                 onClick={onStop}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-white transition-colors"
+                style={{ backgroundColor: '#334155' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#475569')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#334155')}
               >
                 <Square className="h-4 w-4 fill-current" />
               </button>
@@ -274,7 +333,10 @@ export function ChatInput({
               <button
                 onClick={handleSend}
                 disabled={(!value.trim() && attachedFiles.length === 0) || disabled}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ backgroundColor: '#334155' }}
+                onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = '#475569' }}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#334155')}
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -283,7 +345,8 @@ export function ChatInput({
         </div>
 
         <p className="text-center text-[10px] text-slate-400">
-          Enter로 전송 · Shift+Enter 줄바꿈 · 파일 첨부 최대 3개{speechSupported ? ' · 🎤 음성 입력 지원' : ''}
+          Enter로 전송 · Shift+Enter 줄바꿈 · 파일 첨부 최대 3개
+          {speechSupported ? (voiceMode ? ' · 🎧 음성 대화 모드 ON — 말하면 자동 전송' : ' · 🎤 음성 입력 지원') : ''}
         </p>
       </div>
     </div>

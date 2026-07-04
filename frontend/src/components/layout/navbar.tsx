@@ -71,7 +71,7 @@ function DropdownMenu({ items }: { items: DropdownItem[] }) {
           href={item.href}
           className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
         >
-          <item.icon className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+          <item.icon className="h-3.5 w-3.5 text-slate-600 shrink-0" />
           {item.label}
         </Link>
       ))}
@@ -104,7 +104,7 @@ function NavLink({ item }: { item: NavItem }) {
         href={item.href}
         className={cn(
           'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+          isActive ? 'bg-slate-100 text-slate-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
         )}
       >
         {item.label}
@@ -118,7 +118,7 @@ function NavLink({ item }: { item: NavItem }) {
         onClick={() => setOpen(o => !o)}
         className={cn(
           'flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+          isActive ? 'bg-slate-100 text-slate-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
         )}
       >
         {item.label}
@@ -147,7 +147,7 @@ function UserMenu() {
     return (
       <Link
         href="/auth/signin"
-        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 transition-colors"
       >
         로그인
       </Link>
@@ -163,7 +163,7 @@ function UserMenu() {
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
       >
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-white">
           {initials}
         </div>
         <span className="max-w-[90px] truncate text-xs font-medium">{name}</span>
@@ -176,7 +176,7 @@ function UserMenu() {
             <p className="truncate text-xs font-medium text-slate-900">{name}</p>
             <p className="truncate text-xs text-slate-400">{session.user?.email}</p>
             {isAdmin && (
-              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-700">
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-800">
                 <Shield className="h-2.5 w-2.5" />
                 관리자
               </span>
@@ -188,7 +188,7 @@ function UserMenu() {
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
             >
-              <Shield className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+              <Shield className="h-3.5 w-3.5 text-slate-600 shrink-0" />
               관리자 대시보드
             </Link>
           )}
@@ -197,7 +197,7 @@ function UserMenu() {
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
           >
-            <User className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+            <User className="h-3.5 w-3.5 text-slate-600 shrink-0" />
             내 프로필
           </Link>
           <button
@@ -222,7 +222,7 @@ export function Navbar() {
       <div className="flex h-full items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-700">
             <Brain className="h-4 w-4 text-white" />
           </div>
           <span className="text-sm font-semibold text-slate-900">Adaptive AI</span>
@@ -242,7 +242,7 @@ export function Navbar() {
             className={cn(
               'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
               isLearning
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-slate-700 text-white'
                 : 'border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50',
             )}
           >

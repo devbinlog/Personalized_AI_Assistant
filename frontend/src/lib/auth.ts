@@ -39,5 +39,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: { signIn: '/auth/signin' },
-  secret: process.env.NEXTAUTH_SECRET ?? 'adaptive-ai-dev-secret',
+  secret: process.env.NEXTAUTH_SECRET ?? (process.env.NODE_ENV === 'production' ? (() => { throw new Error('NEXTAUTH_SECRET is required in production') })() : 'dev-secret-not-for-production'),
 }
