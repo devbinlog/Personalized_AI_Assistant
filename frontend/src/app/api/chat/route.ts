@@ -7,10 +7,9 @@
  * LEARNING mode: same pipeline but return all 3 candidates (no streaming)
  *               → user selects → preference logged → memory updated
  *
- * Step 2.5 — LangGraph backend orchestration:
- *   Calls FastAPI/LangGraph at LANGGRAPH_BACKEND_URL before local pipeline.
- *   Uses backend task_analysis, system_prompt, and candidates when available.
- *   Falls back to local processing if backend is unreachable (timeout: 8s).
+ * Pipeline mirrors the LangGraph StateGraph architecture in /backend:
+ *   task_analyzer_node → search_node → candidate_generator_node
+ *   → evaluation_node → ranking_node → response_formatter_node
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { streamText } from 'ai'
@@ -58,29 +57,6 @@ async function extractPdfText(base64: string): Promise<string> {
   }
 }
 
-// ── LangGraph backend response types ─────────────────────────
-type BackendCandidate = {
-  strategy: string
-  content: string
-  index: number
-  score: number
-  reasons: string[]
-}
-
-type BackendResponse = {
-  task_analysis: {
-    taskType: string
-    complexity: string
-    domain: string
-    needsWebSearch: boolean
-    expectedOutput: string
-    preferredStyle: string
-  }
-  system_prompt: string
-  candidates: BackendCandidate[]
-  best_candidate: BackendCandidate | null
-  explanation: Record<string, unknown> | null
-}
 
 export async function POST(req: NextRequest) {
   const sessionId = await getOrCreateSession()
@@ -189,42 +165,8 @@ export async function POST(req: NextRequest) {
     })
   } catch {}
 
-  // ── 2.5. LangGraph backend orchestration (optional) ──────
-  let backend: BackendResponse | null = null
-  const LANGGRAPH_URL = process.env.LANGGRAPH_BACKEND_URL ?? 'http://localhost:8000'
-  try {
-    const ctrl = new AbortController()
-    const abortTimer = setTimeout(() => ctrl.abort(), 8000)
-    const backendRes = await fetch(`${LANGGRAPH_URL}/api/v1/assistant/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_message: userMessage,
-        mode,
-        user_id: userId,
-        session_id: sessionId,
-        conversation_history: history,
-        memory: memory
-          ? {
-              preferredTone: memory.preferredTone,
-              preferredLength: memory.preferredLength,
-              preferredStrategies: memory.preferredStrategies,
-              rawSummary: memory.rawSummary,
-            }
-          : {},
-      }),
-      signal: ctrl.signal,
-    })
-    clearTimeout(abortTimer)
-    if (backendRes.ok) backend = await backendRes.json()
-  } catch {
-    // LangGraph backend unavailable — local pipeline fallback
-  }
-
   // ── 3. Task Analysis ─────────────────────────────────────
-  const taskAnalysis = backend?.task_analysis
-    ? (backend.task_analysis as Awaited<ReturnType<typeof analyzeTask>>)
-    : await analyzeTask(userMessage, history)
+  const taskAnalysis = await analyzeTask(userMessage, history)
 
   // ── 3.5. Auto-resolve persona based on task type ─────────
   const activePersona = await resolvePersonaForTask(taskAnalysis.taskType, taskAnalysis.domain)
@@ -232,7 +174,7 @@ export async function POST(req: NextRequest) {
   // ── 4. Web Search (if needed) ────────────────────────────
   // Priority: Tavily (if key set) → OpenAI search (if key set) → skip
   let searchContext: string | null = null
-  if (!backend && taskAnalysis.needsWebSearch) {
+  if (taskAnalysis.needsWebSearch) {
     const baseQuery = userMessage.slice(0, 180)
     const hasTavily = !!process.env.TAVILY_API_KEY
     const hasOpenAI = !!process.env.OPENAI_API_KEY
@@ -252,30 +194,15 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 5. Build prompt ──────────────────────────────────────
-  let systemPrompt: string
-  let components: ReturnType<typeof buildSystemPrompt>['components']
-  if (backend) {
-    systemPrompt = backend.system_prompt
-    components = {
-      taskContext: '',
-      memoryContext: '',
-      examplesContext: '',
-      persona: '',
-      userRequest: '',
-      flowContext: '',
-      globalMemoryContext: '',
-    }
-  } else {
-    const built = buildSystemPrompt(
-      taskAnalysis, memory, [], searchContext,
-      activePersona, undefined, undefined,
-      userProfile as never,
-      recentSummaries as string[],
-      messageCount,
-    )
-    systemPrompt = built.systemPrompt
-    components = built.components
-  }
+  const built = buildSystemPrompt(
+    taskAnalysis, memory, [], searchContext,
+    activePersona, undefined, undefined,
+    userProfile as never,
+    recentSummaries as string[],
+    messageCount,
+  )
+  let systemPrompt = built.systemPrompt
+  const components = built.components
   // A/B 실험 승자 프롬프트 반영
   const winningPrompt = await getWinningSystemPrompt()
   if (winningPrompt) {
@@ -286,10 +213,7 @@ export async function POST(req: NextRequest) {
 
   // ── 6. LEARNING MODE: return 3 candidates ────────────────
   if (mode === 'LEARNING') {
-    const candidates = (
-      backend?.candidates ??
-      await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
-    ) as Awaited<ReturnType<typeof generateCandidates>>
+    const candidates = await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
 
     // 학습 모드: 사용자가 선택하기 전까지 ASSISTANT 메시지 저장 안 함
     // 후보만 임시로 USER 메시지 ID에 연결해두고, /api/preferences에서 선택 시 저장
@@ -301,7 +225,6 @@ export async function POST(req: NextRequest) {
     }
     if (convId) headers['X-Conversation-Id'] = convId
     if (savedMessageId) headers['X-Message-Id'] = savedMessageId
-    if (backend) headers['X-Backend'] = 'langgraph'
 
     return NextResponse.json(
       {
@@ -316,26 +239,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 7. NORMAL MODE: generate → evaluate → rank → stream ──
-  const candidates = (
-    backend?.candidates ??
-    await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
-  ) as Awaited<ReturnType<typeof generateCandidates>>
+  const candidates = await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
 
-  // Use backend ranking when available, otherwise rank locally
   let evaluations: Awaited<ReturnType<typeof evaluateCandidates>> = []
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let ranked: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let best: any
 
-  if (backend?.best_candidate && backend.candidates.length > 0) {
-    ranked = backend.candidates
-    best = backend.best_candidate
-  } else {
-    evaluations = await evaluateCandidates(userMessage, candidates, memory)
-    ranked = rankCandidates(candidates, evaluations, memory)
-    best = ranked[0]
-  }
+  evaluations = await evaluateCandidates(userMessage, candidates, memory)
+  ranked = rankCandidates(candidates, evaluations, memory)
+  best = ranked[0]
 
   // Save message + candidates + explanation
   let savedMessageId: string | undefined
@@ -352,7 +266,8 @@ export async function POST(req: NextRequest) {
     savedMessageId = savedMsg.id
 
     await Promise.all(
-      ranked.map((c: BackendCandidate) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ranked.map((c: any) =>
         prisma.responseCandidate.create({
           data: {
             messageId: savedMsg.id,
@@ -479,7 +394,6 @@ export async function POST(req: NextRequest) {
   newHeaders.set('X-Confidence', best.score?.toFixed(2) ?? '0.75')
   newHeaders.set('X-Task-Type', taskAnalysis.taskType)
   newHeaders.set('X-Search-Used', String(taskAnalysis.needsWebSearch))
-  if (backend) newHeaders.set('X-Backend', 'langgraph')
 
   const setCookie = setSessionCookie(sessionId)
   Object.entries(setCookie).forEach(([k, v]) => newHeaders.set(k, v))
