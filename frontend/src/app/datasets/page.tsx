@@ -19,7 +19,7 @@ const EXPORT_TYPES = [
   {
     type: 'evaluation' as const,
     label: '평가 데이터셋',
-    description: '18차원 품질 점수 — 루브릭 분석 및 모델 학습용',
+    description: '9차원 품질 점수 — 루브릭 분석 및 모델 학습용',
     icon: '📊',
   },
   {
