@@ -105,3 +105,23 @@ export async function runExperiment(id: string): Promise<PromptExperiment> {
   })
   return dbToExperiment(updated as Record<string, unknown>)
 }
+
+/**
+ * 가장 최근에 완료된 실험의 승자 프롬프트를 반환.
+ * 실험이 없거나 winner가 'tie'면 null 반환.
+ */
+export async function getWinningSystemPrompt(): Promise<string | null> {
+  try {
+    const experiment = await prisma.promptExperiment.findFirst({
+      where: { status: 'COMPLETED', winner: { in: ['A', 'B'] } },
+      orderBy: { updatedAt: 'desc' },
+    })
+    if (!experiment) return null
+    const winner = experiment.winner as string
+    return winner === 'A'
+      ? (experiment.promptA as string)
+      : (experiment.promptB as string)
+  } catch {
+    return null
+  }
+}

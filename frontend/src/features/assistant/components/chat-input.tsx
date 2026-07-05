@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useCallback, useState, useEffect, type KeyboardEvent } from 'react'
-import { Send, Square, Paperclip, X, FileText, Image as ImageIcon, Mic, MicOff, Headphones, HeadphoneOff } from 'lucide-react'
+import { Send, Square, Paperclip, X, FileText, Image as ImageIcon, Mic, MicOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Web Speech API types (not in default TS lib)
@@ -45,14 +45,11 @@ interface ChatInputProps {
   value: string
   onChange: (value: string) => void
   onSubmit: (files?: AttachedFile[]) => void
-  onVoiceSubmit?: (text: string, files?: AttachedFile[]) => void
   onStop?: () => void
   isStreaming?: boolean
   isLoading?: boolean
   disabled?: boolean
   placeholder?: string
-  voiceMode?: boolean
-  onVoiceModeChange?: (enabled: boolean) => void
 }
 
 const ACCEPTED = '.txt,.md,.ts,.tsx,.js,.jsx,.py,.json,.csv,.pdf,image/*'
@@ -62,14 +59,11 @@ export function ChatInput({
   value,
   onChange,
   onSubmit,
-  onVoiceSubmit,
   onStop,
   isStreaming,
   isLoading,
   disabled,
   placeholder = '무엇이든 물어보세요…',
-  voiceMode = false,
-  onVoiceModeChange,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,21 +104,13 @@ export function ChatInput({
       const transcript = event.results[0][0].transcript
       if (!transcript.trim()) return
 
-      if (voiceMode && onVoiceSubmit) {
-        // Voice mode: pass transcript text directly to bypass stale `input` closure
-        const files = attachedFilesRef.current
-        onVoiceSubmit(transcript, files.length > 0 ? files : undefined)
-        setAttachedFiles([])
-        onChange('')
-      } else {
-        // Normal mic: just fill the text field
-        const newValue = value ? `${value} ${transcript}` : transcript
-        onChange(newValue)
-        requestAnimationFrame(() => {
-          const el = textareaRef.current
-          if (el) { el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 200)}px` }
-        })
-      }
+      // Normal mic: just fill the text field
+      const newValue = value ? `${value} ${transcript}` : transcript
+      onChange(newValue)
+      requestAnimationFrame(() => {
+        const el = textareaRef.current
+        if (el) { el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 200)}px` }
+      })
     }
     rec.onerror = () => setIsRecording(false)
     rec.onend = () => setIsRecording(false)
@@ -132,7 +118,7 @@ export function ChatInput({
     recognitionRef.current = rec
     rec.start()
     setIsRecording(true)
-  }, [isRecording, value, onChange, voiceMode, onVoiceSubmit])
+  }, [isRecording, value, onChange])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -253,45 +239,27 @@ export function ChatInput({
 
           {/* Voice input button */}
           {speechSupported && (
-            <>
-              <button
-                type="button"
-                onClick={toggleRecording}
-                disabled={busy || disabled}
-                title={isRecording ? '녹음 중지' : '음성 입력'}
-                className={cn(
-                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
-                  isRecording
-                    ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100'
-                    : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
-                )}
-              >
-                {isRecording ? (
-                  <span className="relative flex h-4 w-4 items-center justify-center">
-                    <span className="absolute h-4 w-4 animate-ping rounded-full bg-red-400 opacity-60" />
-                    <MicOff className="h-3.5 w-3.5" />
-                  </span>
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </button>
-
-              {/* Voice conversation mode toggle */}
-              <button
-                type="button"
-                onClick={() => onVoiceModeChange?.(!voiceMode)}
-                disabled={disabled}
-                title={voiceMode ? '음성 대화 모드 끄기' : '음성 대화 모드 켜기 (말하면 자동 전송 + AI 음성 응답)'}
-                className={cn(
-                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
-                  voiceMode
-                    ? 'border-slate-400 bg-slate-100 text-slate-900'
-                    : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
-                )}
-              >
-                {voiceMode ? <Headphones className="h-4 w-4" /> : <HeadphoneOff className="h-4 w-4" />}
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={toggleRecording}
+              disabled={busy || disabled}
+              title={isRecording ? '녹음 중지' : '음성 입력'}
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
+                isRecording
+                  ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100'
+                  : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
+              )}
+            >
+              {isRecording ? (
+                <span className="relative flex h-4 w-4 items-center justify-center">
+                  <span className="absolute h-4 w-4 animate-ping rounded-full bg-red-400 opacity-60" />
+                  <MicOff className="h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </button>
           )}
 
           <textarea
@@ -346,7 +314,7 @@ export function ChatInput({
 
         <p className="text-center text-[10px] text-slate-400">
           Enter로 전송 · Shift+Enter 줄바꿈 · 파일 첨부 최대 3개
-          {speechSupported ? (voiceMode ? ' · 🎧 음성 대화 모드 ON — 말하면 자동 전송' : ' · 🎤 음성 입력 지원') : ''}
+          {speechSupported ? ' · 🎤 음성 입력 지원' : ''}
         </p>
       </div>
     </div>

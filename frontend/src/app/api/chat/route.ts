@@ -20,6 +20,8 @@ import { generateCandidates } from '@/services/ai/candidate-generator'
 import { evaluateCandidates } from '@/services/ai/evaluator'
 import { rankCandidates } from '@/services/ai/ranker'
 import { buildSystemPrompt, savePromptVersion } from '@/services/ai/prompt-builder'
+import { getWinningSystemPrompt } from '@/services/ai/experiment-runner'
+import { detectSuggestions } from '@/services/ai/preference-suggester'
 import { getMemory, shouldUpdateMemory, generateMemory } from '@/services/ai/memory-generator'
 import { generateExplanation } from '@/services/ai/explainer'
 import { maybeSummarizeConversation } from '@/services/ai/conversation-summarizer'
@@ -225,7 +227,7 @@ export async function POST(req: NextRequest) {
     : await analyzeTask(userMessage, history)
 
   // ── 3.5. Auto-resolve persona based on task type ─────────
-  const activePersona = await resolvePersonaForTask(taskAnalysis.taskType)
+  const activePersona = await resolvePersonaForTask(taskAnalysis.taskType, taskAnalysis.domain)
 
   // ── 4. Web Search (if needed) ────────────────────────────
   // Priority: Tavily (if key set) → OpenAI search (if key set) → skip
@@ -274,6 +276,12 @@ export async function POST(req: NextRequest) {
     systemPrompt = built.systemPrompt
     components = built.components
   }
+  // A/B 실험 승자 프롬프트 반영
+  const winningPrompt = await getWinningSystemPrompt()
+  if (winningPrompt) {
+    systemPrompt += `\n\nEXPERIMENT OVERRIDE (from A/B test winner):\n${winningPrompt}`
+  }
+
   const promptVersion = await savePromptVersion(userId, systemPrompt, components, memory?.id ?? null)
 
   // ── 6. LEARNING MODE: return 3 candidates ────────────────
@@ -367,24 +375,28 @@ export async function POST(req: NextRequest) {
         create: {
           messageId: savedMsg.id,
           candidateId: bestCandidate.id ?? savedMsg.id,
-          naturalness: bestEval.professionalism ?? 0.7,
-          grammar: bestEval.readability ?? 0.7,
-          toneConsistency: bestEval.professionalism ?? 0.7,
-          personaConsistency: bestEval.professionalism ?? 0.7,
-          instructionFollowing: bestEval.taskMatch ?? 0.7,
-          factualAccuracy: bestEval.taskMatch ?? 0.7,
-          hallucinationRisk: 0.1,
-          clarity: bestEval.readability ?? 0.7,
-          structure: bestEval.structure ?? 0.7,
-          completeness: bestEval.completeness ?? 0.7,
-          specificity: bestEval.specificity ?? 0.7,
-          actionability: bestEval.specificity ?? 0.7,
-          readability: bestEval.readability ?? 0.7,
-          formatting: bestEval.formatting ?? 0.7,
+          // 미측정 차원: 0으로 명시 (측정되지 않음)
+          naturalness: 0,
+          grammar: 0,
+          toneConsistency: 0,
+          personaConsistency: 0,
+          factualAccuracy: 0,
+          hallucinationRisk: 0,
+          actionability: 0,
+          // 실측 9차원 값
+          instructionFollowing: bestEval.taskMatch ?? 0,
+          clarity: bestEval.readability ?? 0,
+          structure: bestEval.structure ?? 0,
+          completeness: bestEval.completeness ?? 0,
+          specificity: bestEval.specificity ?? 0,
+          readability: bestEval.readability ?? 0,
+          formatting: bestEval.formatting ?? 0,
+          preferenceMatch: bestEval.preferenceMatch ?? 0,
+          // 항상 고정값
           safety: 1.0,
-          preferenceMatch: bestEval.preferenceMatch ?? 0.5,
-          searchGrounding: taskAnalysis.needsWebSearch ? 0.8 : 0.5,
-          overallScore: bestEval.overall ?? 0.7,
+          // 조건부
+          searchGrounding: taskAnalysis.needsWebSearch ? 0.8 : 0,
+          overallScore: bestEval.overall ?? 0,
         },
         update: {},
       }).catch(() => {})
@@ -400,6 +412,18 @@ export async function POST(req: NextRequest) {
       memory,
       promptVersion,
     )
+
+    // 적응형 제안 탐지 (비동기, 응답 차단 안 함)
+    if (userId !== 'anonymous') {
+      prisma.preferenceLog
+        .findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 20 })
+        .then(logs => {
+          if (logs.length >= 5) {
+            return detectSuggestions(userId, logs as never, memory as never)
+          }
+        })
+        .catch(() => {})
+    }
 
     // Adaptive memory update
     if (await shouldUpdateMemory(userId)) {

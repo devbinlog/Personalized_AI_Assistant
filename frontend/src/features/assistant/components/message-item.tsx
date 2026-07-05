@@ -1,15 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { cn, strategyLabel, confidencePercent } from '@/lib/utils'
-import { Brain, Globe, User, Sparkles, Volume2, VolumeX } from 'lucide-react'
+import { Brain, Globe, User, Sparkles } from 'lucide-react'
 import type { Message } from 'ai'
 import { ExplanationPanel } from '@/features/xai/components/explanation-panel'
 import { useAppStore } from '@/stores/app-store'
-import { speakText, stopSpeaking, isTTSSupported } from '@/lib/tts'
 
 interface MessageItemProps {
   message: Message
@@ -33,29 +31,6 @@ export function MessageItem({
   const isUser = message.role === 'user'
   const { settings } = useAppStore()
   const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
-  const [isSpeaking, setIsSpeaking] = useState(false)
-  const [ttsSupported, setTtsSupported] = useState(false)
-
-  useEffect(() => {
-    setTtsSupported(isTTSSupported())
-  }, [])
-
-  function handleSpeak() {
-    if (isSpeaking) {
-      stopSpeaking()
-      setIsSpeaking(false)
-    } else {
-      speakText(typeof message.content === 'string' ? message.content : '')
-      setIsSpeaking(true)
-      // Reset icon when browser finishes speaking
-      const check = setInterval(() => {
-        if (!window.speechSynthesis.speaking) {
-          setIsSpeaking(false)
-          clearInterval(check)
-        }
-      }, 300)
-    }
-  }
 
   return (
     <div className={cn('flex gap-3 px-4 py-3', isUser && 'flex-row-reverse')}>
@@ -140,26 +115,6 @@ export function MessageItem({
             </div>
           )}
         </div>
-
-        {!isUser && !isStreaming && ttsSupported && (
-          <button
-            onClick={handleSpeak}
-            title={isSpeaking ? '음성 중지' : '음성으로 읽기'}
-            className="self-start flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors"
-            style={{
-              color: isSpeaking ? '#334155' : '#9ca3af',
-              border: '1px solid',
-              borderColor: isSpeaking ? '#94a3b8' : '#e7e5e4',
-              backgroundColor: isSpeaking ? '#f8fafc' : 'transparent',
-            }}
-          >
-            {isSpeaking
-              ? <VolumeX className="h-3 w-3" />
-              : <Volume2 className="h-3 w-3" />
-            }
-            {isSpeaking ? '중지' : '읽기'}
-          </button>
-        )}
 
         {!isMock && !isUser && !isStreaming && messageId && settings.showExplanations && (
           <ExplanationPanel

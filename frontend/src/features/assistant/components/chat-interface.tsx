@@ -16,7 +16,6 @@ import { signOut } from 'next-auth/react'
 import type { ConversationMode, PreferenceTag, ResponseStrategy } from '@/types'
 import type { Message } from 'ai'
 import type { AttachedFile } from './chat-input'
-import { speakText, stopSpeaking } from '@/lib/tts'
 
 interface ChatInterfaceProps {
   conversationId?: string
@@ -52,7 +51,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const refreshSidebar = useAppStore(s => s.refreshSidebar)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
-  const [voiceMode, setVoiceMode] = useState(false)
   // DB-loaded assistant message IDs — msg.id is already the DB ID for these
   const loadedDbMessageIds = useRef<Set<string>>(new Set(
     initialMessages?.filter(m => m.role === 'assistant').map(m => m.id) ?? []
@@ -63,9 +61,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     messageId: null,
     candidateId: null,
   })
-
-  const voiceModeRef = useRef(false)
-  voiceModeRef.current = voiceMode
 
   const {
     messages,
@@ -79,7 +74,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     isLearningLoading,
     sendLearningMessage,
     submitNormal,
-    submitNormalWithText,
     clearLearningCandidates,
     setMessages,
   } = useChatStream(
@@ -92,9 +86,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         refreshSidebar()
       }
     },
-    (text) => {
-      if (voiceModeRef.current) speakText(text)
-    },
+    undefined,
     initialMessages,
   )
 
@@ -188,32 +180,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     }
   }, [input, mode, isGuest, learningCandidates, learningState.step, sendLearningMessage, submitNormal, clearLearningCandidates, handleInputChange, setMessages])
 
-  // Voice mode: transcript text is passed directly — no stale `input` closure issue
-  const onVoiceSubmit = useCallback((text: string, files?: AttachedFile[]) => {
-    if (!text.trim()) return
-
-    if (isGuest) {
-      const { chatUsed, learningUsed } = getGuestUsage()
-      if (mode === 'NORMAL' && chatUsed) { setShowLoginModal(true); return }
-      if (mode === 'LEARNING' && learningUsed) { setShowLoginModal(true); return }
-    }
-
-    setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
-    clearLearningCandidates()
-
-    if (mode === 'LEARNING') {
-      if (isGuest) localStorage.setItem(GUEST_LEARNING_KEY, '1')
-      setMessages(prev => [
-        ...flushPendingLearningAnswer(prev),
-        { id: `lrn-${Date.now()}`, role: 'user', content: text },
-      ])
-      sendLearningMessage(text, files)
-    } else {
-      if (isGuest) localStorage.setItem(GUEST_CHAT_KEY, '1')
-      submitNormalWithText(text, files)
-    }
-  }, [mode, isGuest, learningCandidates, learningState.step, sendLearningMessage, submitNormalWithText, clearLearningCandidates, setMessages])
-
   const onCandidateSelect = useCallback((candidate: { strategy: ResponseStrategy; content: string; index: number }) => {
     if (isGuest) {
       setShowLoginModal(true)
@@ -277,6 +243,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
               선호도 학습 중
             </span>
           )}
+          <PersonaQuickSelect />
         </div>
 
         {/* 오른쪽: 유저 프로필 */}
@@ -347,8 +314,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         value={input}
         onChange={v => handleInputChange({ target: { value: v } } as never)}
         onSubmit={onSend}
-        onVoiceSubmit={onVoiceSubmit}
-        onStop={() => { stop(); stopSpeaking() }}
+        onStop={stop}
         isStreaming={isLoading}
         isLoading={isLearningLoading}
         placeholder={
@@ -356,8 +322,6 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
             ? '무엇이든 물어보세요 — 3가지 스타일 중 선택하게 됩니다…'
             : '무엇이든 물어보세요…'
         }
-        voiceMode={voiceMode}
-        onVoiceModeChange={setVoiceMode}
       />
     </div>
   )
@@ -506,6 +470,116 @@ function ChatHeaderUser() {
               로그아웃
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PersonaQuickSelect() {
+  const [personas, setPersonas] = useState<Array<{ id: string; name: string; isActive: boolean; tone: string }>>([])
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetch('/api/personas')
+      .then(r => r.json())
+      .then(d => setPersonas(d.personas ?? []))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    function h(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const active = personas.find(p => p.isActive)
+
+  async function activate(id: string) {
+    await fetch(`/api/personas/${id}/activate`, { method: 'POST' }).catch(() => {})
+    setPersonas(prev => prev.map(p => ({ ...p, isActive: p.id === id })))
+    setOpen(false)
+  }
+
+  async function deactivate() {
+    await fetch('/api/personas/none/activate', { method: 'POST' }).catch(() => {})
+    setPersonas(prev => prev.map(p => ({ ...p, isActive: false })))
+    setOpen(false)
+  }
+
+  const PERSONA_EMOJI: Record<string, string> = {
+    'Professional Assistant': '💼',
+    'Friendly Mentor': '😊',
+    'Interview Coach': '🎯',
+    'Developer Mentor': '💻',
+    'Research Assistant': '🔬',
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
+        style={{
+          border: '1px solid #e7e5e4',
+          backgroundColor: active ? '#f1f5f9' : 'transparent',
+          color: active ? '#334155' : '#9ca3af',
+        }}
+      >
+        {active ? (
+          <>
+            <span>{PERSONA_EMOJI[active.name] ?? '🤖'}</span>
+            <span className="hidden sm:inline max-w-[80px] truncate">{active.name.split(' ')[0]}</span>
+          </>
+        ) : (
+          <>
+            <span>🤖</span>
+            <span className="hidden sm:inline">페르소나</span>
+          </>
+        )}
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-0 top-full mt-1.5 w-52 rounded-xl py-1 shadow-lg z-50"
+          style={{ backgroundColor: '#ffffff', border: '1px solid #e7e5e4' }}
+        >
+          <div className="px-3 py-1.5 border-b" style={{ borderColor: '#e7e5e4' }}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#a8a29e' }}>페르소나 선택</p>
+          </div>
+          {active && (
+            <button
+              onClick={deactivate}
+              className="flex w-full items-center gap-2 px-3 py-2 text-xs text-left transition-colors"
+              style={{ color: '#ef4444' }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#fee2e2')}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            >
+              <span>✕</span>
+              <span>페르소나 해제</span>
+            </button>
+          )}
+          {personas.map(p => (
+            <button
+              key={p.id}
+              onClick={() => activate(p.id)}
+              className="flex w-full items-center gap-2 px-3 py-2 text-xs text-left transition-colors"
+              style={{
+                color: p.isActive ? '#334155' : '#44403c',
+                backgroundColor: p.isActive ? '#f8fafc' : 'transparent',
+                fontWeight: p.isActive ? 600 : 400,
+              }}
+              onMouseEnter={e => { if (!p.isActive) e.currentTarget.style.backgroundColor = '#f8fafc' }}
+              onMouseLeave={e => { if (!p.isActive) e.currentTarget.style.backgroundColor = 'transparent' }}
+            >
+              <span>{PERSONA_EMOJI[p.name] ?? '🤖'}</span>
+              <span className="flex-1 truncate">{p.name}</span>
+              {p.isActive && <span style={{ color: '#059669' }}>✓</span>}
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -23,9 +23,33 @@ Graph Flow:
 from __future__ import annotations
 
 import json
+import os
 from typing import TypedDict, Literal, Optional
 
 from langgraph.graph import StateGraph, END
+
+# ── OpenAI client (lazy singleton) ───────────────────────────
+
+try:
+    from openai import OpenAI as _OpenAI
+    _OPENAI_AVAILABLE = True
+except ImportError:
+    _OPENAI_AVAILABLE = False
+
+_openai_client = None
+
+
+def get_openai_client():
+    """Return a cached OpenAI client, or None if API key is missing / openai not installed."""
+    if not _OPENAI_AVAILABLE:
+        return None
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    global _openai_client
+    if _openai_client is None:
+        _openai_client = _OpenAI(api_key=api_key)
+    return _openai_client
 
 
 # ── Graph State ──────────────────────────────────────────────
@@ -162,10 +186,48 @@ The most interesting solutions often come from unexpected places.{ctx_note}""",
 # ── Node implementations ─────────────────────────────────────
 
 def task_analyzer_node(state: AssistantState) -> dict:
-    """Classify task type, complexity, domain, and search need via rule-based keywords."""
-    msg = state["user_message"].lower()
+    """Classify task type, complexity, domain, and search need.
 
-    # Detect task type by keywords
+    Primary: LLM classification via gpt-4o-mini (structured JSON output).
+    Fallback: rule-based keyword matching when OPENAI_API_KEY is absent.
+    """
+    user_message = state["user_message"]
+    client = get_openai_client()
+
+    if client:
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                response_format={"type": "json_object"},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Classify the user's task. Return JSON with exactly these keys:\n"
+                            "{\n"
+                            '  "taskType": "CODING|WRITING|RESEARCH|ANALYSIS|CONVERSATION|CAREER|LEARNING|TRANSLATION|PLANNING|MATH|BRAINSTORMING|SEARCH_REQUIRED",\n'
+                            '  "complexity": "LOW|MEDIUM|HIGH",\n'
+                            '  "domain": "software|writing|research|career|general|science|business|education",\n'
+                            '  "needsWebSearch": true or false,\n'
+                            '  "expectedOutput": "code|explanation|list|analysis|conversation|document",\n'
+                            '  "preferredStyle": "STRUCTURED|CONCISE|ANALYTICAL|CONVERSATIONAL|PROFESSIONAL"\n'
+                            "}\n"
+                            "Only return JSON, nothing else."
+                        ),
+                    },
+                    {"role": "user", "content": user_message[:500]},
+                ],
+                max_tokens=200,
+                temperature=0,
+            )
+            result = json.loads(response.choices[0].message.content)
+            return {"task_analysis": result}
+        except Exception:
+            pass  # Fall through to rule-based fallback
+
+    # ── Rule-based fallback ───────────────────────────────────
+    msg = user_message.lower()
+
     if any(w in msg for w in ["code", "function", "bug", "error", "implement", "debug", "python", "javascript", "typescript"]):
         task_type = "CODING"
     elif any(w in msg for w in ["write", "draft", "essay", "blog", "email", "letter", "article"]):
@@ -182,10 +244,11 @@ def task_analyzer_node(state: AssistantState) -> dict:
         task_type = "MATH"
     elif any(w in msg for w in ["brainstorm", "ideas", "creative", "suggest", "generate ideas"]):
         task_type = "BRAINSTORMING"
+    elif any(w in msg for w in ["검색", "search", "찾아", "최신", "현재", "지금", "오늘", "뉴스", "latest", "recent", "today", "news", "current"]):
+        task_type = "SEARCH_REQUIRED"
     else:
         task_type = "CONVERSATION"
 
-    # Complexity
     if len(msg) > 300 or any(w in msg for w in ["complex", "detailed", "comprehensive", "thorough"]):
         complexity = "HIGH"
     elif len(msg) > 100:
@@ -193,9 +256,8 @@ def task_analyzer_node(state: AssistantState) -> dict:
     else:
         complexity = "LOW"
 
-    # Domain detection
     if any(w in msg for w in ["code", "software", "tech", "api", "database", "algorithm"]):
-        domain = "technology"
+        domain = "software"
     elif any(w in msg for w in ["business", "market", "revenue", "startup", "product"]):
         domain = "business"
     elif any(w in msg for w in ["science", "research", "study", "experiment"]):
@@ -203,8 +265,9 @@ def task_analyzer_node(state: AssistantState) -> dict:
     else:
         domain = "general"
 
-    # Search need
-    needs_search = any(w in msg for w in ["latest", "recent", "today", "news", "current", "2024", "2025", "2026"])
+    needs_search = task_type == "SEARCH_REQUIRED" or any(
+        w in msg for w in ["latest", "recent", "today", "news", "current", "2024", "2025", "2026"]
+    )
 
     return {
         "task_analysis": {
@@ -212,8 +275,8 @@ def task_analyzer_node(state: AssistantState) -> dict:
             "complexity": complexity,
             "domain": domain,
             "needsWebSearch": needs_search,
-            "expectedOutput": "text",
-            "preferredStyle": "adaptive",
+            "expectedOutput": "explanation",
+            "preferredStyle": "STRUCTURED",
         }
     }
 
@@ -336,49 +399,195 @@ def prompt_builder_node(state: AssistantState) -> dict:
     }
 
 
+_STRATEGY_PROMPTS = {
+    "STRUCTURED": (
+        "Respond with clear structure: use headers (##), bullet points, and numbered steps "
+        "where appropriate. Be comprehensive and well-organized."
+    ),
+    "CONCISE": (
+        "Respond concisely and directly. Get to the point immediately. "
+        "Use minimal words while remaining complete. No unnecessary preamble."
+    ),
+    "ANALYTICAL": (
+        "Respond analytically. Lead with the key insight, provide multiple perspectives, "
+        "include trade-offs and nuanced thinking."
+    ),
+    "PROFESSIONAL": (
+        "Respond in a formal, professional tone. Use precise language, structured reasoning, "
+        "and clear recommendations."
+    ),
+    "ACTIONABLE": (
+        "Respond with concrete next steps. Use → arrows or numbered steps. "
+        "Prioritize practical, immediately usable guidance."
+    ),
+    "FRIENDLY": (
+        "Respond in a warm, approachable tone as if talking to a friend. "
+        "Be encouraging and clear without jargon."
+    ),
+    "CREATIVE": (
+        "Respond with fresh, creative perspectives. Reframe the problem, "
+        "explore unconventional angles, and combine ideas from different domains."
+    ),
+}
+
+
 def candidate_generator_node(state: AssistantState) -> dict:
-    """Generate 3 response candidates with different strategies using rule-based templates."""
-    msg = state["user_message"]
-    topic = msg[:60]
+    """Generate 3 response candidates with different strategies.
+
+    Primary: parallel gpt-4o-mini calls for genuine diversity.
+    Fallback: rule-based templates when OPENAI_API_KEY is absent.
+    """
+    user_message = state["user_message"]
+    system_prompt = state.get("system_prompt", "You are a helpful AI assistant.")
     task_type = state["task_analysis"]["taskType"]
+    client = get_openai_client()
 
-    strategies = _pick_strategies(task_type)
+    strategies = _pick_strategies(task_type)[:3]
+
+    if client:
+        import concurrent.futures
+
+        def generate_one(idx_strategy):
+            idx, strategy = idx_strategy
+            style_instruction = _STRATEGY_PROMPTS.get(strategy, "")
+            try:
+                resp = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": f"{system_prompt}\n\n{style_instruction}",
+                        },
+                        {"role": "user", "content": user_message},
+                    ],
+                    max_tokens=800,
+                    temperature=0.7,
+                )
+                return {
+                    "strategy": strategy,
+                    "content": resp.choices[0].message.content,
+                    "index": idx,
+                    "score": 0.7,
+                    "reasons": [f"{strategy} style response"],
+                }
+            except Exception as e:
+                # Per-candidate fallback so a single failure doesn't break the whole pipeline
+                topic = user_message[:60]
+                return {
+                    "strategy": strategy,
+                    "content": _generate_content(user_message, topic, strategy, state.get("context", "")),
+                    "index": idx,
+                    "score": 0.5,
+                    "reasons": [f"Fallback template ({str(e)[:60]})"],
+                }
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            candidates = list(executor.map(generate_one, enumerate(strategies)))
+        return {"candidates": candidates}
+
+    # ── Rule-based fallback ───────────────────────────────────
+    topic = user_message[:60]
     candidates = []
-
-    for i, strategy in enumerate(strategies[:3]):
-        content = _generate_content(msg, topic, strategy, state.get("context", ""))
-        candidates.append({"strategy": strategy, "content": content, "index": i})
-
+    for i, strategy in enumerate(strategies):
+        content = _generate_content(user_message, topic, strategy, state.get("context", ""))
+        candidates.append({"strategy": strategy, "content": content, "index": i, "score": 0.7, "reasons": []})
     return {"candidates": candidates}
 
 
+def _rule_based_scores(content: str, strategy: str, state: dict, active_persona: dict, active_flow: dict) -> tuple[dict, float]:
+    """Compute heuristic 8-dimension scores. Returns (scores_dict, avg)."""
+    word_count = len(content.split())
+    has_structure = "##" in content or "1." in content or "→" in content
+    has_table = "|" in content and "---" in content
+    scores = {
+        "structure": 0.9 if has_structure else 0.5,
+        "readability": min(1.0, 0.6 + (word_count / 300) * 0.3),
+        "specificity": 0.85 if has_table else 0.7,
+        "completeness": min(1.0, word_count / 150),
+        "professionalism": 0.9 if strategy == "PROFESSIONAL" else 0.75,
+        "formatting": 0.9 if has_structure else 0.6,
+        "preferenceMatch": 0.75,
+        "taskMatch": 0.8,
+    }
+    avg = sum(scores.values()) / len(scores)
+    return scores, avg
+
+
 def evaluation_node(state: AssistantState) -> dict:
-    """Score each candidate on 8 quality dimensions plus 18-dimension rubric."""
+    """Score each candidate on 8 quality dimensions plus 18-dimension rubric.
+
+    Primary: gpt-4o-mini evaluates all three candidates in a single call and
+    returns per-candidate scores (0-1 float).
+    Fallback: heuristic rule-based scoring when OPENAI_API_KEY is absent.
+    """
     evaluations = []
     rubric = []
 
     active_persona = state.get("active_persona", {})
     active_flow = state.get("active_flow", {})
+    candidates = state.get("candidates", [])
+    client = get_openai_client()
 
-    for c in state.get("candidates", []):
+    # Build AI scores map: {index -> scores_dict} (optional)
+    ai_scores_map: dict[int, dict] = {}
+    if client and candidates:
+        try:
+            candidates_text = "\n\n".join(
+                f"=== Candidate {c['index']} (strategy: {c['strategy']}) ===\n{c['content']}"
+                for c in candidates
+            )
+            user_msg = state.get("user_message", "")
+            eval_response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                response_format={"type": "json_object"},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an expert AI response evaluator. "
+                            "Given the user's question and three candidate responses, "
+                            "score each on 8 dimensions (0.0–1.0). "
+                            "Return JSON:\n"
+                            '{"evaluations": [{"index": 0, "structure": 0.0-1.0, "readability": 0.0-1.0, '
+                            '"specificity": 0.0-1.0, "completeness": 0.0-1.0, "professionalism": 0.0-1.0, '
+                            '"formatting": 0.0-1.0, "preferenceMatch": 0.0-1.0, "taskMatch": 0.0-1.0}, ...]}\n'
+                            "Only return JSON."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": (
+                            f"User question:\n{user_msg[:300]}\n\n"
+                            f"Candidate responses:\n{candidates_text[:2000]}"
+                        ),
+                    },
+                ],
+                max_tokens=400,
+                temperature=0,
+            )
+            parsed = json.loads(eval_response.choices[0].message.content)
+            for item in parsed.get("evaluations", []):
+                idx = item.get("index")
+                if idx is not None:
+                    ai_scores_map[idx] = {
+                        k: float(item.get(k, 0.75))
+                        for k in ["structure", "readability", "specificity", "completeness",
+                                  "professionalism", "formatting", "preferenceMatch", "taskMatch"]
+                    }
+        except Exception:
+            pass  # Fall through to heuristic scoring per candidate
+
+    for c in candidates:
         content = c["content"]
         strategy = c["strategy"]
-
         word_count = len(content.split())
         has_structure = "##" in content or "1." in content or "→" in content
-        has_table = "|" in content and "---" in content
 
-        # 8 original dimensions
-        scores = {
-            "structure": 0.9 if has_structure else 0.5,
-            "readability": min(1.0, 0.6 + (word_count / 300) * 0.3),
-            "specificity": 0.85 if has_table else 0.7,
-            "completeness": min(1.0, word_count / 150),
-            "professionalism": 0.9 if strategy == "PROFESSIONAL" else 0.75,
-            "formatting": 0.9 if has_structure else 0.6,
-            "preferenceMatch": 0.75,
-            "taskMatch": 0.8,
-        }
+        if c["index"] in ai_scores_map:
+            scores = ai_scores_map[c["index"]]
+        else:
+            scores, _ = _rule_based_scores(content, strategy, state, active_persona, active_flow)
+
         avg = sum(scores.values()) / len(scores)
         evaluations.append({
             "index": c["index"],
@@ -387,7 +596,6 @@ def evaluation_node(state: AssistantState) -> dict:
             "overall": round(avg, 3),
         })
 
-        # 18-dimension rubric
         persona_bonus = 0.05 if active_persona.get("name") else 0
         flow_bonus = 0.05 if active_flow.get("name") else 0
         rubric.append({

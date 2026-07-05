@@ -167,32 +167,76 @@ export async function activatePersona(id: string): Promise<Persona> {
 }
 
 export function buildPersonaFragment(persona: Persona): string {
-  return persona.promptFragment || `Respond in a ${persona.tone} tone with ${persona.speakingStyle} style.`
+  const base = persona.promptFragment
+    || `Respond in a ${persona.tone} tone with ${persona.speakingStyle} style.`
+
+  const allowed = persona.allowedBehaviors.length > 0
+    ? `\nENCOURAGED behaviors: ${persona.allowedBehaviors.join(', ')}.`
+    : ''
+
+  const forbidden = persona.forbiddenBehaviors.length > 0
+    ? `\nAVOID: ${persona.forbiddenBehaviors.join(', ')}.`
+    : ''
+
+  const lengthHint = persona.responseLength === 'short'
+    ? '\nKeep responses concise and to the point.'
+    : persona.responseLength === 'long'
+    ? '\nProvide thorough, detailed responses.'
+    : ''
+
+  const formalityHint = persona.formalityLevel >= 4
+    ? '\nUse formal, professional language.'
+    : persona.formalityLevel <= 2
+    ? '\nUse casual, friendly language.'
+    : ''
+
+  return `${base}${allowed}${forbidden}${lengthHint}${formalityHint}`
 }
 
 // 태스크 유형 → 기본 페르소나 이름 매핑
 const TASK_PERSONA_MAP: Record<string, string> = {
   PROGRAMMING: 'Developer Mentor',
+  DEBUGGING: 'Developer Mentor',
+  CODE_REVIEW: 'Developer Mentor',
   CAREER: 'Interview Coach',
   INTERVIEW: 'Interview Coach',
   RESEARCH: 'Research Assistant',
+  ANALYSIS: 'Research Assistant',
   LEARNING: 'Friendly Mentor',
+  EDUCATION: 'Friendly Mentor',
   WRITING: 'Professional Assistant',
   PROFESSIONAL: 'Professional Assistant',
+  PLANNING: 'Professional Assistant',
+  TRANSLATION: 'Professional Assistant',
+}
+
+const DOMAIN_PERSONA_MAP: Record<string, string> = {
+  software: 'Developer Mentor',
+  engineering: 'Developer Mentor',
+  career: 'Interview Coach',
+  hr: 'Interview Coach',
+  science: 'Research Assistant',
+  academic: 'Research Assistant',
 }
 
 /**
  * 수동 활성 페르소나가 없을 때 태스크 유형에 맞는 기본 페르소나를 자동 선택.
  * 사용자가 직접 활성화한 페르소나가 있으면 항상 그것을 우선.
  */
-export async function resolvePersonaForTask(taskType: string): Promise<Persona | null> {
+export async function resolvePersonaForTask(taskType: string, domain?: string): Promise<Persona | null> {
   try {
     // 1. 수동으로 활성화된 페르소나 우선
     const active = await prisma.persona.findFirst({ where: { isActive: true } })
     if (active) return dbToPersona(active as Record<string, unknown>)
 
-    // 2. 태스크 매핑된 기본 페르소나 조회
-    const targetName = TASK_PERSONA_MAP[taskType]
+    // 2. 도메인 기반 매핑 (도메인이 있으면 더 정밀)
+    const domainName = domain ? DOMAIN_PERSONA_MAP[domain.toLowerCase()] : null
+
+    // 3. taskType 기반 매핑
+    const taskName = TASK_PERSONA_MAP[taskType]
+
+    // 도메인 우선, 없으면 taskType
+    const targetName = domainName ?? taskName
     if (!targetName) return null
 
     const matched = await prisma.persona.findFirst({ where: { name: targetName } })
