@@ -23,6 +23,8 @@ import {
   LogOut,
   Shield,
   User,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/lib/constants'
@@ -216,10 +218,11 @@ function UserMenu() {
 export function Navbar() {
   const { mode, setMode } = useAppStore()
   const isLearning = mode === 'LEARNING'
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b border-slate-200 bg-white">
-      <div className="flex h-full items-center justify-between px-6">
+      <div className="flex h-full items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-700">
@@ -228,8 +231,8 @@ export function Navbar() {
           <span className="text-sm font-semibold text-slate-900">Adaptive AI</span>
         </Link>
 
-        {/* Nav */}
-        <nav className="flex items-center gap-0.5">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-0.5">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.label} item={item} />
           ))}
@@ -240,7 +243,7 @@ export function Navbar() {
           <button
             onClick={() => setMode(isLearning ? 'NORMAL' : 'LEARNING')}
             className={cn(
-              'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
+              'hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
               isLearning
                 ? 'bg-slate-700 text-white'
                 : 'border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50',
@@ -250,14 +253,67 @@ export function Navbar() {
             {isLearning ? '학습 모드 ON' : '학습 모드 OFF'}
           </button>
           <UserMenu />
-          <Link
-            href={ROUTES.SETTINGS}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="메뉴"
           >
-            <Settings className="h-4 w-4" />
-          </Link>
+            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu drawer */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-slate-100 bg-white shadow-lg">
+          <nav className="flex flex-col py-2">
+            {NAV_ITEMS.map((item) => (
+              item.href && !item.dropdown ? (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <item.icon className="h-4 w-4 text-slate-500 shrink-0" />
+                  {item.label}
+                </Link>
+              ) : (
+                <div key={item.label}>
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <item.icon className="h-4 w-4 text-slate-400 shrink-0" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{item.label}</span>
+                  </div>
+                  {item.dropdown?.map(d => (
+                    <Link
+                      key={d.href}
+                      href={d.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                    >
+                      <d.icon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      {d.label}
+                    </Link>
+                  ))}
+                </div>
+              )
+            ))}
+            <div className="border-t border-slate-100 mt-2 pt-2 px-4 pb-2">
+              <button
+                onClick={() => { setMode(isLearning ? 'NORMAL' : 'LEARNING'); setMobileOpen(false) }}
+                className={cn(
+                  'flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                  isLearning ? 'bg-slate-700 text-white' : 'border border-slate-200 text-slate-600',
+                )}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                {isLearning ? '학습 모드 ON' : '학습 모드 OFF'}
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

@@ -24,6 +24,7 @@ import { getMemory, shouldUpdateMemory, generateMemory } from '@/services/ai/mem
 import { generateExplanation } from '@/services/ai/explainer'
 import { maybeSummarizeConversation } from '@/services/ai/conversation-summarizer'
 import { resolvePersonaForTask } from '@/services/ai/persona-manager'
+import { extractAndSavePersonality } from '@/services/ai/personality-extractor'
 import { searchWeb, buildSearchContext } from '@/services/search/tavily'
 import { searchWithOpenAI } from '@/services/search/openai-search'
 import { prisma } from '@/lib/prisma'
@@ -113,6 +114,7 @@ export async function POST(req: NextRequest) {
 
   const rawUserMessage = messages[messages.length - 1]?.content ?? ''
   const history = messages.slice(0, -1)
+  const messageCount = history.length // 이전 메시지 수 (0 = 첫 메시지)
 
   // Inject text + PDF contents into the user message; keep images separate for vision
   const textFiles = files?.filter(f => f.type === 'text') ?? []
@@ -136,6 +138,9 @@ export async function POST(req: NextRequest) {
     ? `${rawUserMessage}\n\n${fileContext}`
     : rawUserMessage
 
+  // ── 0. 성격/스타일 자기 묘사 감지 및 저장 (비동기, 응답 차단 안 함) ──
+  // 사용자가 자신에 대해 묘사하는 패턴을 감지해 UserProfile에 저장
+
   // ── 1. Get user + memory (NextAuth 우선, 쿠키 폴백) ──────
   const { userId } = await resolveUserContext()
   const [userProfile, recentSummaries] = await Promise.all([
@@ -153,6 +158,11 @@ export async function POST(req: NextRequest) {
   ])
 
   const memory = await getMemory(userId)
+
+  // 성격 추출: 비동기로 실행 (응답 지연 없음)
+  if (userId !== 'anonymous' && rawUserMessage.length > 15) {
+    extractAndSavePersonality(userId, rawUserMessage).catch(() => {})
+  }
 
   // ── 2. Ensure conversation exists ────────────────────────
   let convId = conversationId
@@ -259,6 +269,7 @@ export async function POST(req: NextRequest) {
       activePersona, undefined, undefined,
       userProfile as never,
       recentSummaries as string[],
+      messageCount,
     )
     systemPrompt = built.systemPrompt
     components = built.components

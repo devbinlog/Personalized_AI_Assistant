@@ -172,13 +172,19 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
         className="flex h-14 items-center gap-2 shrink-0 pr-2"
         style={{ paddingLeft: '16px', borderBottom: '1px solid #e7e5e4' }}
       >
-        <div
-          className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
-          style={{ backgroundColor: '#f1f5f9' }}
+        <Link
+          href="/"
+          className="flex items-center gap-2 flex-1 min-w-0"
+          onClick={onClose}
         >
-          <Brain className="h-3.5 w-3.5" style={{ color: '#334155' }} />
-        </div>
-        <span className="flex-1" style={{ fontSize: '13px', fontWeight: 600, color: '#1c1917' }}>Adaptive AI</span>
+          <div
+            className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
+            style={{ backgroundColor: '#f1f5f9' }}
+          >
+            <Brain className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+          </div>
+          <span className="flex-1" style={{ fontSize: '13px', fontWeight: 600, color: '#1c1917' }}>Adaptive AI</span>
+        </Link>
         {/* Close button — mobile only */}
         <button
           className="md:hidden flex h-7 w-7 items-center justify-center rounded-md transition-colors"

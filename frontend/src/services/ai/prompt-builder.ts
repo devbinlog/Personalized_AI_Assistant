@@ -39,6 +39,7 @@ export function buildSystemPrompt(
   globalMemory?: GlobalPreferenceMemory | null,
   userProfile?: UserProfile | null,
   recentSummaries?: string[],
+  messageCount?: number,
 ): { systemPrompt: string; components: PromptComponents } {
   // Priority: persona → profile → flow → task → local memory → global memory → summaries → examples → search
   const personaFragment = activePersona?.promptFragment
@@ -64,6 +65,11 @@ export function buildSystemPrompt(
       : ''
   const examplesContext = recentExamples.length > 0 ? buildExamplesContext(recentExamples) : ''
 
+  // 초기 대화(3번 이내)에서 스타일 파악 질문 추가
+  const onboardingInstruction = (messageCount !== undefined && messageCount <= 2 && !memory)
+    ? `\n\nONBOARDING GUIDANCE: This is one of the user's first few messages (message #${messageCount + 1}). After answering their question naturally, add a brief personalization question at the end — ask about their preferred response style (concise vs detailed, bullet points vs prose, formal vs casual). Keep it short, 1-2 sentences max, conversational. Example: "참고로, 답변이 더 간결했으면 좋겠나요, 아니면 상세한 편이 좋으신가요?" Adjust language to match the user's language.`
+    : ''
+
   let systemPrompt = personaFragment
   if (profileContext) systemPrompt += `\n\n${profileContext}`
   if (flowContext) systemPrompt += `\n\n${flowContext}`
@@ -73,6 +79,7 @@ export function buildSystemPrompt(
   if (summariesContext) systemPrompt += `\n\n${summariesContext}`
   if (examplesContext) systemPrompt += `\n\n${examplesContext}`
   if (searchContext) systemPrompt += `\n\n${searchContext}`
+  if (onboardingInstruction) systemPrompt += onboardingInstruction
 
   return {
     systemPrompt,

@@ -28,6 +28,7 @@ export function useChatStream(
   conversationId?: string,
   onConversationCreated?: (id: string) => void,
   onStreamFinish?: (text: string) => void,
+  initialMessages?: Message[],
 ) {
   const [meta, setMeta] = useState<ChatMeta>({
     conversationId: conversationId ?? null,
@@ -48,6 +49,7 @@ export function useChatStream(
   const chat = useChat({
     api: '/api/chat',
     body: { mode, conversationId: meta.conversationId },
+    initialMessages,
     onResponse: (response) => {
       const newConvId = response.headers.get('X-Conversation-Id')
       const messageId = response.headers.get('X-Message-Id')

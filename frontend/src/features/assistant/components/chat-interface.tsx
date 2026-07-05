@@ -54,7 +54,9 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [voiceMode, setVoiceMode] = useState(false)
   // DB-loaded assistant message IDs — msg.id is already the DB ID for these
-  const loadedDbMessageIds = useRef<Set<string>>(new Set())
+  const loadedDbMessageIds = useRef<Set<string>>(new Set(
+    initialMessages?.filter(m => m.role === 'assistant').map(m => m.id) ?? []
+  ))
   const [learningState, setLearningState] = useState<LearningState>({
     step: 'done',
     selectedCandidate: null,
@@ -93,6 +95,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     (text) => {
       if (voiceModeRef.current) speakText(text)
     },
+    initialMessages,
   )
 
   // Load past conversation messages client-side (reliable across RSC caching)
