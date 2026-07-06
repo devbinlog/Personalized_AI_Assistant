@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
-import { ThemeProvider } from '@/components/shared/theme-provider'
-import { ThemeProvider as ZustandThemeProvider } from '@/components/providers/theme-provider'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/shared/query-provider'
 import { SessionProvider } from '@/components/shared/session-provider'
 import { Toaster } from '@/components/ui/toaster'
@@ -39,20 +38,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background font-sans antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <ZustandThemeProvider>
-            <SessionProvider>
-              <QueryProvider>
-                {children}
-                <Toaster />
-              </QueryProvider>
-            </SessionProvider>
-          </ZustandThemeProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            <QueryProvider>
+              {children}
+              <Toaster />
+            </QueryProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
