@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from '@/components/shared/theme-provider'
+import { ThemeProvider as ZustandThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/shared/query-provider'
 import { SessionProvider } from '@/components/shared/session-provider'
 import { Toaster } from '@/components/ui/toaster'
@@ -44,12 +45,14 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SessionProvider>
-            <QueryProvider>
-              {children}
-              <Toaster />
-            </QueryProvider>
-          </SessionProvider>
+          <ZustandThemeProvider>
+            <SessionProvider>
+              <QueryProvider>
+                {children}
+                <Toaster />
+              </QueryProvider>
+            </SessionProvider>
+          </ZustandThemeProvider>
         </ThemeProvider>
       </body>
     </html>

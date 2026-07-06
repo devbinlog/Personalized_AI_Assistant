@@ -5,19 +5,26 @@ import { getMemory, generateMemory } from '@/services/ai/memory-generator'
 
 export async function GET(_req: NextRequest) {
   const userId = await resolveUserId()
-  if (userId === 'anonymous') return NextResponse.json({ memory: null, versions: [] })
+  if (userId === 'anonymous') return NextResponse.json({ memory: null, versions: [], logCount: 0, threshold: 3 })
 
   try {
-    const memory = await getMemory(userId)
+    const [memory, logCount] = await Promise.all([
+      getMemory(userId),
+      prisma.preferenceLog.count({ where: { userId } }),
+    ])
     const versions = await prisma.preferenceMemoryVersion.findMany({
       where: { memoryId: memory?.id ?? '' },
       orderBy: { version: 'desc' },
       take: 10,
     }).catch(() => [])
 
-    return NextResponse.json({ memory, versions })
+    const threshold = 3
+    const lastCount = memory?.logCount ?? 0
+    const nextUpdateIn = Math.max(0, threshold - (logCount - lastCount))
+
+    return NextResponse.json({ memory, versions, logCount, threshold, nextUpdateIn })
   } catch {
-    return NextResponse.json({ memory: null, versions: [] })
+    return NextResponse.json({ memory: null, versions: [], logCount: 0, threshold: 3 })
   }
 }
 

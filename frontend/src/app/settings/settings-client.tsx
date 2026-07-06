@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Brain, Search, Lightbulb, BarChart2, Sparkles, Cloud, CloudOff, Trash2, RotateCcw } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
+import { useT } from '@/hooks/use-t'
 import type { AppSettings } from '@/types'
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
@@ -24,6 +25,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 export function SettingsClient() {
   const { mode, setMode, settings, updateSettings } = useAppStore()
+  const t = useT()
   const [syncStatus, setSyncStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [resetPrefStatus, setResetPrefStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
@@ -112,32 +114,32 @@ export function SettingsClient() {
   const settingRows = [
     {
       icon: Sparkles,
-      label: '학습 모드',
-      description: '3가지 응답 스타일 중 선택 — 선택할수록 AI가 선호도를 학습합니다',
+      label: t('settings.learningMode'),
+      description: t('settings.learningModeDesc'),
       checked: mode === 'LEARNING',
       onChange: handleMode,
-      iconCls: 'text-slate-600',
+      iconCls: 'text-slate-600 dark:text-slate-400',
     },
     {
       icon: Search,
-      label: '자동 웹 검색',
-      description: '실시간 검색이 도움이 될 때 어시스턴트가 자동으로 검색합니다',
+      label: t('settings.autoSearch'),
+      description: t('settings.autoSearchDesc'),
       checked: settings.autoSearch,
       onChange: (v: boolean) => handleSetting('autoSearch', v),
       iconCls: 'text-emerald-500',
     },
     {
       icon: Lightbulb,
-      label: '설명 표시',
-      description: '각 응답 아래 "왜 이 답변인가?" 버튼을 표시합니다',
+      label: t('settings.showExplanations'),
+      description: t('settings.showExplanationsDesc'),
       checked: settings.showExplanations,
       onChange: (v: boolean) => handleSetting('showExplanations', v),
-      iconCls: 'text-slate-600',
+      iconCls: 'text-slate-600 dark:text-slate-400',
     },
     {
       icon: BarChart2,
-      label: '일치율 표시',
-      description: '응답이 선호도 프로필과 얼마나 일치하는지 표시합니다',
+      label: t('settings.showConfidence'),
+      description: t('settings.showConfidenceDesc'),
       checked: settings.showConfidence,
       onChange: (v: boolean) => handleSetting('showConfidence', v),
       iconCls: 'text-violet-500',
@@ -145,13 +147,13 @@ export function SettingsClient() {
   ]
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto p-6 md:p-10" style={{ backgroundColor: '#fafaf9' }}>
+    <div className="flex flex-1 flex-col overflow-auto p-6 md:p-10" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div className="mx-auto w-full max-w-xl">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#1c1917' }}>설정</h1>
-          <p className="mt-1 text-sm" style={{ color: '#78716c' }}>어시스턴트 환경설정</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('settings.title')}</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('settings.subtitle')}</p>
         </div>
 
         {/* Sync indicator */}
@@ -176,17 +178,17 @@ export function SettingsClient() {
 
       <div>
         {/* Settings card */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#161b22] p-6 shadow-sm">
           {settingRows.map((row) => (
             <div
               key={row.label}
-              className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0"
+              className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-white/10 last:border-0"
             >
               <div className="flex items-center gap-3 pr-6">
                 <row.icon className={`h-4 w-4 shrink-0 ${row.iconCls}`} />
                 <div>
-                  <p className="text-sm font-medium text-slate-700">{row.label}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{row.description}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{row.label}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{row.description}</p>
                 </div>
               </div>
               <Toggle checked={row.checked} onChange={row.onChange} />
@@ -196,25 +198,25 @@ export function SettingsClient() {
 
         {/* Info note */}
         <div className="mt-6 flex items-start gap-3">
-          <Brain className="h-4 w-4 mt-0.5 shrink-0 text-slate-400" />
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <Brain className="h-4 w-4 mt-0.5 shrink-0 text-slate-400 dark:text-slate-500" />
+          <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
             설정이 서버에 저장되어 다른 기기에서 접속해도 유지됩니다. AI는 선택 내역을 통해 자동으로 취향을 학습합니다.
           </p>
         </div>
 
         {/* 데이터 초기화 */}
         <div className="mt-8">
-          <h2 className="text-sm font-semibold mb-3" style={{ color: '#78716c' }}>데이터 초기화</h2>
-          <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm space-y-4">
+          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--color-text-secondary)' }}>{t('settings.dataReset')}</h2>
+          <div className="rounded-2xl border border-red-100 dark:border-red-900/30 bg-white dark:bg-[#161b22] p-6 shadow-sm space-y-4">
 
             {/* 선호도 초기화 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 pr-6">
                 <RotateCcw className="h-4 w-4 shrink-0 text-orange-400" />
                 <div>
-                  <p className="text-sm font-medium text-slate-700">선호도 초기화</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    지금까지 학습된 선호도 로그와 메모리를 모두 삭제합니다
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('settings.resetPrefs')}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    {t('settings.resetPrefsDesc')}
                   </p>
                 </div>
               </div>
@@ -230,24 +232,24 @@ export function SettingsClient() {
                   opacity: resetPrefStatus === 'loading' ? 0.6 : 1,
                 }}
               >
-                {resetPrefStatus === 'loading' ? '삭제 중...'
-                  : resetPrefStatus === 'done' ? '완료'
-                  : resetPrefStatus === 'error' ? '오류'
-                  : confirmPref ? '정말 삭제'
-                  : '초기화'}
+                {resetPrefStatus === 'loading' ? t('settings.deleting')
+                  : resetPrefStatus === 'done' ? t('settings.done')
+                  : resetPrefStatus === 'error' ? t('settings.error')
+                  : confirmPref ? t('settings.confirmDelete')
+                  : t('settings.reset')}
               </button>
             </div>
 
-            <div className="border-t border-slate-100" />
+            <div className="border-t border-slate-100 dark:border-white/10" />
 
             {/* 페르소나 초기화 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 pr-6">
                 <Trash2 className="h-4 w-4 shrink-0 text-red-400" />
                 <div>
-                  <p className="text-sm font-medium text-slate-700">내가 만든 페르소나 삭제</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    직접 만든 페르소나를 삭제합니다. 기본 페르소나 5개는 유지됩니다
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('settings.deletePersonas')}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    {t('settings.deletePersonasDesc')}
                   </p>
                 </div>
               </div>
@@ -263,17 +265,17 @@ export function SettingsClient() {
                   opacity: resetPersonaStatus === 'loading' ? 0.6 : 1,
                 }}
               >
-                {resetPersonaStatus === 'loading' ? '삭제 중...'
-                  : resetPersonaStatus === 'done' ? '완료'
-                  : resetPersonaStatus === 'error' ? '오류'
-                  : confirmPersona ? '정말 삭제'
-                  : '삭제'}
+                {resetPersonaStatus === 'loading' ? t('settings.deleting')
+                  : resetPersonaStatus === 'done' ? t('settings.done')
+                  : resetPersonaStatus === 'error' ? t('settings.error')
+                  : confirmPersona ? t('settings.confirmDelete')
+                  : t('settings.delete')}
               </button>
             </div>
 
           </div>
-          <p className="mt-2 text-xs text-slate-400 pl-1">
-            초기화 버튼을 누르면 확인 버튼이 나타납니다. 삭제된 데이터는 복구할 수 없습니다.
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500 pl-1">
+            {t('settings.saveNote')}
           </p>
         </div>
 

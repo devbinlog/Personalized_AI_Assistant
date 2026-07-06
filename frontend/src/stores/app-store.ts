@@ -10,12 +10,16 @@ interface AppState {
   settings: AppSettings
   chatResetKey: number
   sidebarRefreshKey: number
+  theme: 'light' | 'dark'
+  language: 'ko' | 'en'
 
   setSessionId: (id: string) => void
   setMode: (mode: ConversationMode) => void
   updateSettings: (partial: Partial<AppSettings>) => void
   resetChat: () => void
   refreshSidebar: () => void
+  setTheme: (theme: 'light' | 'dark') => void
+  setLanguage: (language: 'ko' | 'en') => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -25,6 +29,8 @@ export const useAppStore = create<AppState>()(
       mode: 'NORMAL',
       chatResetKey: 0,
       sidebarRefreshKey: 0,
+      theme: 'light',
+      language: 'ko',
       settings: {
         defaultMode: 'NORMAL',
         autoSearch: true,
@@ -38,6 +44,8 @@ export const useAppStore = create<AppState>()(
         set((state) => ({ settings: { ...state.settings, ...partial } })),
       resetChat: () => set((state) => ({ chatResetKey: state.chatResetKey + 1 })),
       refreshSidebar: () => set((state) => ({ sidebarRefreshKey: state.sidebarRefreshKey + 1 })),
+      setTheme: (theme) => set({ theme }),
+      setLanguage: (language) => set({ language }),
     }),
     {
       name: 'aai-app-state',
@@ -45,6 +53,8 @@ export const useAppStore = create<AppState>()(
         sessionId: state.sessionId,
         mode: state.mode,
         settings: state.settings,
+        theme: state.theme,
+        language: state.language,
       }),
     },
   ),

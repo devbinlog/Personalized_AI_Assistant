@@ -15,7 +15,7 @@ export function AppShell({ children, showConversations = false, scrollLock = fal
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: '#fafaf9' }}>
+    <div className="flex h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div
@@ -34,7 +34,7 @@ export function AppShell({ children, showConversations = false, scrollLock = fal
         {/* Hamburger button — mobile only, sits in top-left of main area */}
         <button
           className="md:hidden absolute top-0 left-0 z-20 flex h-14 w-14 items-center justify-center"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#334155' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}
           onClick={() => setSidebarOpen(true)}
           aria-label="메뉴 열기"
         >

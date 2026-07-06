@@ -143,9 +143,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       paddingBottom: '6px',
       fontSize: '13px',
       fontWeight: 500,
-      color: isActive ? '#475569' : '#44403c',
-      backgroundColor: isActive ? '#f8fafc' : 'transparent',
-      borderLeft: isActive ? '2px solid #334155' : '2px solid transparent',
+      color: isActive ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+      backgroundColor: isActive ? 'var(--color-surface-hover)' : 'transparent',
+      borderLeft: isActive ? '2px solid var(--color-text-secondary)' : '2px solid transparent',
     } as React.CSSProperties
   }
 
@@ -163,14 +163,14 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       style={{
         width: '240px',
         minWidth: '240px',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e7e5e4',
+        backgroundColor: 'var(--color-sidebar-bg)',
+        borderRight: '1px solid var(--color-sidebar-border)',
       }}
     >
       {/* Header */}
       <div
         className="flex h-14 items-center gap-2 shrink-0 pr-2"
-        style={{ paddingLeft: '16px', borderBottom: '1px solid #e7e5e4' }}
+        style={{ paddingLeft: '16px', borderBottom: '1px solid var(--color-sidebar-border)' }}
       >
         <Link
           href="/"
@@ -183,16 +183,16 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
           >
             <Brain className="h-3.5 w-3.5" style={{ color: '#334155' }} />
           </div>
-          <span className="flex-1" style={{ fontSize: '13px', fontWeight: 600, color: '#1c1917' }}>Adaptive AI</span>
+          <span className="flex-1" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Adaptive AI</span>
         </Link>
         {/* Close button — mobile only */}
         <button
           className="md:hidden flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a8a29e' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}
           onClick={onClose}
           aria-label="사이드바 닫기"
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#44403c' }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#a8a29e' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)' }}
         >
           <X className="h-4 w-4" />
         </button>
@@ -228,7 +228,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             display: 'block',
             fontSize: '10px',
             fontWeight: 500,
-            color: '#a8a29e',
+            color: 'var(--color-text-muted)',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
           }}
@@ -253,10 +253,10 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
               style={navItemStyle(isActive)}
               onClick={onClose}
               onMouseEnter={e => {
-                if (!isActive) e.currentTarget.style.backgroundColor = '#f8fafc'
+                if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = isActive ? '#f8fafc' : 'transparent'
+                e.currentTarget.style.backgroundColor = isActive ? 'var(--color-surface-hover)' : 'transparent'
               }}
             >
               <item.icon className="h-3.5 w-3.5 shrink-0" />
@@ -277,7 +277,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             style={{
               fontSize: '10px',
               fontWeight: 500,
-              color: '#a8a29e',
+              color: 'var(--color-text-muted)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
             }}
@@ -285,8 +285,8 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             AI 디자인
           </span>
           {designOpen
-            ? <ChevronDown className="h-3 w-3" style={{ color: '#a8a29e' }} />
-            : <ChevronRight className="h-3 w-3" style={{ color: '#a8a29e' }} />
+            ? <ChevronDown className="h-3 w-3" style={{ color: 'var(--color-text-muted)' }} />
+            : <ChevronRight className="h-3 w-3" style={{ color: 'var(--color-text-muted)' }} />
           }
         </button>
         {designOpen && (
@@ -301,10 +301,10 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                   style={navItemStyle(isActive)}
                   onClick={onClose}
                   onMouseEnter={e => {
-                    if (!isActive) e.currentTarget.style.backgroundColor = '#f8fafc'
+                    if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.backgroundColor = isActive ? '#f8fafc' : 'transparent'
+                    e.currentTarget.style.backgroundColor = isActive ? 'var(--color-surface-hover)' : 'transparent'
                   }}
                 >
                   <item.icon className="h-3.5 w-3.5 shrink-0" />
@@ -317,7 +317,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       </div>
 
       {/* Divider */}
-      <div style={{ borderTop: '1px solid #e7e5e4', margin: '4px 0' }} className="shrink-0" />
+      <div style={{ borderTop: '1px solid var(--color-sidebar-border)', margin: '4px 0' }} className="shrink-0" />
 
       {/* Conversation list */}
       {showConversations && (
@@ -328,7 +328,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                 display: 'block',
                 fontSize: '10px',
                 fontWeight: 500,
-                color: '#a8a29e',
+                color: 'var(--color-text-muted)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
               }}
@@ -344,12 +344,12 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                   <div
                     key={i}
                     className="h-10 animate-pulse rounded-lg"
-                    style={{ backgroundColor: '#f5f5f4' }}
+                    style={{ backgroundColor: 'var(--color-surface-hover)' }}
                   />
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <p style={{ fontSize: '12px', color: '#a8a29e', padding: '8px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', padding: '8px' }}>
                 대화 기록이 없습니다
               </p>
             ) : (
@@ -362,15 +362,15 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                         href={`/chat/${c.id}`}
                         className="group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors"
                         style={{
-                          backgroundColor: isActive ? '#f8fafc' : 'transparent',
-                          color: isActive ? '#475569' : '#44403c',
+                          backgroundColor: isActive ? 'var(--color-surface-hover)' : 'transparent',
+                          color: isActive ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
                         }}
                         onClick={onClose}
                         onMouseEnter={e => {
-                          if (!isActive) e.currentTarget.style.backgroundColor = '#f8fafc'
+                          if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.backgroundColor = isActive ? '#f8fafc' : 'transparent'
+                          e.currentTarget.style.backgroundColor = isActive ? 'var(--color-surface-hover)' : 'transparent'
                         }}
                       >
                         <div className="flex-1 min-w-0">
@@ -380,7 +380,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                           >
                             {c.title ?? '새 대화'}
                           </p>
-                          <p style={{ fontSize: '10px', color: '#a8a29e', marginTop: '1px' }}>
+                          <p style={{ fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '1px' }}>
                             {c._count.messages}개 · {formatDate(c.updatedAt)}
                           </p>
                         </div>
@@ -449,7 +449,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       {/* Footer — border-top이 채팅 입력창 border와 같은 높이 */}
       <div
         className="shrink-0"
-        style={{ borderTop: '1px solid #e7e5e4', padding: '8px 12px' }}
+        style={{ borderTop: '1px solid var(--color-sidebar-border)', padding: '8px 12px' }}
       >
         {session ? (
           /* User Menu */
@@ -464,7 +464,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                 cursor: 'pointer',
                 backgroundColor: 'transparent',
               }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
             >
               <div
@@ -476,14 +476,14 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
               <div className="flex flex-col min-w-0 text-left">
                 <span
                   className="truncate"
-                  style={{ fontSize: '12px', fontWeight: 500, color: '#1c1917' }}
+                  style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-primary)' }}
                 >
                   {userName}
                 </span>
                 {userEmail && (
                   <span
                     className="truncate"
-                    style={{ fontSize: '10px', color: '#a8a29e' }}
+                    style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}
                   >
                     {userEmail}
                   </span>
@@ -495,8 +495,8 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
               <div
                 className="absolute bottom-full left-0 mb-1 w-full rounded-lg shadow-lg"
                 style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e7e5e4',
+                  backgroundColor: 'var(--color-dropdown-bg)',
+                  border: '1px solid var(--color-border)',
                   padding: '4px',
                   zIndex: 50,
                 }}
@@ -506,12 +506,12 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                   className="flex w-full items-center rounded-md px-3 py-2 text-left transition-colors"
                   style={{
                     fontSize: '13px',
-                    color: '#44403c',
+                    color: 'var(--color-text-primary)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc' }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-dropdown-hover)' }}
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
                   로그아웃
@@ -529,9 +529,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
               borderRadius: '6px',
               fontSize: '13px',
               fontWeight: 500,
-              color: '#44403c',
+              color: 'var(--color-text-primary)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
           >
             로그인

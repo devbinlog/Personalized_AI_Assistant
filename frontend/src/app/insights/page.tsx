@@ -21,11 +21,16 @@ export default function InsightsPage() {
   const [memory, setMemory] = useState<PreferenceMemory | null>(null)
   const [versions, setVersions] = useState<MemoryVersion[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [logCount, setLogCount] = useState(0)
+  const [nextUpdateIn, setNextUpdateIn] = useState(3)
+  const THRESHOLD = 3
 
   const fetchData = async () => {
     const res = await fetch('/api/memory').then(r => r.json()).catch(() => ({}))
     if (res.memory) setMemory(res.memory)
     if (res.versions) setVersions(res.versions)
+    if (res.logCount !== undefined) setLogCount(res.logCount)
+    if (res.nextUpdateIn !== undefined) setNextUpdateIn(res.nextUpdateIn)
   }
 
   useEffect(() => {
@@ -73,6 +78,41 @@ export default function InsightsPage() {
             )}
           </div>
 
+          {/* 진행 상황 */}
+          {!memory && logCount > 0 && (
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600">
+                  첫 번째 분석까지 {nextUpdateIn}개 더 선택하면 됩니다
+                </p>
+                <p className="text-xs text-slate-400">{logCount} / {THRESHOLD}개</p>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-slate-700 transition-all duration-500"
+                  style={{ width: `${Math.min((logCount / THRESHOLD) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {memory && nextUpdateIn > 0 && (
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600">
+                  다음 분석까지 {nextUpdateIn}개 더 선택하면 됩니다
+                </p>
+                <p className="text-xs text-slate-400">총 {logCount}개 누적</p>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-slate-700 transition-all duration-500"
+                  style={{ width: `${Math.min(((THRESHOLD - nextUpdateIn) / THRESHOLD) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {memory ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
@@ -98,7 +138,7 @@ export default function InsightsPage() {
             <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
               <Brain className="mx-auto mb-3 h-8 w-8 text-slate-300" />
               <p className="text-sm text-slate-500">
-                학습 모드를 3회 이상 사용하면 첫 번째 선호도 프로필이 생성됩니다
+                학습 모드에서 후보를 {THRESHOLD}번 선택하면 첫 번째 선호도 프로필이 생성됩니다
               </p>
             </div>
           )}

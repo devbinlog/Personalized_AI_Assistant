@@ -7,7 +7,7 @@ export const APP_VERSION = '0.1.0'
 export const SESSION_COOKIE = 'aai_session'
 
 // How many logs to accumulate before regenerating preference memory
-export const MEMORY_UPDATE_THRESHOLD = 5
+export const MEMORY_UPDATE_THRESHOLD = 3
 
 // Number of response candidates in Learning Mode
 export const LEARNING_CANDIDATES_COUNT = 3
