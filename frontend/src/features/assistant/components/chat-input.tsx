@@ -104,7 +104,6 @@ export function ChatInput({
       const transcript = event.results[0][0].transcript
       if (!transcript.trim()) return
 
-      // Normal mic: just fill the text field
       const newValue = value ? `${value} ${transcript}` : transcript
       onChange(newValue)
       requestAnimationFrame(() => {
@@ -183,7 +182,7 @@ export function ChatInput({
   const busy = isStreaming || isLoading
 
   return (
-    <div className="px-4 py-3" style={{ borderTop: '1px solid #e7e5e4', backgroundColor: '#ffffff' }}>
+    <div className="px-4 py-3" style={{ borderTop: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
       <div className="mx-auto max-w-3xl space-y-2">
         {/* File previews */}
         {attachedFiles.length > 0 && (
@@ -192,11 +191,11 @@ export function ChatInput({
               <div
                 key={i}
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs"
-                style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9', color: '#374151' }}
+                style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-primary)' }}
               >
                 {f.type === 'image'
-                  ? <ImageIcon className="h-3.5 w-3.5 shrink-0" style={{ color: '#334155' }} />
-                  : <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: f.type === 'pdf' ? '#ef4444' : '#334155' }} />
+                  ? <ImageIcon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-secondary)' }} />
+                  : <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: f.type === 'pdf' ? '#ef4444' : 'var(--color-text-secondary)' }} />
                 }
                 <span className="max-w-[140px] truncate">{f.name}</span>
                 <button
@@ -221,9 +220,9 @@ export function ChatInput({
             onClick={() => fileInputRef.current?.click()}
             disabled={busy || disabled || attachedFiles.length >= 3}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ border: '1px solid #e7e5e4', color: '#9ca3af' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#334155' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.color = '#9ca3af' }}
+            style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text-muted)' }}
             title="파일 첨부 (이미지, 텍스트, 코드)"
           >
             <Paperclip className="h-4 w-4" />
@@ -248,8 +247,9 @@ export function ChatInput({
                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
                 isRecording
                   ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100'
-                  : 'border-[#e7e5e4] text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155]',
+                  : 'text-[#9ca3af] hover:border-[#94a3b8] hover:text-[#334155] dark:hover:text-slate-300',
               )}
+              style={!isRecording ? { borderColor: 'var(--color-border)' } : undefined}
             >
               {isRecording ? (
                 <span className="relative flex h-4 w-4 items-center justify-center">
@@ -274,16 +274,16 @@ export function ChatInput({
             placeholder={placeholder}
             rows={1}
             className={cn(
-              'flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none transition-colors min-h-[44px] max-h-[200px]',
+              'flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none transition-colors min-h-[44px] max-h-[200px] placeholder:text-[var(--color-text-muted)]',
               (disabled || busy) && 'opacity-60',
             )}
             style={{
-              border: '1px solid #e7e5e4',
-              backgroundColor: '#fafaf9',
-              color: '#1c1917',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-bg)',
+              color: 'var(--color-text-primary)',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196,181,253,0.2)' }}
-            onBlur={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.backgroundColor = '#fafaf9'; e.currentTarget.style.boxShadow = 'none' }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196,181,253,0.2)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }}
           />
 
           <div className="flex items-end pb-0.5">
@@ -312,7 +312,7 @@ export function ChatInput({
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-slate-400">
+        <p className="text-center text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
           Enter로 전송 · Shift+Enter 줄바꿈 · 파일 첨부 최대 3개
           {speechSupported ? ' · 🎤 음성 입력 지원' : ''}
         </p>

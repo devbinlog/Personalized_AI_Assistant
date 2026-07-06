@@ -216,18 +216,18 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const showWelcome = messages.length === 0 && !isLearningLoading && !learningCandidates
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
+    <div className="flex flex-1 flex-col overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
       {showLoginModal && <LoginPromptModal onClose={() => setShowLoginModal(false)} />}
 
       {/* Top header bar — matches sidebar h-14 header height and border */}
       <div
         className="flex h-14 shrink-0 items-center justify-between pl-14 pr-4 md:px-4"
-        style={{ borderBottom: '1px solid #e7e5e4' }}
+        style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)' }}
       >
         {/* 왼쪽: 모드 표시 */}
         <div className="flex items-center gap-2">
-          <Brain className="h-4 w-4" style={{ color: '#334155' }} />
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#1c1917' }}>
+          <Brain className="h-4 w-4" style={{ color: 'var(--color-text-secondary)' }} />
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {mode === 'LEARNING' ? '학습 모드' : '일반 모드'}
           </span>
           {mode === 'LEARNING' && (
@@ -281,10 +281,10 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
 
             {isLearningLoading && (
               <div className="flex gap-3 px-4 py-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: '#f1f5f9' }}>
-                  <Brain className="h-4 w-4 animate-pulse" style={{ color: '#334155' }} />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-surface-hover)' }}>
+                  <Brain className="h-4 w-4 animate-pulse" style={{ color: 'var(--color-text-secondary)' }} />
                 </div>
-                <div className="flex items-center gap-2 px-4 py-3 rounded-lg" style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
                   <div className="flex gap-1">
                     {[0, 1, 2].map(i => (
                       <span key={i} className="h-1.5 w-1.5 rounded-full animate-bounce" style={{ backgroundColor: '#fbbf24', animationDelay: `${i * 150}ms` }} />
@@ -331,14 +331,14 @@ function LoginPromptModal({ onClose }: { onClose: () => void }) {
   const router = useRouter()
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center" style={{ border: '1px solid #e7e5e4' }}>
+      <div className="rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center" style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="mb-4 flex justify-center">
-          <div className="h-14 w-14 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f1f5f9' }}>
-            <LogIn className="h-7 w-7" style={{ color: '#334155' }} />
+          <div className="h-14 w-14 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface-hover)' }}>
+            <LogIn className="h-7 w-7" style={{ color: 'var(--color-text-secondary)' }} />
           </div>
         </div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">로그인이 필요해요</h3>
-        <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>로그인이 필요해요</h3>
+        <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
           무료 체험이 종료됐습니다.<br />
           계속 이용하려면 로그인하세요.
         </p>
@@ -387,7 +387,7 @@ function ChatHeaderUser() {
       <Link
         href="/auth/signin"
         className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-        style={{ border: '1px solid #e7e5e4', color: '#6b7280' }}
+        style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
       >
         <LogIn className="h-3.5 w-3.5" />
         로그인
@@ -403,8 +403,8 @@ function ChatHeaderUser() {
       <button
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors"
-        style={{ border: '1px solid #e7e5e4' }}
-        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#fafaf9')}
+        style={{ border: '1px solid var(--color-border)' }}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)')}
         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
       >
         <div
@@ -413,57 +413,57 @@ function ChatHeaderUser() {
         >
           {initials}
         </div>
-        <span className="max-w-[100px] truncate text-xs font-medium" style={{ color: '#1c1917' }}>
+        <span className="max-w-[100px] truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
           {name}
         </span>
-        <ChevronDown className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} style={{ color: '#9ca3af' }} />
+        <ChevronDown className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} style={{ color: 'var(--color-text-muted)' }} />
       </button>
 
       {open && (
         <div
           className="absolute right-0 top-full mt-1.5 w-48 rounded-xl py-1 shadow-lg z-50"
-          style={{ backgroundColor: '#ffffff', border: '1px solid #e7e5e4' }}
+          style={{ backgroundColor: 'var(--color-dropdown-bg)', border: '1px solid var(--color-border)' }}
         >
-          <div className="border-b px-3 py-2 mb-1" style={{ borderColor: '#e7e5e4' }}>
-            <p className="truncate text-xs font-medium" style={{ color: '#1c1917' }}>{name}</p>
+          <div className="border-b px-3 py-2 mb-1" style={{ borderColor: 'var(--color-border)' }}>
+            <p className="truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{name}</p>
             {session.user.email && (
-              <p className="truncate text-[10px]" style={{ color: '#9ca3af' }}>{session.user.email}</p>
+              <p className="truncate text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{session.user.email}</p>
             )}
           </div>
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-3 py-2 text-xs transition-colors"
-            style={{ color: '#44403c' }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+            style={{ color: 'var(--color-text-primary)' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-dropdown-hover)')}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
-            <User className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+            <User className="h-3.5 w-3.5" style={{ color: 'var(--color-text-secondary)' }} />
             내 프로필
           </Link>
           <Link
             href="/settings"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-3 py-2 text-xs transition-colors"
-            style={{ color: '#44403c' }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+            style={{ color: 'var(--color-text-primary)' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-dropdown-hover)')}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
-            <Settings className="h-3.5 w-3.5" style={{ color: '#9ca3af' }} />
+            <Settings className="h-3.5 w-3.5" style={{ color: 'var(--color-text-muted)' }} />
             설정
           </Link>
-          <div className="mt-1 border-t" style={{ borderColor: '#e7e5e4' }}>
+          <div className="mt-1 border-t" style={{ borderColor: 'var(--color-border)' }}>
             <button
               onClick={() => { setOpen(false); signOut({ callbackUrl: '/auth/signin' }) }}
               className="flex w-full items-center gap-2 px-3 py-2 text-xs transition-colors"
-              style={{ color: '#44403c' }}
+              style={{ color: 'var(--color-text-primary)' }}
               onMouseEnter={e => {
                 e.currentTarget.style.backgroundColor = '#fee2e2'
                 e.currentTarget.style.color = '#ef4444'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.color = '#44403c'
+                e.currentTarget.style.color = 'var(--color-text-primary)'
               }}
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -524,9 +524,9 @@ function PersonaQuickSelect() {
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
         style={{
-          border: '1px solid #e7e5e4',
-          backgroundColor: active ? '#f1f5f9' : 'transparent',
-          color: active ? '#334155' : '#9ca3af',
+          border: '1px solid var(--color-border)',
+          backgroundColor: active ? 'var(--color-surface-hover)' : 'transparent',
+          color: active ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
         }}
       >
         {active ? (
@@ -545,10 +545,10 @@ function PersonaQuickSelect() {
       {open && (
         <div
           className="absolute left-0 top-full mt-1.5 w-52 rounded-xl py-1 shadow-lg z-50"
-          style={{ backgroundColor: '#ffffff', border: '1px solid #e7e5e4' }}
+          style={{ backgroundColor: 'var(--color-dropdown-bg)', border: '1px solid var(--color-border)' }}
         >
-          <div className="px-3 py-1.5 border-b" style={{ borderColor: '#e7e5e4' }}>
-            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#a8a29e' }}>페르소나 선택</p>
+          <div className="px-3 py-1.5 border-b" style={{ borderColor: 'var(--color-border)' }}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>페르소나 선택</p>
           </div>
           {active && (
             <button
@@ -568,11 +568,11 @@ function PersonaQuickSelect() {
               onClick={() => activate(p.id)}
               className="flex w-full items-center gap-2 px-3 py-2 text-xs text-left transition-colors"
               style={{
-                color: p.isActive ? '#334155' : '#44403c',
-                backgroundColor: p.isActive ? '#f8fafc' : 'transparent',
+                color: p.isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                backgroundColor: p.isActive ? 'var(--color-dropdown-hover)' : 'transparent',
                 fontWeight: p.isActive ? 600 : 400,
               }}
-              onMouseEnter={e => { if (!p.isActive) e.currentTarget.style.backgroundColor = '#f8fafc' }}
+              onMouseEnter={e => { if (!p.isActive) e.currentTarget.style.backgroundColor = 'var(--color-dropdown-hover)' }}
               onMouseLeave={e => { if (!p.isActive) e.currentTarget.style.backgroundColor = 'transparent' }}
             >
               <span>{PERSONA_EMOJI[p.name] ?? '🤖'}</span>
@@ -588,7 +588,7 @@ function PersonaQuickSelect() {
 
 function WelcomeScreen({ mode }: { mode: ConversationMode }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: '#ffffff' }}>
+    <div className="flex h-full flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div
         className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300"
         style={{
@@ -600,10 +600,10 @@ function WelcomeScreen({ mode }: { mode: ConversationMode }) {
       >
         <Brain className="h-7 w-7 text-white" />
       </div>
-      <h2 className="mb-2 text-xl font-semibold tracking-tight" style={{ color: '#1c1917' }}>
+      <h2 className="mb-2 text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
         {mode === 'LEARNING' ? '학습 모드가 활성화됐습니다' : '무엇을 도와드릴까요?'}
       </h2>
-      <p className="max-w-sm text-sm leading-relaxed" style={{ color: '#78716c' }}>
+      <p className="max-w-sm text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
         {mode === 'LEARNING' ? (
           <>
             무엇이든 물어보세요 — 3가지 다른 응답 스타일을 생성합니다.<br />

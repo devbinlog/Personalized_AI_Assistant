@@ -66,30 +66,30 @@ const STACK = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-[#0d1117]">
       <Navbar />
 
       {/* ── Hero ───────────────────────────────── */}
       <section className="px-8 pb-32 pt-44">
         <div className="mx-auto max-w-5xl">
-          <h1 className="mb-8 text-[72px] font-black leading-[1.0] tracking-tighter text-black lg:text-[96px]">
+          <h1 className="mb-8 text-[72px] font-black leading-[1.0] tracking-tighter text-black dark:text-white lg:text-[96px]">
             대화를 통해<br />발전해가는 AI
           </h1>
-          <p className="mb-10 max-w-md text-lg leading-relaxed text-black/40">
+          <p className="mb-10 max-w-md text-lg leading-relaxed text-black/40 dark:text-white/50">
             3가지 응답 후보 중 선택할수록 AI가 취향을 학습하고,<br />
             알맞은 최적 답변을 자동 생성합니다.
           </p>
           <div className="flex items-center gap-6">
             <Link
               href="/chat"
-              className="inline-flex items-center gap-2 rounded-full bg-slate-700 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-slate-600"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-700 dark:bg-slate-600 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-slate-600 dark:hover:bg-slate-500"
             >
               채팅 시작하기
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-black/35 transition-colors hover:text-black"
+              className="text-sm font-medium text-black/35 dark:text-white/35 transition-colors hover:text-black dark:hover:text-white"
             >
               대시보드 보기 →
             </Link>
@@ -98,17 +98,17 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ───────────────────────────── */}
-      <section className="border-t border-black/8 px-8 py-24">
+      <section className="border-t border-black/8 dark:border-white/10 px-8 py-24">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-14 text-4xl font-black tracking-tighter text-black">핵심 기능</h2>
-          <div className="grid grid-cols-1 border-l border-t border-black/8 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="mb-14 text-4xl font-black tracking-tighter text-black dark:text-white">핵심 기능</h2>
+          <div className="grid grid-cols-1 border-l border-t border-black/8 dark:border-white/10 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f) => (
-              <div key={f.num} className="border-b border-r border-black/8 p-6">
-                <span className="mb-4 block text-[11px] font-semibold tracking-wider text-black/25">
+              <div key={f.num} className="border-b border-r border-black/8 dark:border-white/10 p-6">
+                <span className="mb-4 block text-[11px] font-semibold tracking-wider text-black/25 dark:text-white/30">
                   {f.num}
                 </span>
-                <h3 className="mb-2 text-sm font-bold text-black">{f.title}</h3>
-                <p className="text-xs leading-relaxed text-black/45">{f.desc}</p>
+                <h3 className="mb-2 text-sm font-bold text-black dark:text-white">{f.title}</h3>
+                <p className="text-xs leading-relaxed text-black/45 dark:text-white/45">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -116,17 +116,17 @@ export default function HomePage() {
       </section>
 
       {/* ── Pipeline ───────────────────────────── */}
-      <section className="border-t border-black/8 px-8 py-24">
+      <section className="border-t border-black/8 dark:border-white/10 px-8 py-24">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-14 text-4xl font-black tracking-tighter text-black">응답 파이프라인</h2>
-          <div className="divide-y divide-black/8 border-y border-black/8">
+          <h2 className="mb-14 text-4xl font-black tracking-tighter text-black dark:text-white">응답 파이프라인</h2>
+          <div className="divide-y divide-black/8 dark:divide-white/10 border-y border-black/8 dark:border-white/10">
             {PIPELINE.map((p, i) => (
               <div key={i} className="flex items-baseline gap-8 py-5">
-                <span className="w-6 shrink-0 text-xs font-semibold text-black/25">
+                <span className="w-6 shrink-0 text-xs font-semibold text-black/25 dark:text-white/30">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="w-36 shrink-0 text-sm font-bold text-black">{p.step}</span>
-                <span className="text-sm text-black/45">{p.desc}</span>
+                <span className="w-36 shrink-0 text-sm font-bold text-black dark:text-white">{p.step}</span>
+                <span className="text-sm text-black/45 dark:text-white/45">{p.desc}</span>
               </div>
             ))}
           </div>
@@ -134,16 +134,16 @@ export default function HomePage() {
       </section>
 
       {/* ── Tech Stack ─────────────────────────── */}
-      <section className="border-t border-black/8 px-8 py-24">
+      <section className="border-t border-black/8 dark:border-white/10 px-8 py-24">
         <div className="mx-auto max-w-5xl flex flex-col gap-10 lg:flex-row lg:items-start">
-          <h2 className="shrink-0 text-4xl font-black tracking-tighter text-black lg:w-52">
+          <h2 className="shrink-0 text-4xl font-black tracking-tighter text-black dark:text-white lg:w-52">
             기술<br />스택
           </h2>
           <div className="flex flex-wrap gap-2">
             {STACK.map(t => (
               <span
                 key={t}
-                className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium text-black/55"
+                className="rounded-full border border-black/10 dark:border-white/15 px-3 py-1.5 text-xs font-medium text-black/55 dark:text-white/55"
               >
                 {t}
               </span>
@@ -153,14 +153,14 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ────────────────────────────────── */}
-      <section className="border-t border-black/8 px-8 py-24">
+      <section className="border-t border-black/8 dark:border-white/10 px-8 py-24">
         <div className="mx-auto max-w-5xl flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <h2 className="text-5xl font-black leading-tight tracking-tighter text-black">
+          <h2 className="text-5xl font-black leading-tight tracking-tighter text-black dark:text-white">
             직접<br />경험해보세요.
           </h2>
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 self-start rounded-full bg-slate-700 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-600 lg:self-auto"
+            className="inline-flex items-center gap-2 self-start rounded-full bg-slate-700 dark:bg-slate-600 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-600 dark:hover:bg-slate-500 lg:self-auto"
           >
             채팅 시작하기
             <ArrowRight className="h-4 w-4" />
@@ -169,14 +169,14 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ─────────────────────────────── */}
-      <footer className="border-t border-black/8 px-8 py-8">
+      <footer className="border-t border-black/8 dark:border-white/10 px-8 py-8">
         <div className="mx-auto max-w-5xl flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <span className="text-sm font-black tracking-tight text-black">Adaptive AI</span>
-          <p className="text-xs text-black/35">김태빈 · devbinlog8@gmail.com</p>
-          <div className="flex items-center gap-5 text-xs text-black/35">
-            <Link href="/chat" className="transition-colors hover:text-black">채팅</Link>
-            <Link href="/dashboard" className="transition-colors hover:text-black">대시보드</Link>
-            <Link href="/persona-studio" className="transition-colors hover:text-black">페르소나</Link>
+          <span className="text-sm font-black tracking-tight text-black dark:text-white">Adaptive AI</span>
+          <p className="text-xs text-black/35 dark:text-white/35">김태빈 · devbinlog8@gmail.com</p>
+          <div className="flex items-center gap-5 text-xs text-black/35 dark:text-white/35">
+            <Link href="/chat" className="transition-colors hover:text-black dark:hover:text-white">채팅</Link>
+            <Link href="/dashboard" className="transition-colors hover:text-black dark:hover:text-white">대시보드</Link>
+            <Link href="/persona-studio" className="transition-colors hover:text-black dark:hover:text-white">페르소나</Link>
           </div>
         </div>
       </footer>

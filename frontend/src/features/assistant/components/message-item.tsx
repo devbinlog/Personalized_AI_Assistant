@@ -2,7 +2,7 @@
 
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { cn, strategyLabel, confidencePercent } from '@/lib/utils'
 import { Brain, Globe, User, Sparkles } from 'lucide-react'
 import type { Message } from 'ai'
@@ -29,7 +29,7 @@ export function MessageItem({
   isStreaming,
 }: MessageItemProps) {
   const isUser = message.role === 'user'
-  const { settings } = useAppStore()
+  const { settings, theme } = useAppStore()
   const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
 
   return (
@@ -38,13 +38,13 @@ export function MessageItem({
       <div
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
         style={isUser
-          ? { backgroundColor: '#f1f5f9' }
-          : { backgroundColor: '#ffffff', border: '1px solid #e7e5e4' }
+          ? { backgroundColor: 'var(--color-surface-hover)' }
+          : { backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }
         }
       >
         {isUser
-          ? <User className="h-3.5 w-3.5" style={{ color: '#334155' }} />
-          : <Brain className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+          ? <User className="h-3.5 w-3.5" style={{ color: 'var(--color-text-secondary)' }} />
+          : <Brain className="h-3.5 w-3.5" style={{ color: 'var(--color-text-secondary)' }} />
         }
       </div>
 
@@ -54,19 +54,19 @@ export function MessageItem({
         {!isUser && (strategy || searchUsed) && (
           <div className="flex flex-wrap gap-1.5">
             {strategy && (
-              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9', color: '#6b7280' }}>
-                <Sparkles className="h-2.5 w-2.5" style={{ color: '#334155' }} />
+              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
+                <Sparkles className="h-2.5 w-2.5" style={{ color: 'var(--color-text-secondary)' }} />
                 {strategyLabel(strategy as never)}
               </span>
             )}
             {searchUsed && (
-              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9', color: '#6b7280' }}>
+              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
                 <Globe className="h-2.5 w-2.5" />
                 웹 검색
               </span>
             )}
             {!isMock && confidence !== null && confidence !== undefined && (
-              <span className="rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid #e7e5e4', backgroundColor: '#fafaf9', color: '#6b7280' }}>
+              <span className="rounded px-1.5 py-0.5 text-[10px]" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
                 {confidencePercent(confidence)} 일치
               </span>
             )}
@@ -78,7 +78,7 @@ export function MessageItem({
           className="px-4 py-3 text-sm leading-relaxed"
           style={isUser
             ? { borderRadius: '14px 4px 14px 14px', backgroundColor: '#334155', color: '#ffffff' }
-            : { borderRadius: '4px 14px 14px 14px', backgroundColor: '#fafaf9', color: '#1c1917', border: '1px solid #e7e5e4' }
+            : { borderRadius: '4px 14px 14px 14px', backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }
           }
         >
           {isUser ? (
@@ -91,17 +91,17 @@ export function MessageItem({
                     const match = /language-(\w+)/.exec(className || '')
                     if (!match) {
                       return (
-                        <code className="rounded bg-white border border-slate-200 px-1 py-0.5 font-mono text-xs text-slate-700" {...props}>
+                        <code className="rounded px-1 py-0.5 font-mono text-xs" style={{ backgroundColor: 'var(--color-surface-hover)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }} {...props}>
                           {children}
                         </code>
                       )
                     }
                     return (
                       <SyntaxHighlighter
-                        style={oneLight as never}
+                        style={(theme === 'dark' ? oneDark : oneLight) as never}
                         language={match[1]}
                         PreTag="div"
-                        className="!rounded-lg !text-xs !mt-2 !border !border-slate-200"
+                        className="!rounded-lg !text-xs !mt-2"
                       >
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
