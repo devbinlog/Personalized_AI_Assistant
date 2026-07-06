@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Brain, Search, Lightbulb, BarChart2, Sparkles, Cloud, CloudOff } from 'lucide-react'
+import { Brain, Search, Lightbulb, BarChart2, Sparkles, Cloud, CloudOff, Trash2, RotateCcw } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 import type { AppSettings } from '@/types'
 
@@ -26,6 +26,38 @@ export function SettingsClient() {
   const { mode, setMode, settings, updateSettings } = useAppStore()
   const [syncStatus, setSyncStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [resetPrefStatus, setResetPrefStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [resetPersonaStatus, setResetPersonaStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [confirmPref, setConfirmPref] = useState(false)
+  const [confirmPersona, setConfirmPersona] = useState(false)
+
+  async function handleResetPreferences() {
+    if (!confirmPref) { setConfirmPref(true); return }
+    setResetPrefStatus('loading')
+    setConfirmPref(false)
+    try {
+      const res = await fetch('/api/preferences/reset', { method: 'DELETE' })
+      setResetPrefStatus(res.ok ? 'done' : 'error')
+      setTimeout(() => setResetPrefStatus('idle'), 3000)
+    } catch {
+      setResetPrefStatus('error')
+      setTimeout(() => setResetPrefStatus('idle'), 3000)
+    }
+  }
+
+  async function handleResetPersonas() {
+    if (!confirmPersona) { setConfirmPersona(true); return }
+    setResetPersonaStatus('loading')
+    setConfirmPersona(false)
+    try {
+      const res = await fetch('/api/personas/reset', { method: 'DELETE' })
+      setResetPersonaStatus(res.ok ? 'done' : 'error')
+      setTimeout(() => setResetPersonaStatus('idle'), 3000)
+    } catch {
+      setResetPersonaStatus('error')
+      setTimeout(() => setResetPersonaStatus('idle'), 3000)
+    }
+  }
 
   // Load settings from server on mount and merge into local store
   useEffect(() => {
@@ -169,6 +201,82 @@ export function SettingsClient() {
             설정이 서버에 저장되어 다른 기기에서 접속해도 유지됩니다. AI는 선택 내역을 통해 자동으로 취향을 학습합니다.
           </p>
         </div>
+
+        {/* 데이터 초기화 */}
+        <div className="mt-8">
+          <h2 className="text-sm font-semibold mb-3" style={{ color: '#78716c' }}>데이터 초기화</h2>
+          <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm space-y-4">
+
+            {/* 선호도 초기화 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 pr-6">
+                <RotateCcw className="h-4 w-4 shrink-0 text-orange-400" />
+                <div>
+                  <p className="text-sm font-medium text-slate-700">선호도 초기화</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    지금까지 학습된 선호도 로그와 메모리를 모두 삭제합니다
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleResetPreferences}
+                disabled={resetPrefStatus === 'loading'}
+                className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: confirmPref ? '#ef4444' : '#fef2f2',
+                  color: confirmPref ? '#ffffff' : '#ef4444',
+                  border: '1px solid #fecaca',
+                  cursor: resetPrefStatus === 'loading' ? 'not-allowed' : 'pointer',
+                  opacity: resetPrefStatus === 'loading' ? 0.6 : 1,
+                }}
+              >
+                {resetPrefStatus === 'loading' ? '삭제 중...'
+                  : resetPrefStatus === 'done' ? '완료'
+                  : resetPrefStatus === 'error' ? '오류'
+                  : confirmPref ? '정말 삭제'
+                  : '초기화'}
+              </button>
+            </div>
+
+            <div className="border-t border-slate-100" />
+
+            {/* 페르소나 초기화 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 pr-6">
+                <Trash2 className="h-4 w-4 shrink-0 text-red-400" />
+                <div>
+                  <p className="text-sm font-medium text-slate-700">내가 만든 페르소나 삭제</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    직접 만든 페르소나를 삭제합니다. 기본 페르소나 5개는 유지됩니다
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleResetPersonas}
+                disabled={resetPersonaStatus === 'loading'}
+                className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: confirmPersona ? '#ef4444' : '#fef2f2',
+                  color: confirmPersona ? '#ffffff' : '#ef4444',
+                  border: '1px solid #fecaca',
+                  cursor: resetPersonaStatus === 'loading' ? 'not-allowed' : 'pointer',
+                  opacity: resetPersonaStatus === 'loading' ? 0.6 : 1,
+                }}
+              >
+                {resetPersonaStatus === 'loading' ? '삭제 중...'
+                  : resetPersonaStatus === 'done' ? '완료'
+                  : resetPersonaStatus === 'error' ? '오류'
+                  : confirmPersona ? '정말 삭제'
+                  : '삭제'}
+              </button>
+            </div>
+
+          </div>
+          <p className="mt-2 text-xs text-slate-400 pl-1">
+            초기화 버튼을 누르면 확인 버튼이 나타납니다. 삭제된 데이터는 복구할 수 없습니다.
+          </p>
+        </div>
+
       </div>
       </div>
     </div>
