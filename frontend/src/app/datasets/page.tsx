@@ -71,20 +71,20 @@ export default function DatasetsPage() {
   const selected = EXPORT_TYPES.find(t => t.type === config.exportType)!
 
   return (
-    <div className="min-h-full bg-slate-50">
+    <div className="min-h-full bg-slate-50 dark:bg-[#08090a]">
       <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Database className="h-5 w-5 text-indigo-600" />
+          <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">데이터셋 내보내기</h1>
-            <p className="text-sm text-slate-500">파인튜닝 및 분석용 학습 데이터 내보내기</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">데이터셋 내보내기</h1>
+            <p className="text-sm text-slate-500 dark:text-[#8a8f98]">파인튜닝 및 분석용 학습 데이터 내보내기</p>
           </div>
         </div>
 
         {/* Export type selection */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 space-y-4 shadow-sm">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 space-y-4 shadow-sm">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">
             데이터셋 유형
           </label>
           <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
@@ -94,23 +94,23 @@ export default function DatasetsPage() {
                 onClick={() => setConfig(c => ({ ...c, exportType: t.type }))}
                 className={`rounded-xl border p-5 cursor-pointer transition-all hover:shadow-sm ${
                   config.exportType === t.type
-                    ? 'border-indigo-400 bg-indigo-50'
-                    : 'border-slate-200 bg-white hover:border-indigo-300'
+                    ? 'border-indigo-400 dark:border-indigo-500/50 bg-indigo-50 dark:bg-indigo-950/30'
+                    : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] hover:border-indigo-300 dark:hover:border-indigo-700'
                 }`}
               >
                 <div className="text-xl mb-2">{t.icon}</div>
-                <div className={`text-sm font-semibold mb-1 ${config.exportType === t.type ? 'text-indigo-700' : 'text-slate-900'}`}>{t.label}</div>
-                <div className="text-[11px] text-slate-500 leading-snug">{t.description}</div>
+                <div className={`text-sm font-semibold mb-1 ${config.exportType === t.type ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-900 dark:text-[#f7f8f8]'}`}>{t.label}</div>
+                <div className="text-[11px] text-slate-500 dark:text-[#8a8f98] leading-snug">{t.description}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Format + limit */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">출력 형식</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-2">출력 형식</label>
               <div className="flex gap-2">
                 {(['json', 'jsonl', 'csv'] as const).map(f => (
                   <button
@@ -118,8 +118,8 @@ export default function DatasetsPage() {
                     onClick={() => setConfig(c => ({ ...c, format: f }))}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
                       config.format === f
-                        ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                        : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
+                        : 'bg-white dark:bg-[#191a1b] border-slate-200 dark:border-white/8 text-slate-600 dark:text-[#d0d6e0] hover:border-indigo-300 dark:hover:border-indigo-700'
                     }`}
                   >
                     {f === 'json' || f === 'jsonl' ? <FileJson className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
@@ -129,14 +129,14 @@ export default function DatasetsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">레코드 수 제한</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-2">레코드 수 제한</label>
               <input
                 type="number"
                 value={config.limit}
                 min={1}
                 max={10000}
                 onChange={e => setConfig(c => ({ ...c, limit: parseInt(e.target.value) || 1000 }))}
-                className="w-28 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-300 focus:bg-white"
+                className="w-28 rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c]"
               />
             </div>
           </div>
@@ -147,15 +147,15 @@ export default function DatasetsPage() {
           <button
             onClick={doExport}
             disabled={exporting}
-            className="flex items-center gap-2 rounded-xl px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 bg-indigo-600 dark:bg-indigo-700 text-white text-sm font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
           >
             <Download className="h-4 w-4" />
             {exporting ? '내보내는 중...' : `${selected.label} 내보내기`}
           </button>
 
           {lastExport && (
-            <div className="px-4 py-2.5 rounded-xl border border-emerald-100 bg-emerald-50">
-              <span className="text-sm text-emerald-700">
+            <div className="px-4 py-2.5 rounded-xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20">
+              <span className="text-sm text-emerald-700 dark:text-emerald-400">
                 {lastExport.count}개 레코드를 {lastExport.format.toUpperCase()}로 내보냈습니다 ({lastExport.type})
               </span>
             </div>
@@ -163,19 +163,19 @@ export default function DatasetsPage() {
         </div>
 
         {/* Format descriptions */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <div className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-4">
             형식 안내
           </div>
           <div className="space-y-2">
-            <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">JSON</span> — 보기 좋게 정렬된 배열, 검사용으로 적합
+            <div className="text-sm text-slate-600 dark:text-[#d0d6e0]">
+              <span className="font-semibold text-slate-900 dark:text-[#f7f8f8]">JSON</span> — 보기 좋게 정렬된 배열, 검사용으로 적합
             </div>
-            <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">JSONL</span> — 한 줄에 레코드 하나, LLM 파인튜닝 파이프라인에 최적화
+            <div className="text-sm text-slate-600 dark:text-[#d0d6e0]">
+              <span className="font-semibold text-slate-900 dark:text-[#f7f8f8]">JSONL</span> — 한 줄에 레코드 하나, LLM 파인튜닝 파이프라인에 최적화
             </div>
-            <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">CSV</span> — 스프레드시트 호환, Excel/Sheets 분석에 적합
+            <div className="text-sm text-slate-600 dark:text-[#d0d6e0]">
+              <span className="font-semibold text-slate-900 dark:text-[#f7f8f8]">CSV</span> — 스프레드시트 호환, Excel/Sheets 분석에 적합
             </div>
           </div>
         </div>

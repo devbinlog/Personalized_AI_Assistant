@@ -37,6 +37,57 @@ import type { ConversationMode } from '@/types'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+// ── LangGraph backend integration ────────────────────────────
+type LangGraphResult = {
+  mode: string
+  candidates: Array<{ strategy: string; content: string; index: number; score: number; reasons: string[] }>
+  best_candidate: { strategy: string; content: string; index: number; score: number } | null
+  explanation: {
+    selectedStrategy: string
+    confidence: number
+    memoryInfluence: string[]
+    reasoningFactors: string[]
+    rankingDetails: Array<{ strategy: string; score: number }>
+  } | null
+  task_analysis: {
+    taskType: string
+    complexity: string
+    domain: string
+    needsWebSearch: boolean
+    expectedOutput: string
+    preferredStyle: string
+  }
+  system_prompt: string
+  evaluation_rubric: unknown[]
+}
+
+async function callLangGraph(payload: {
+  user_message: string
+  mode: string
+  user_id: string
+  session_id: string
+  conversation_history: Array<{ role: string; content: string }>
+  memory: Record<string, unknown>
+  active_persona: Record<string, unknown>
+  active_flow: Record<string, unknown>
+  global_memory: Record<string, unknown>
+}): Promise<LangGraphResult | null> {
+  const baseUrl = process.env.LANGGRAPH_BACKEND_URL
+  if (!baseUrl) return null
+  try {
+    const res = await fetch(`${baseUrl}/api/v1/assistant/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15_000),
+    })
+    if (!res.ok) return null
+    return await res.json() as LangGraphResult
+  } catch {
+    return null
+  }
+}
+
 // ── Attached file type (mirrors chat-input.tsx) ───────────────
 type AttachedFile = {
   name: string
@@ -142,6 +193,20 @@ export async function POST(req: NextRequest) {
     extractAndSavePersonality(userId, rawUserMessage).catch(() => {})
   }
 
+  // ── 1.5. Try LangGraph backend (optional orchestration layer) ─
+  // Falls back silently to local pipeline if backend is unavailable
+  const lgResult = await callLangGraph({
+    user_message: userMessage,
+    mode,
+    user_id: userId,
+    session_id: sessionId,
+    conversation_history: history,
+    memory: (memory ?? {}) as Record<string, unknown>,
+    active_persona: {},
+    active_flow: {},
+    global_memory: {},
+  })
+
   // ── 2. Ensure conversation exists ────────────────────────
   let convId = conversationId
   try {
@@ -166,15 +231,26 @@ export async function POST(req: NextRequest) {
   } catch {}
 
   // ── 3. Task Analysis ─────────────────────────────────────
-  const taskAnalysis = await analyzeTask(userMessage, history)
+  // Use LangGraph result if available, otherwise run locally
+  const taskAnalysis = lgResult?.task_analysis
+    ? {
+        taskType: lgResult.task_analysis.taskType,
+        complexity: lgResult.task_analysis.complexity,
+        domain: lgResult.task_analysis.domain,
+        needsWebSearch: lgResult.task_analysis.needsWebSearch,
+        expectedOutput: lgResult.task_analysis.expectedOutput,
+        preferredStyle: lgResult.task_analysis.preferredStyle,
+      }
+    : await analyzeTask(userMessage, history)
 
   // ── 3.5. Auto-resolve persona based on task type ─────────
   const activePersona = await resolvePersonaForTask(taskAnalysis.taskType, taskAnalysis.domain)
 
   // ── 4. Web Search (if needed) ────────────────────────────
+  // Skip if LangGraph already handled context; otherwise run locally
   // Priority: Tavily (if key set) → OpenAI search (if key set) → skip
   let searchContext: string | null = null
-  if (taskAnalysis.needsWebSearch) {
+  if (!lgResult && taskAnalysis.needsWebSearch) {
     const baseQuery = userMessage.slice(0, 180)
     const hasTavily = !!process.env.TAVILY_API_KEY
     const hasOpenAI = !!process.env.OPENAI_API_KEY
@@ -194,6 +270,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 5. Build prompt ──────────────────────────────────────
+  // Use LangGraph system_prompt if available; otherwise build locally
   const built = buildSystemPrompt(
     taskAnalysis, memory, [], searchContext,
     activePersona, undefined, undefined,
@@ -201,7 +278,7 @@ export async function POST(req: NextRequest) {
     recentSummaries as string[],
     messageCount,
   )
-  let systemPrompt = built.systemPrompt
+  let systemPrompt = lgResult?.system_prompt ?? built.systemPrompt
   const components = built.components
   // A/B 실험 승자 프롬프트 반영
   const winningPrompt = await getWinningSystemPrompt()
@@ -213,7 +290,9 @@ export async function POST(req: NextRequest) {
 
   // ── 6. LEARNING MODE: return 3 candidates ────────────────
   if (mode === 'LEARNING') {
-    const candidates = await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
+    const candidates = lgResult?.candidates?.length
+      ? lgResult.candidates
+      : await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
 
     // 학습 모드: 사용자가 선택하기 전까지 ASSISTANT 메시지 저장 안 함
     // 후보만 임시로 USER 메시지 ID에 연결해두고, /api/preferences에서 선택 시 저장
@@ -239,17 +318,25 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 7. NORMAL MODE: generate → evaluate → rank → stream ──
-  const candidates = await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
-
+  // Use LangGraph candidates + best if available; otherwise run local pipeline
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let candidates: any[]
   let evaluations: Awaited<ReturnType<typeof evaluateCandidates>> = []
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let ranked: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let best: any
 
-  evaluations = await evaluateCandidates(userMessage, candidates, memory)
-  ranked = rankCandidates(candidates, evaluations, memory)
-  best = ranked[0]
+  if (lgResult?.candidates?.length && lgResult.best_candidate) {
+    candidates = lgResult.candidates
+    ranked = lgResult.candidates.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    best = lgResult.best_candidate
+  } else {
+    candidates = await generateCandidates(userMessage, systemPrompt, history, taskAnalysis, memory, imageFiles)
+    evaluations = await evaluateCandidates(userMessage, candidates, memory)
+    ranked = rankCandidates(candidates, evaluations, memory)
+    best = ranked[0]
+  }
 
   // Save message + candidates + explanation
   let savedMessageId: string | undefined

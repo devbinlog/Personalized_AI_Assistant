@@ -78,8 +78,8 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-56px)] items-center justify-center">
-        <RefreshCw className="h-5 w-5 animate-spin text-slate-700" />
+      <div className="flex h-[calc(100vh-56px)] items-center justify-center dark:bg-[#08090a]">
+        <RefreshCw className="h-5 w-5 animate-spin text-slate-700 dark:text-[#d0d6e0]" />
       </div>
     )
   }
@@ -97,25 +97,25 @@ export default function DashboardPage() {
 
   if (hasNoData) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-8 space-y-8">
+      <div className="mx-auto max-w-6xl px-6 py-8 space-y-8 dark:bg-[#08090a] min-h-full">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">대시보드</h1>
-            <p className="mt-1 text-sm text-slate-500">학습 분석 및 선호도 변화</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">대시보드</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-[#8a8f98]">학습 분석 및 선호도 변화</p>
           </div>
         </div>
-        <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 p-12">
+        <div className="rounded-2xl border border-dashed border-stone-200 dark:border-white/8 bg-stone-50 dark:bg-[#191a1b] p-12">
           <div className="flex flex-col items-center gap-4 text-center">
-            <LayoutDashboard className="h-12 w-12 text-stone-300" />
+            <LayoutDashboard className="h-12 w-12 text-stone-300 dark:text-[#8a8f98]" />
             <div>
-              <p className="text-base font-medium text-slate-700">아직 분석할 데이터가 없어요</p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="text-base font-medium text-slate-700 dark:text-[#d0d6e0]">아직 분석할 데이터가 없어요</p>
+              <p className="mt-1 text-sm text-slate-400 dark:text-[#8a8f98]">
                 AI와 대화를 나누면 여기에 학습 통계와 선호도 분석이 표시됩니다.
               </p>
             </div>
             <Link
               href="/"
-              className="mt-2 rounded-xl bg-slate-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-600 transition-colors"
+              className="mt-2 rounded-xl bg-slate-700 dark:bg-[#5e6ad2] px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-600 dark:hover:bg-[#6b77e0] transition-colors"
             >
               먼저 대화해보세요
             </Link>
@@ -126,18 +126,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8 space-y-8">
+    <div className="mx-auto max-w-6xl px-6 py-8 space-y-8 min-h-full dark:bg-[#08090a]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">대시보드</h1>
-          <p className="mt-1 text-sm text-slate-500">학습 분석 및 선호도 변화</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">대시보드</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-[#8a8f98]">학습 분석 및 선호도 변화</p>
         </div>
         <Button
           size="sm"
           variant="outline"
           onClick={fetchData}
-          className="gap-2"
+          className="gap-2 dark:border-white/10 dark:text-[#d0d6e0] dark:hover:bg-[#28282c]"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           새로고침
@@ -149,10 +149,10 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
           <div className="mb-5 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-slate-700" />
-            <h3 className="text-sm font-semibold text-slate-900">선호 응답 전략</h3>
+            <TrendingUp className="h-4 w-4 text-slate-700 dark:text-[#d0d6e0]" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">선호 응답 전략</h3>
           </div>
           {(stats?.topStrategies ?? []).length > 0 ? (
             <StrategyChart data={stats?.topStrategies ?? []} />
@@ -161,10 +161,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
           <div className="mb-5 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-slate-700" />
-            <h3 className="text-sm font-semibold text-slate-900">최근 14일 활동</h3>
+            <Activity className="h-4 w-4 text-slate-700 dark:text-[#d0d6e0]" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">최근 14일 활동</h3>
           </div>
           {(stats?.recentActivity ?? []).some(d => d.conversations > 0 || d.preferences > 0) ? (
             <ActivityChart data={stats?.recentActivity ?? []} />
@@ -177,26 +177,26 @@ export default function DashboardPage() {
       {/* Memory */}
       <div>
         <div className="mb-3 flex items-center gap-2">
-          <Brain className="h-4 w-4 text-slate-700" />
-          <h3 className="text-sm font-semibold text-slate-900">현재 선호도 메모리</h3>
+          <Brain className="h-4 w-4 text-slate-700 dark:text-[#d0d6e0]" />
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">현재 선호도 메모리</h3>
         </div>
         <MemoryCard memory={memory} onRefresh={refreshMemory} isRefreshing={isRefreshing} />
       </div>
 
       {/* Top tags */}
       {stats && stats.topTags.length > 0 && (
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-sm font-semibold text-slate-900">많이 선택된 피드백 태그</h3>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">많이 선택된 피드백 태그</h3>
           <div className="flex flex-wrap gap-2">
             {stats.topTags.map(({ tag, count }) => (
               <div
                 key={tag}
-                className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-1"
+                className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-[#28282c] px-3 py-1"
               >
-                <span className="text-xs font-medium text-slate-800">
+                <span className="text-xs font-medium text-slate-800 dark:text-[#d0d6e0]">
                   {tag.replace(/_/g, ' ')}
                 </span>
-                <span className="text-xs text-slate-500">{count}</span>
+                <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{count}</span>
               </div>
             ))}
           </div>
@@ -206,33 +206,33 @@ export default function DashboardPage() {
       {/* Global Learning + Rubric Summary cards */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* GlobalLearningCard */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
-            <Globe className="h-4 w-4 text-slate-700" />
-            <h3 className="text-sm font-semibold text-slate-900">전역 학습 현황</h3>
+            <Globe className="h-4 w-4 text-slate-700 dark:text-[#d0d6e0]" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">전역 학습 현황</h3>
           </div>
           {globalMemory ? (
             <div className="space-y-4">
-              <p className="text-sm text-slate-600 leading-relaxed">{globalMemory.summary}</p>
+              <p className="text-sm text-slate-600 dark:text-[#d0d6e0] leading-relaxed">{globalMemory.summary}</p>
               {globalMemory.mostSelectedStrategies.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-medium text-slate-500">상위 전략</p>
+                  <p className="mb-2 text-xs font-medium text-slate-500 dark:text-[#8a8f98]">상위 전략</p>
                   <div className="space-y-2">
                     {globalMemory.mostSelectedStrategies.slice(0, 3).map(({ strategy, count }) => (
                       <div key={strategy} className="flex items-center justify-between">
-                        <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
+                        <span className="rounded-full border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-[#28282c] px-2.5 py-0.5 text-xs font-medium text-slate-800 dark:text-[#d0d6e0]">
                           {strategy}
                         </span>
-                        <span className="text-xs text-slate-400">{count}회 선택</span>
+                        <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{count}회 선택</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              <p className="text-xs text-slate-400">총 {globalMemory.totalLogsAnalyzed}개 로그 분석됨</p>
+              <p className="text-xs text-slate-400 dark:text-[#8a8f98]">총 {globalMemory.totalLogsAnalyzed}개 로그 분석됨</p>
               <Link
                 href="/dashboard/global-learning"
-                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 hover:text-slate-800 transition-colors"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-[#d0d6e0] hover:text-slate-800 dark:hover:text-[#f7f8f8] transition-colors"
               >
                 전역 학습 분석 보기
               </Link>
@@ -243,35 +243,35 @@ export default function DashboardPage() {
         </div>
 
         {/* RubricSummaryCard */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
-            <BarChart2 className="h-4 w-4 text-slate-700" />
-            <h3 className="text-sm font-semibold text-slate-900">응답 품질 루브릭</h3>
+            <BarChart2 className="h-4 w-4 text-slate-700 dark:text-[#d0d6e0]" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">응답 품질 루브릭</h3>
           </div>
           {evaluation && evaluation.totalEvaluations > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="flex-1 rounded-full bg-slate-100 h-2">
+                <div className="flex-1 rounded-full bg-slate-100 dark:bg-[#28282c] h-2">
                   <div
-                    className="h-2 rounded-full bg-slate-600"
+                    className="h-2 rounded-full bg-slate-600 dark:bg-[#5e6ad2]"
                     style={{ width: `${Math.round(evaluation.overallAvg * 100)}%` }}
                   />
                 </div>
-                <span className="text-sm font-bold text-slate-900">
+                <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">
                   {Math.round(evaluation.overallAvg * 100)}%
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-[#8a8f98]">
                 전체 평균 점수 · {evaluation.totalEvaluations}개 평가
               </p>
               {top3.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-emerald-600">상위 3개 차원</p>
+                  <p className="mb-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">상위 3개 차원</p>
                   <div className="space-y-1">
                     {top3.map(d => (
                       <div key={d.key} className="flex items-center justify-between">
-                        <span className="text-xs text-slate-600">{d.label}</span>
-                        <span className="text-xs font-medium text-emerald-600">
+                        <span className="text-xs text-slate-600 dark:text-[#d0d6e0]">{d.label}</span>
+                        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                           {Math.round(d.value * 100)}%
                         </span>
                       </div>
@@ -281,12 +281,12 @@ export default function DashboardPage() {
               )}
               {bottom3.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-rose-500">하위 3개 차원</p>
+                  <p className="mb-1.5 text-xs font-medium text-rose-500 dark:text-rose-400">하위 3개 차원</p>
                   <div className="space-y-1">
                     {bottom3.map(d => (
                       <div key={d.key} className="flex items-center justify-between">
-                        <span className="text-xs text-slate-600">{d.label}</span>
-                        <span className="text-xs font-medium text-rose-500">
+                        <span className="text-xs text-slate-600 dark:text-[#d0d6e0]">{d.label}</span>
+                        <span className="text-xs font-medium text-rose-500 dark:text-rose-400">
                           {Math.round(d.value * 100)}%
                         </span>
                       </div>
@@ -296,7 +296,7 @@ export default function DashboardPage() {
               )}
               <Link
                 href="/dashboard/rubric"
-                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 hover:text-slate-800 transition-colors"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-[#d0d6e0] hover:text-slate-800 dark:hover:text-[#f7f8f8] transition-colors"
               >
                 루브릭 상세 보기
               </Link>

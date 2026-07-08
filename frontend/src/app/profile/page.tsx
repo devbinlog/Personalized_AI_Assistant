@@ -127,8 +127,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+      <div className="flex flex-1 items-center justify-center dark:bg-[#08090a]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-slate-700 dark:border-t-[#5e6ad2]" />
       </div>
     )
   }
@@ -138,42 +138,42 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-700">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-700 dark:bg-[#5e6ad2]">
             <User className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">내 프로필</h1>
-            <p className="text-sm text-slate-500">AI 어시스턴트가 나를 더 잘 이해하도록 정보를 입력하세요.</p>
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-[#f7f8f8]">내 프로필</h1>
+            <p className="text-sm text-slate-500 dark:text-[#8a8f98]">AI 어시스턴트가 나를 더 잘 이해하도록 정보를 입력하세요.</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-5">
         {/* Basic Info Card */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <User className="h-4 w-4 text-slate-600" />
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">
+            <User className="h-4 w-4 text-slate-600 dark:text-[#8a8f98]" />
             기본 정보
           </h2>
 
           <div className="space-y-4">
             {/* Display Name */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-600">이름 (표시명)</label>
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-[#8a8f98]">이름 (표시명)</label>
               <input
                 type="text"
                 value={profile.displayName ?? ''}
                 onChange={e => setProfile(p => ({ ...p, displayName: e.target.value }))}
                 placeholder="홍길동"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
               />
             </div>
 
             {/* Occupation */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-600">
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-[#8a8f98]">
                 <span className="flex items-center gap-1.5">
-                  <Briefcase className="h-3 w-3 text-slate-500" />
+                  <Briefcase className="h-3 w-3 text-slate-500 dark:text-[#8a8f98]" />
                   직업 / 역할
                 </span>
               </label>
@@ -182,15 +182,15 @@ export default function ProfilePage() {
                 value={profile.occupation ?? ''}
                 onChange={e => setProfile(p => ({ ...p, occupation: e.target.value }))}
                 placeholder="소프트웨어 개발자"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
               />
             </div>
 
             {/* Background */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-600">
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-[#8a8f98]">
                 <span className="flex items-center gap-1.5">
-                  <BookOpen className="h-3 w-3 text-slate-500" />
+                  <BookOpen className="h-3 w-3 text-slate-500 dark:text-[#8a8f98]" />
                   배경 / 자기소개
                 </span>
               </label>
@@ -199,22 +199,22 @@ export default function ProfilePage() {
                 onChange={e => setProfile(p => ({ ...p, background: e.target.value }))}
                 placeholder="Python을 주로 사용하며, AI/ML에 관심이 많습니다."
                 rows={3}
-                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+                className="w-full resize-none rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
               />
             </div>
 
             {/* Language */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-600">
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-[#8a8f98]">
                 <span className="flex items-center gap-1.5">
-                  <Globe className="h-3 w-3 text-slate-500" />
+                  <Globe className="h-3 w-3 text-slate-500 dark:text-[#8a8f98]" />
                   응답 언어
                 </span>
               </label>
               <select
                 value={profile.language ?? 'ko'}
                 onChange={e => setProfile(p => ({ ...p, language: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
               >
                 <option value="ko">한국어</option>
                 <option value="en">English</option>
@@ -224,9 +224,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Interests Card */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Tag className="h-4 w-4 text-slate-600" />
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">
+            <Tag className="h-4 w-4 text-slate-600 dark:text-[#8a8f98]" />
             관심사
           </h2>
 
@@ -238,11 +238,11 @@ export default function ProfilePage() {
               onChange={e => setInterestInput(e.target.value)}
               onKeyDown={handleInterestKeyDown}
               placeholder="관심사 입력 후 Enter"
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+              className="flex-1 rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
             />
             <button
               onClick={addInterest}
-              className="flex items-center gap-1 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2.5 text-xs font-medium text-slate-800 hover:bg-slate-200 transition-colors"
+              className="flex items-center gap-1 rounded-xl border border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-[#28282c] px-3 py-2.5 text-xs font-medium text-slate-800 dark:text-[#d0d6e0] hover:bg-slate-200 dark:hover:bg-[#333338] transition-colors"
             >
               <Plus className="h-3.5 w-3.5" />
               추가
@@ -254,12 +254,12 @@ export default function ProfilePage() {
               {(profile.interests ?? []).map(tag => (
                 <span
                   key={tag}
-                  className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-800"
+                  className="flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-[#28282c] px-3 py-1 text-xs font-medium text-slate-800 dark:text-[#d0d6e0]"
                 >
                   {tag}
                   <button
                     onClick={() => removeInterest(tag)}
-                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-slate-500 hover:bg-slate-300 hover:text-slate-800 transition-colors"
+                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-slate-500 dark:text-[#8a8f98] hover:bg-slate-300 dark:hover:bg-[#333338] hover:text-slate-800 dark:hover:text-[#f7f8f8] transition-colors"
                   >
                     <X className="h-2.5 w-2.5" />
                   </button>
@@ -267,14 +267,14 @@ export default function ProfilePage() {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400">아직 관심사가 없습니다. 위에서 추가해보세요.</p>
+            <p className="text-xs text-slate-400 dark:text-[#8a8f98]">아직 관심사가 없습니다. 위에서 추가해보세요.</p>
           )}
         </div>
 
         {/* Goals Card */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Target className="h-4 w-4 text-slate-600" />
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">
+            <Target className="h-4 w-4 text-slate-600 dark:text-[#8a8f98]" />
             목표
           </h2>
 
@@ -286,11 +286,11 @@ export default function ProfilePage() {
               onChange={e => setGoalInput(e.target.value)}
               onKeyDown={handleGoalKeyDown}
               placeholder="목표 입력 후 Enter"
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition-colors"
+              className="flex-1 rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#28282c] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-white/10 transition-colors"
             />
             <button
               onClick={addGoal}
-              className="flex items-center gap-1 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors"
+              className="flex items-center gap-1 rounded-xl border border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-[#28282c] px-3 py-2.5 text-xs font-medium text-slate-800 dark:text-[#d0d6e0] hover:bg-slate-200 dark:hover:bg-[#333338] transition-colors"
             >
               <Plus className="h-3.5 w-3.5" />
               추가
@@ -302,12 +302,12 @@ export default function ProfilePage() {
               {(profile.goals ?? []).map(tag => (
                 <span
                   key={tag}
-                  className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700"
+                  className="flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-[#28282c] px-3 py-1 text-xs font-medium text-slate-800 dark:text-[#d0d6e0]"
                 >
                   {tag}
                   <button
                     onClick={() => removeGoal(tag)}
-                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-stone-400 hover:bg-stone-200 hover:text-stone-700 transition-colors"
+                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-slate-500 dark:text-[#8a8f98] hover:bg-slate-300 dark:hover:bg-[#333338] hover:text-slate-800 dark:hover:text-[#f7f8f8] transition-colors"
                   >
                     <X className="h-2.5 w-2.5" />
                   </button>
@@ -315,45 +315,45 @@ export default function ProfilePage() {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400">아직 목표가 없습니다. 위에서 추가해보세요.</p>
+            <p className="text-xs text-slate-400 dark:text-[#8a8f98]">아직 목표가 없습니다. 위에서 추가해보세요.</p>
           )}
         </div>
 
         {/* Memory Summary Card */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Brain className="h-4 w-4 text-slate-600" />
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
+          <h2 className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">
+            <Brain className="h-4 w-4 text-slate-600 dark:text-[#8a8f98]" />
             현재 선호도 메모리
           </h2>
 
           {memory?.rawSummary ? (
             <div className="space-y-3">
-              <p className="text-sm leading-relaxed text-slate-700">{memory.rawSummary}</p>
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-[#d0d6e0]">{memory.rawSummary}</p>
               <div className="flex flex-wrap gap-3 pt-1">
                 {memory.preferredTone && (
-                  <span className="rounded-lg bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-                    <span className="font-medium text-slate-900">톤</span>: {memory.preferredTone}
+                  <span className="rounded-lg bg-slate-50 dark:bg-[#28282c] px-3 py-1.5 text-xs text-slate-600 dark:text-[#d0d6e0]">
+                    <span className="font-medium text-slate-900 dark:text-[#f7f8f8]">톤</span>: {memory.preferredTone}
                   </span>
                 )}
                 {memory.preferredLength && (
-                  <span className="rounded-lg bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-                    <span className="font-medium text-slate-900">길이</span>: {memory.preferredLength}
+                  <span className="rounded-lg bg-slate-50 dark:bg-[#28282c] px-3 py-1.5 text-xs text-slate-600 dark:text-[#d0d6e0]">
+                    <span className="font-medium text-slate-900 dark:text-[#f7f8f8]">길이</span>: {memory.preferredLength}
                   </span>
                 )}
                 {memory.preferredStructure && (
-                  <span className="rounded-lg bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-                    <span className="font-medium text-slate-900">구조</span>: {memory.preferredStructure}
+                  <span className="rounded-lg bg-slate-50 dark:bg-[#28282c] px-3 py-1.5 text-xs text-slate-600 dark:text-[#d0d6e0]">
+                    <span className="font-medium text-slate-900 dark:text-[#f7f8f8]">구조</span>: {memory.preferredStructure}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-[#8a8f98]">
                 총 {memory.logCount}개의 학습 데이터 기반
               </p>
             </div>
           ) : (
-            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-4">
-              <Brain className="h-5 w-5 shrink-0 text-slate-300" />
-              <p className="text-sm text-slate-500">아직 학습 데이터가 없습니다. 학습 모드로 대화를 시작해보세요.</p>
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 dark:bg-[#28282c] px-4 py-4">
+              <Brain className="h-5 w-5 shrink-0 text-slate-300 dark:text-[#8a8f98]" />
+              <p className="text-sm text-slate-500 dark:text-[#8a8f98]">아직 학습 데이터가 없습니다. 학습 모드로 대화를 시작해보세요.</p>
             </div>
           )}
         </div>
@@ -369,7 +369,7 @@ export default function ProfilePage() {
                 ? 'bg-red-500 hover:bg-red-600 active:bg-red-700'
                 : saved
                 ? 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'
-                : 'bg-slate-700 hover:bg-slate-600 active:bg-slate-600',
+                : 'bg-slate-700 dark:bg-[#5e6ad2] hover:bg-slate-600 dark:hover:bg-[#6b77e0] active:bg-slate-600',
             ].join(' ')}
           >
             {saveError ? (

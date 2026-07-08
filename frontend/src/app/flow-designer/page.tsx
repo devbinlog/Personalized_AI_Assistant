@@ -27,10 +27,10 @@ const EMPTY_FLOW = {
 type FlowForm = typeof EMPTY_FLOW
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none'
+  'w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c] focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-500/20 outline-none'
 
 const inputSmCls =
-  'w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white outline-none'
+  'w-full rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-2 py-1.5 text-xs text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c] outline-none'
 
 export default function FlowDesignerPage() {
   const [flows, setFlows] = useState<ConversationFlow[]>([])
@@ -148,39 +148,39 @@ export default function FlowDesignerPage() {
   const showEditor = selected !== null || isNew
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-slate-50">
+    <div className="flex h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#08090a]">
       {/* Left panel */}
-      <div className="flex flex-col w-64 shrink-0 border-r border-slate-200 bg-white">
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
+      <div className="flex flex-col w-64 shrink-0 border-r border-slate-200 dark:border-white/8 bg-white dark:bg-[#0f1011]">
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100 dark:border-white/8">
           <div className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-indigo-600" />
-            <span className="text-sm font-semibold text-slate-900">플로우</span>
-            <span className="text-xs text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">{flows.length}</span>
+            <GitBranch className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">플로우</span>
+            <span className="text-xs text-slate-400 dark:text-[#8a8f98] border border-slate-200 dark:border-white/8 px-1.5 py-0.5 rounded">{flows.length}</span>
           </div>
-          <button onClick={startNew} className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
+          <button onClick={startNew} className="flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
             <Plus className="h-3.5 w-3.5" /> 새로만들기
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-8 text-center text-sm text-slate-400">불러오는 중...</div>
+            <div className="py-8 text-center text-sm text-slate-400 dark:text-[#8a8f98]">불러오는 중...</div>
           ) : flows.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">아직 플로우가 없습니다. 첫 번째 플로우를 만들어보세요.</div>
+            <div className="py-8 text-center text-xs text-slate-400 dark:text-[#8a8f98]">아직 플로우가 없습니다. 첫 번째 플로우를 만들어보세요.</div>
           ) : (
             flows.map(f => (
               <button
                 key={f.id}
                 onClick={() => selectFlow(f)}
-                className={`w-full text-left px-3 py-2.5 border-b border-slate-100 hover:bg-slate-50 transition-colors ${selected?.id === f.id ? 'bg-indigo-50' : ''}`}
+                className={`w-full text-left px-3 py-2.5 border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors ${selected?.id === f.id ? 'bg-indigo-50 dark:bg-indigo-950/30' : ''}`}
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className={`text-sm font-medium ${selected?.id === f.id ? 'text-indigo-700' : 'text-slate-700'}`}>{f.name}</span>
+                  <span className={`text-sm font-medium ${selected?.id === f.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-700 dark:text-[#d0d6e0]'}`}>{f.name}</span>
                   {f.isActive && (
-                    <span className="rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] px-1.5 py-0.5">활성</span>
+                    <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-[10px] px-1.5 py-0.5">활성</span>
                   )}
                 </div>
-                <span className="text-xs text-slate-400">{f.domain} · {f.steps.length}단계</span>
+                <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{f.domain} · {f.steps.length}단계</span>
               </button>
             ))
           )}
@@ -188,14 +188,14 @@ export default function FlowDesignerPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex flex-1 flex-col overflow-y-auto bg-white">
+      <div className="flex flex-1 flex-col overflow-y-auto bg-white dark:bg-[#0f1011]">
         {!showEditor ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <GitBranch className="h-7 w-7 text-slate-300" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] shadow-sm">
+                <GitBranch className="h-7 w-7 text-slate-300 dark:text-[#8a8f98]" />
               </div>
-              <p className="text-sm text-slate-400">플로우를 선택하거나 새로 만드세요</p>
+              <p className="text-sm text-slate-400 dark:text-[#8a8f98]">플로우를 선택하거나 새로 만드세요</p>
             </div>
           </div>
         ) : (
@@ -203,26 +203,26 @@ export default function FlowDesignerPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
-                <p className="text-sm text-slate-500 mt-0.5">트리거 조건과 대화 단계를 정의하세요</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
+                <p className="text-sm text-slate-500 dark:text-[#8a8f98] mt-0.5">트리거 조건과 대화 단계를 정의하세요</p>
               </div>
               <div className="flex gap-2">
                 {selected && !isNew && (
                   <>
                     <button
                       onClick={() => activate(selected.id)}
-                      className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                      className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
                     >
                       {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
                     </button>
-                    <button onClick={() => remove(selected.id)} className="flex items-center gap-1.5 rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+                    <button onClick={() => remove(selected.id)} className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
                       <Trash2 className="h-3.5 w-3.5" /> 삭제
                     </button>
                   </>
                 )}
                 <button
                   onClick={save} disabled={saving}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
                 >
                   <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
                 </button>
@@ -230,11 +230,11 @@ export default function FlowDesignerPage() {
             </div>
 
             <div className="space-y-5">
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">기본 정보</h2>
+              <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4 shadow-sm">
+                <h2 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">기본 정보</h2>
                 {(['name', 'description', 'triggerCondition'] as const).map(key => (
                   <div key={key}>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">
                       {key === 'triggerCondition' ? '트리거 조건' : key === 'name' ? '이름' : '설명'}
                     </label>
                     <input type="text" value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className={inputCls} />
@@ -242,78 +242,78 @@ export default function FlowDesignerPage() {
                 ))}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">도메인</label>
+                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">도메인</label>
                     <select value={form.domain} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} className={inputCls}>
                       {['general', 'technology', 'business', 'career', 'education', 'science'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">검색 정책</label>
+                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">검색 정책</label>
                     <select value={form.searchPolicy} onChange={e => setForm(f => ({ ...f, searchPolicy: e.target.value }))} className={inputCls}>
                       {['auto', 'always', 'never'].map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">기본 응답 정책</label>
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">기본 응답 정책</label>
                   <textarea value={form.fallbackPolicy} onChange={e => setForm(f => ({ ...f, fallbackPolicy: e.target.value }))} rows={2}
                     className={inputCls} style={{ resize: 'vertical' }} />
                 </div>
               </div>
 
               {/* Steps */}
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <h2 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">
                     단계 ({form.steps.length})
                   </h2>
-                  <button onClick={addStep} className="flex items-center gap-1 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 px-2 py-1 transition-colors">
+                  <button onClick={addStep} className="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-white/8 text-sm text-slate-600 dark:text-[#d0d6e0] hover:bg-slate-50 dark:hover:bg-[#28282c] px-2 py-1 transition-colors">
                     <Plus className="h-3.5 w-3.5" /> 단계 추가
                   </button>
                 </div>
 
                 {form.steps.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm text-slate-400">
+                  <div className="rounded-xl border border-dashed border-slate-200 dark:border-white/8 py-8 text-center text-sm text-slate-400 dark:text-[#8a8f98]">
                     아직 단계가 없습니다. 대화 분기를 정의하려면 단계를 추가하세요.
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {form.steps.map((step, i) => (
-                      <div key={step.id} className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                      <div key={step.id} className="rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] overflow-hidden shadow-sm">
                         <div
-                          className={`flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition-colors ${editingStep === i ? 'bg-slate-50' : ''}`}
+                          className={`flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors ${editingStep === i ? 'bg-slate-50 dark:bg-[#28282c]' : ''}`}
                           onClick={() => setEditingStep(editingStep === i ? null : i)}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="rounded border border-slate-200 bg-slate-50 text-xs font-mono text-slate-500 px-1.5 py-0.5">{i + 1}</span>
-                            <span className="text-sm font-medium text-slate-700">{step.name || `단계 ${i + 1}`}</span>
-                            <span className="text-xs text-slate-400">{step.triggerKeywords.join(', ') || '키워드 없음'}</span>
+                            <span className="rounded border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] text-xs font-mono text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5">{i + 1}</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-[#d0d6e0]">{step.name || `단계 ${i + 1}`}</span>
+                            <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{step.triggerKeywords.join(', ') || '키워드 없음'}</span>
                           </div>
-                          <button onClick={e => { e.stopPropagation(); removeStep(i) }} className="text-slate-300 hover:text-red-500 transition-colors">
+                          <button onClick={e => { e.stopPropagation(); removeStep(i) }} className="text-slate-300 dark:text-[#8a8f98] hover:text-red-500 dark:hover:text-red-400 transition-colors">
                             <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
                         {editingStep === i && (
-                          <div className="p-3 space-y-3 border-t border-slate-100 bg-slate-50">
+                          <div className="p-3 space-y-3 border-t border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c]">
                             <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">단계 이름</label>
+                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">단계 이름</label>
                               <input type="text" value={step.name} onChange={e => updateStep(i, { name: e.target.value })} className={inputSmCls} />
                             </div>
                             <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">트리거 키워드 (쉼표로 구분)</label>
+                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">트리거 키워드 (쉼표로 구분)</label>
                               <input type="text" value={step.triggerKeywords.join(', ')}
                                 onChange={e => updateStep(i, { triggerKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
                                 className={inputSmCls} />
                             </div>
                             <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">지시사항</label>
+                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">지시사항</label>
                               <textarea value={step.instruction} onChange={e => updateStep(i, { instruction: e.target.value })} rows={2}
                                 className={inputSmCls} style={{ resize: 'vertical' }} />
                             </div>
                             <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">검색 정책</label>
+                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">검색 정책</label>
                               <select value={step.searchPolicy} onChange={e => updateStep(i, { searchPolicy: e.target.value as 'auto' | 'always' | 'never' })}
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-indigo-300">
+                                className="rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-2 py-1.5 text-xs text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-indigo-300 dark:focus:border-indigo-500/50">
                                 {['auto', 'always', 'never'].map(p => <option key={p} value={p}>{p}</option>)}
                               </select>
                             </div>
@@ -327,10 +327,10 @@ export default function FlowDesignerPage() {
 
               {/* Simulation panel */}
               {selected && (
-                <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+                <div className="rounded-xl border border-indigo-100 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Play className="h-4 w-4 text-indigo-600" />
-                    <span className="text-sm font-semibold text-slate-900">시뮬레이션</span>
+                    <Play className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <span className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">시뮬레이션</span>
                   </div>
                   <div className="flex gap-2">
                     <input
@@ -339,24 +339,24 @@ export default function FlowDesignerPage() {
                       onChange={e => setSimInput(e.target.value)}
                       placeholder="이 플로우를 테스트할 메시지를 입력하세요..."
                       onKeyDown={e => e.key === 'Enter' && simulate()}
-                      className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100"
+                      className="flex-1 rounded-lg border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-100 dark:focus:ring-indigo-500/20"
                     />
                     <button
                       onClick={simulate} disabled={simulating}
-                      className="rounded-xl px-4 py-2 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                      className="rounded-xl px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white text-sm font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
                     >
                       {simulating ? '...' : '실행'}
                     </button>
                   </div>
                   {simResult && (
                     <div className="mt-3 space-y-2">
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 dark:text-[#8a8f98]">
                         일치하는 단계:{' '}
-                        <span className={simResult.matchedStep ? 'text-emerald-700 font-medium' : 'text-red-500'}>
+                        <span className={simResult.matchedStep ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-red-500 dark:text-red-400'}>
                           {simResult.matchedStep?.name ?? '없음 (기본 응답 사용)'}
                         </span>
                       </div>
-                      <div className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-600">
+                      <div className="rounded-lg border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-3 text-sm text-slate-600 dark:text-[#d0d6e0]">
                         {simResult.instruction}
                       </div>
                     </div>

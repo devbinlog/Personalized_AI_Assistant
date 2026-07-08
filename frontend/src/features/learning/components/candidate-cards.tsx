@@ -44,7 +44,7 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
 
   return (
     <div className="px-4 py-3">
-      <p className="mb-3 text-xs font-medium text-slate-500">
+      <p className="mb-3 text-xs font-medium text-slate-500 dark:text-[#8a8f98]">
         응답 스타일을 선택하세요
       </p>
 
@@ -57,10 +57,10 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
             <div
               key={candidate.index}
               className={cn(
-                'rounded-xl border bg-white p-4 transition-all hover:border-slate-400 hover:shadow-sm overflow-hidden',
+                'rounded-xl border p-4 transition-all overflow-hidden',
                 isSelected
-                  ? 'border-slate-500 bg-slate-100 shadow-sm'
-                  : 'border-slate-200',
+                  ? 'border-slate-500 dark:border-[#5e6ad2] bg-slate-100 dark:bg-[#28282c] shadow-sm'
+                  : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] hover:border-slate-400 dark:hover:border-white/20 hover:shadow-sm',
               )}
             >
               {/* Card header — click to toggle */}
@@ -68,26 +68,26 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => toggleExpand(candidate.index)}
               >
-                <span className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-1.5 py-0.5 text-[10px] text-slate-500 dark:text-[#8a8f98]">
                   {strategyLabel(candidate.strategy)}
                 </span>
                 <div className="ml-auto flex items-center gap-1">
-                  {isSelected && <CheckCircle2 className="h-4 w-4 text-slate-900" />}
+                  {isSelected && <CheckCircle2 className="h-4 w-4 text-slate-900 dark:text-[#f7f8f8]" />}
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                    <ChevronUp className="h-4 w-4 text-slate-400 dark:text-[#8a8f98]" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                    <ChevronDown className="h-4 w-4 text-slate-400 dark:text-[#8a8f98]" />
                   )}
                 </div>
               </div>
 
               {/* Full content always rendered; collapsed shows preview */}
               {isExpanded ? (
-                <div className="mt-3 max-h-[400px] overflow-y-auto text-sm text-slate-700 leading-relaxed prose-chat">
+                <div className="mt-3 max-h-[400px] overflow-y-auto text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed prose-chat">
                   <ReactMarkdown>{candidate.content}</ReactMarkdown>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-slate-700 leading-relaxed line-clamp-3">
+                <p className="mt-3 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed line-clamp-3">
                   {stripMarkdown(candidate.content)}
                 </p>
               )}
@@ -99,7 +99,7 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
                 }}
                 disabled={isSubmitting}
                 className={cn(
-                  'mt-4 w-full rounded-lg bg-slate-700 py-2 text-xs font-semibold text-white hover:bg-slate-600 transition-colors',
+                  'mt-4 w-full rounded-lg bg-slate-700 dark:bg-[#5e6ad2] py-2 text-xs font-semibold text-white hover:bg-slate-600 dark:hover:bg-[#6b77e0] transition-colors',
                   isSubmitting && 'opacity-50 cursor-not-allowed',
                 )}
               >
