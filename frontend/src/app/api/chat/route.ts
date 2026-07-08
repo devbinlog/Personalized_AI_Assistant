@@ -32,7 +32,7 @@ import { prisma } from '@/lib/prisma'
 import { getOrCreateSession, setSessionCookie } from '@/lib/session'
 import { resolveUserContext } from '@/lib/resolve-user'
 import { rateLimit } from '@/lib/rate-limit'
-import type { ConversationMode } from '@/types'
+import type { ConversationMode, TaskType, ComplexityLevel } from '@/types'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -234,12 +234,14 @@ export async function POST(req: NextRequest) {
   // Use LangGraph result if available, otherwise run locally
   const taskAnalysis = lgResult?.task_analysis
     ? {
-        taskType: lgResult.task_analysis.taskType,
-        complexity: lgResult.task_analysis.complexity,
+        taskType: lgResult.task_analysis.taskType as TaskType,
+        complexity: lgResult.task_analysis.complexity as ComplexityLevel,
         domain: lgResult.task_analysis.domain,
         needsWebSearch: lgResult.task_analysis.needsWebSearch,
         expectedOutput: lgResult.task_analysis.expectedOutput,
         preferredStyle: lgResult.task_analysis.preferredStyle,
+        needsClarification: false,
+        confidence: 0.8,
       }
     : await analyzeTask(userMessage, history)
 
