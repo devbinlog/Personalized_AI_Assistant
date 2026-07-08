@@ -39,16 +39,16 @@ export async function generateExplanation(
     const result = await generateObject({
       model: provider.getFastModel(),
       schema: ExplanationSchema,
-      system: `Generate a concise, product-level explanation of why a specific AI response was selected.
-Do NOT expose chain-of-thought or internal LLM reasoning.
-Write from the perspective of the AI system explaining its personalization decisions.
-Each item should be one clear sentence the user can understand.`,
-      prompt: `Selected strategy: ${selectedCandidate.strategy}
-User query: "${userQuery}"
+      system: `당신은 AI 어시스턴트가 왜 특정 응답을 선택했는지 설명하는 시스템입니다.
+반드시 한국어로 작성하세요. 영어를 사용하지 마세요.
+내부 추론 과정이나 체인-오브-쏘트는 노출하지 마세요.
+AI 시스템 관점에서 개인화 결정을 간결하고 이해하기 쉬운 한 문장으로 설명하세요.`,
+      prompt: `선택된 전략: ${selectedCandidate.strategy}
+사용자 질문: "${userQuery}"
 ${memoryContext}
-Selection score: ${selectedCandidate.score.toFixed(2)}
+선택 점수: ${selectedCandidate.score.toFixed(2)}
 
-Generate memoryInfluence (how memory shaped this choice) and reasoningFactors (why this response fits this query).`,
+memoryInfluence(선호도 메모리가 이 선택에 미친 영향)와 reasoningFactors(이 응답이 이 질문에 적합한 이유)를 한국어로 생성하세요.`,
     })
 
     const data = result.object as ExplanationData
@@ -56,10 +56,10 @@ Generate memoryInfluence (how memory shaped this choice) and reasoningFactors (w
     reasoningFactors = data.reasoningFactors
   } catch {
     memoryInfluence = memory
-      ? [`Preference Memory v${memory.version} influenced strategy selection`]
-      : ['No preference data available yet']
+      ? [`선호도 메모리 v${memory.version}가 전략 선택에 영향을 미쳤습니다`]
+      : ['아직 선호도 데이터가 없습니다']
     reasoningFactors = [
-      `${selectedCandidate.strategy} strategy scored highest for this query type`,
+      `${selectedCandidate.strategy} 전략이 이 질문 유형에서 가장 높은 점수를 받았습니다`,
       ...selectedCandidate.rankDetails.reasons,
     ]
   }
@@ -102,8 +102,8 @@ Generate memoryInfluence (how memory shaped this choice) and reasoningFactors (w
         confidence: explanation.confidence,
         memoryInfluence: JSON.stringify(explanation.memoryInfluence),
         reasoningFactors: JSON.stringify(explanation.reasoningFactors),
-        memorySnapshot: (memory ?? {}) as never,
-        rankingDetails: (explanation.rankingDetails ?? []) as never,
+        memorySnapshot: JSON.stringify(memory ?? {}) as never,
+        rankingDetails: JSON.stringify(explanation.rankingDetails ?? []) as never,
         promptVersion: explanation.promptVersion,
       },
     })

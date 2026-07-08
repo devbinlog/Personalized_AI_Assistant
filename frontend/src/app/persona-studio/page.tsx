@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users2, Plus, Zap, Check, Trash2, Save, Eye, Pencil } from 'lucide-react'
+import { Users2, Plus, Zap, Check, Trash2, Save, Eye, Pencil, Sparkles, ChevronRight } from 'lucide-react'
 import type { Persona } from '@/types'
 
 // ── 비주얼 디자인 매핑 ───────────────────────────────────────────────────────
@@ -10,9 +10,8 @@ interface PersonaDesign {
   color: string
   darkColor: string
   icon: string
-  bg: string
-  darkBg: string
-  accent: string
+  gradient: string
+  ringColor: string
 }
 
 function getPersonaDesign(persona: { name: string; tone: string }): PersonaDesign {
@@ -20,25 +19,25 @@ function getPersonaDesign(persona: { name: string; tone: string }): PersonaDesig
   const tone = persona.tone.toLowerCase()
 
   if (name.includes('professional') || tone === 'professional')
-    return { color: '#5e6ad2', darkColor: '#818cf8', icon: '💼', bg: 'bg-indigo-50', darkBg: 'dark:bg-indigo-950/30', accent: 'bg-indigo-500' }
+    return { color: '#5e6ad2', darkColor: '#818cf8', icon: '💼', gradient: 'from-indigo-500/25 via-indigo-500/10 to-transparent', ringColor: 'ring-indigo-500/30' }
   if (name.includes('friendly') || (name.includes('mentor') && tone === 'friendly'))
-    return { color: '#10b981', darkColor: '#34d399', icon: '🌱', bg: 'bg-emerald-50', darkBg: 'dark:bg-emerald-950/30', accent: 'bg-emerald-500' }
+    return { color: '#10b981', darkColor: '#34d399', icon: '🌱', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' }
   if (name.includes('interview') || tone === 'motivational')
-    return { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', bg: 'bg-amber-50', darkBg: 'dark:bg-amber-950/30', accent: 'bg-amber-500' }
+    return { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' }
   if (name.includes('developer') || tone === 'precise' || tone === 'technical')
-    return { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', bg: 'bg-violet-50', darkBg: 'dark:bg-violet-950/30', accent: 'bg-violet-500' }
+    return { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', gradient: 'from-violet-500/25 via-violet-500/10 to-transparent', ringColor: 'ring-violet-500/30' }
   if (name.includes('research') || tone === 'analytical')
-    return { color: '#06b6d4', darkColor: '#22d3ee', icon: '🔬', bg: 'bg-cyan-50', darkBg: 'dark:bg-cyan-950/30', accent: 'bg-cyan-500' }
+    return { color: '#06b6d4', darkColor: '#22d3ee', icon: '🔬', gradient: 'from-cyan-500/25 via-cyan-500/10 to-transparent', ringColor: 'ring-cyan-500/30' }
 
   const toneMap: Record<string, PersonaDesign> = {
-    helpful: { color: '#10b981', darkColor: '#34d399', icon: '✨', bg: 'bg-emerald-50', darkBg: 'dark:bg-emerald-950/30', accent: 'bg-emerald-500' },
-    analytical: { color: '#06b6d4', darkColor: '#22d3ee', icon: '📊', bg: 'bg-cyan-50', darkBg: 'dark:bg-cyan-950/30', accent: 'bg-cyan-500' },
-    coaching: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🏆', bg: 'bg-amber-50', darkBg: 'dark:bg-amber-950/30', accent: 'bg-amber-500' },
-    friendly: { color: '#10b981', darkColor: '#34d399', icon: '🌱', bg: 'bg-emerald-50', darkBg: 'dark:bg-emerald-950/30', accent: 'bg-emerald-500' },
-    precise: { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', bg: 'bg-violet-50', darkBg: 'dark:bg-violet-950/30', accent: 'bg-violet-500' },
-    motivational: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', bg: 'bg-amber-50', darkBg: 'dark:bg-amber-950/30', accent: 'bg-amber-500' },
+    helpful: { color: '#10b981', darkColor: '#34d399', icon: '✨', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' },
+    analytical: { color: '#06b6d4', darkColor: '#22d3ee', icon: '📊', gradient: 'from-cyan-500/25 via-cyan-500/10 to-transparent', ringColor: 'ring-cyan-500/30' },
+    coaching: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🏆', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' },
+    friendly: { color: '#10b981', darkColor: '#34d399', icon: '🌱', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' },
+    precise: { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', gradient: 'from-violet-500/25 via-violet-500/10 to-transparent', ringColor: 'ring-violet-500/30' },
+    motivational: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' },
   }
-  return toneMap[tone] ?? { color: '#5e6ad2', darkColor: '#818cf8', icon: '🤖', bg: 'bg-indigo-50', darkBg: 'dark:bg-indigo-950/30', accent: 'bg-indigo-500' }
+  return toneMap[tone] ?? { color: '#5e6ad2', darkColor: '#818cf8', icon: '🤖', gradient: 'from-indigo-500/25 via-indigo-500/10 to-transparent', ringColor: 'ring-indigo-500/30' }
 }
 
 // ── 기본값 ───────────────────────────────────────────────────────────────────
@@ -70,7 +69,7 @@ type RightTab = 'overview' | 'edit'
 // ── 스타일 유틸 ──────────────────────────────────────────────────────────────
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20'
+  'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none dark:border-white/8 dark:bg-[#21262d] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-[#5e6ad2]/60 dark:focus:ring-[#5e6ad2]/15 transition-colors'
 
 const labelCls = 'block mb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider dark:text-[#8a8f98]'
 
@@ -80,41 +79,16 @@ function TraitBar({ label, value, max = 5, color }: { label: string; value: numb
   const pct = (value / max) * 100
   return (
     <div>
-      <div className="flex justify-between items-center mb-1.5">
+      <div className="flex justify-between items-center mb-2">
         <span className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">{label}</span>
-        <span className="text-xs font-semibold text-slate-400 dark:text-[#8a8f98]">{value}/{max}</span>
+        <span className="text-xs font-bold tabular-nums" style={{ color }}>{value}<span className="text-slate-400 dark:text-[#8a8f98] font-normal">/{max}</span></span>
       </div>
-      <div className="h-2 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-    </div>
-  )
-}
-
-// ── 미리보기 카드 (새 페르소나 프리뷰) ──────────────────────────────────────
-
-function PersonaPreviewCard({ name, tone, description }: { name: string; tone: string; description: string }) {
-  const design = getPersonaDesign({ name, tone })
-  return (
-    <div className={`rounded-2xl border border-slate-200 dark:border-white/8 p-4 ${design.bg} ${design.darkBg}`}>
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-2xl">{design.icon}</span>
-        <div>
-          <p className="font-semibold text-slate-800 dark:text-[#f7f8f8] text-sm">{name || '새 페르소나'}</p>
-          <span
-            className="text-xs font-medium px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: `${design.darkColor}22`, color: design.color }}
-          >
-            {tone}
-          </span>
-        </div>
-      </div>
-      {description && (
-        <p className="text-xs text-slate-600 dark:text-[#8a8f98] line-clamp-2 leading-relaxed">{description}</p>
-      )}
     </div>
   )
 }
@@ -136,16 +110,22 @@ function PersonaListItem({
   return (
     <button
       onClick={() => onSelect(p)}
-      className={`w-full text-left px-4 py-3 border-b border-slate-100 dark:border-white/5 transition-colors cursor-pointer group
+      className={`w-full text-left px-3 py-3 border-b border-slate-100 dark:border-white/5 transition-all cursor-pointer group relative
         ${isSelected
-          ? 'bg-indigo-50 dark:bg-indigo-950/30'
-          : 'hover:bg-slate-50 dark:hover:bg-[#28282c]'
+          ? 'bg-slate-50 dark:bg-[#1c1f26]'
+          : 'hover:bg-slate-50/70 dark:hover:bg-white/[0.03]'
         }`}
     >
-      <div className="flex items-start gap-3">
-        {/* 아이콘 */}
+      {/* 선택 표시 줄 */}
+      {isSelected && (
+        <div className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full" style={{ backgroundColor: design.color }} />
+      )}
+      <div className="flex items-center gap-3 pl-2">
+        {/* 아이콘 뱃지 */}
         <div
-          className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base ${design.bg} ${design.darkBg}`}
+          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-all
+            ${isSelected ? 'ring-2' : 'ring-0'} ${design.ringColor}`}
+          style={{ backgroundColor: `${design.color}18` }}
         >
           {design.icon}
         </div>
@@ -153,35 +133,28 @@ function PersonaListItem({
         {/* 텍스트 */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-1 mb-0.5">
-            <span
-              className={`text-sm font-semibold truncate ${isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-[#f7f8f8]'}`}
-            >
+            <span className={`text-sm font-semibold truncate ${isSelected ? 'dark:text-[#f7f8f8]' : 'text-slate-800 dark:text-[#d0d6e0]'}`}>
               {p.name}
             </span>
-            {p.isActive && (
-              <span className="shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-[9px] font-semibold px-1.5 py-0.5">
-                활성
-              </span>
-            )}
+            <div className="flex items-center gap-1 shrink-0">
+              {p.isActive && (
+                <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                  활성
+                </span>
+              )}
+              {isSelected && <ChevronRight className="h-3 w-3 text-slate-400 dark:text-[#8a8f98]" />}
+            </div>
           </div>
-
-          {/* 어조/스타일 칩 */}
-          <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="flex items-center gap-1.5">
             <span
-              className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-              style={{ backgroundColor: `${design.color}18`, color: design.color }}
+              className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
+              style={{ backgroundColor: `${design.color}15`, color: design.color }}
             >
               {p.tone}
             </span>
             <span className="text-[10px] text-slate-400 dark:text-[#8a8f98]">{p.speakingStyle}</span>
           </div>
-
-          {/* 설명 (2줄 truncate) */}
-          {p.description && (
-            <p className="text-xs text-slate-500 dark:text-[#8a8f98] line-clamp-2 leading-relaxed">
-              {p.description}
-            </p>
-          )}
         </div>
       </div>
     </button>
@@ -190,23 +163,13 @@ function PersonaListItem({
 
 // ── 탭 버튼 ──────────────────────────────────────────────────────────────────
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-}) {
+function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px
+      className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px
         ${active
-          ? 'border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400'
+          ? 'border-[#5e6ad2] text-[#5e6ad2] dark:border-[#7170ff] dark:text-[#7170ff]'
           : 'border-transparent text-slate-500 dark:text-[#8a8f98] hover:text-slate-700 dark:hover:text-[#d0d6e0]'
         }`}
     >
@@ -241,24 +204,13 @@ export default function PersonaStudioPage() {
     setIsNew(false)
     setRightTab('overview')
     setForm({
-      name: p.name,
-      description: p.description,
-      tone: p.tone,
-      speakingStyle: p.speakingStyle,
-      formalityLevel: p.formalityLevel,
-      humorLevel: p.humorLevel,
-      empathyLevel: p.empathyLevel,
-      responseLength: p.responseLength,
-      pronounPolicy: p.pronounPolicy,
-      promptFragment: p.promptFragment,
-      fallbackBehavior: p.fallbackBehavior,
-      refusalBehavior: p.refusalBehavior,
-      clarificationBehavior: p.clarificationBehavior,
-      allowedBehaviors: p.allowedBehaviors,
-      forbiddenBehaviors: p.forbiddenBehaviors,
-      exampleResponses: p.exampleResponses,
-      isActive: p.isActive,
-      isDefault: p.isDefault,
+      name: p.name, description: p.description, tone: p.tone, speakingStyle: p.speakingStyle,
+      formalityLevel: p.formalityLevel, humorLevel: p.humorLevel, empathyLevel: p.empathyLevel,
+      responseLength: p.responseLength, pronounPolicy: p.pronounPolicy, promptFragment: p.promptFragment,
+      fallbackBehavior: p.fallbackBehavior, refusalBehavior: p.refusalBehavior,
+      clarificationBehavior: p.clarificationBehavior, allowedBehaviors: p.allowedBehaviors,
+      forbiddenBehaviors: p.forbiddenBehaviors, exampleResponses: p.exampleResponses,
+      isActive: p.isActive, isDefault: p.isDefault,
     })
   }
 
@@ -274,9 +226,7 @@ export default function PersonaStudioPage() {
     try {
       if (isNew) {
         const res = await fetch('/api/personas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
         })
         const d = await res.json()
         setPersonas(prev => [...prev, d.persona])
@@ -285,9 +235,7 @@ export default function PersonaStudioPage() {
         setRightTab('overview')
       } else if (selected) {
         const res = await fetch(`/api/personas/${selected.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
         })
         const d = await res.json()
         setPersonas(prev => prev.map(p => (p.id === d.persona.id ? d.persona : p)))
@@ -312,10 +260,7 @@ export default function PersonaStudioPage() {
   async function remove(id: string) {
     await fetch(`/api/personas/${id}`, { method: 'DELETE' })
     setPersonas(prev => prev.filter(p => p.id !== id))
-    if (selected?.id === id) {
-      setSelected(null)
-      setIsNew(false)
-    }
+    if (selected?.id === id) { setSelected(null); setIsNew(false) }
   }
 
   function field(key: keyof PersonaForm, label: string, type: 'text' | 'textarea' = 'text') {
@@ -324,20 +269,10 @@ export default function PersonaStudioPage() {
       <div key={key}>
         <label className={labelCls}>{label}</label>
         {type === 'textarea' ? (
-          <textarea
-            value={val}
-            onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-            rows={4}
-            className={inputCls}
-            style={{ resize: 'vertical' }}
-          />
+          <textarea value={val} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+            rows={4} className={inputCls} style={{ resize: 'vertical' }} />
         ) : (
-          <input
-            type="text"
-            value={val}
-            onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-            className={inputCls}
-          />
+          <input type="text" value={val} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className={inputCls} />
         )}
       </div>
     )
@@ -353,89 +288,108 @@ export default function PersonaStudioPage() {
     if (!selected) return null
     const design = getPersonaDesign(selected)
     return (
-      <div className="space-y-6">
-        {/* 헤더 카드 */}
-        <div className={`rounded-2xl border border-slate-200 dark:border-white/8 p-6 ${design.bg} ${design.darkBg}`}>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-5xl">{design.icon}</span>
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">{selected.name}</h2>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ backgroundColor: `${design.color}22`, color: design.color }}
-                  >
-                    {selected.tone}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.speakingStyle}</span>
-                  {selected.isDefault && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-[#d0d6e0]">
-                      디폴트
-                    </span>
-                  )}
+      <div className="space-y-5">
+        {/* 그라디언트 히어로 */}
+        <div
+          className="relative rounded-2xl overflow-hidden border border-white/10"
+          style={{ background: `linear-gradient(135deg, ${design.color}35 0%, ${design.color}15 50%, transparent 100%)` }}
+        >
+          {/* 배경 장식 */}
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10 blur-3xl"
+            style={{ backgroundColor: design.color, transform: 'translate(30%, -30%)' }} />
+
+          <div className="relative p-6">
+            <div className="flex items-start gap-5">
+              {/* 큰 이모지 뱃지 */}
+              <div
+                className="shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shadow-xl ring-2"
+                style={{ backgroundColor: `${design.color}20`, boxShadow: `0 0 0 2px ${design.color}40` }}
+              >
+                {design.icon}
+              </div>
+
+              {/* 이름/상태 */}
+              <div className="flex-1 min-w-0 pt-1">
+                <div className="flex items-center gap-2.5 flex-wrap mb-2">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-[#f7f8f8]">{selected.name}</h2>
                   {selected.isActive && (
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                    <span className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       활성 중
                     </span>
                   )}
+                  {selected.isDefault && (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-[#d0d6e0]">디폴트</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold px-2 py-1 rounded-lg" style={{ backgroundColor: `${design.color}20`, color: design.color }}>
+                    {selected.tone}
+                  </span>
+                  <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.speakingStyle}</span>
+                  <span className="text-xs text-slate-400 dark:text-[#8a8f98]">·</span>
+                  <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.responseLength} 응답</span>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => activate(selected.id)}
-                className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors"
-                style={{ backgroundColor: design.color }}
-              >
-                {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
-              </button>
-              {!selected.isDefault && (
+
+              {/* 액션 버튼 */}
+              <div className="flex gap-2 shrink-0">
                 <button
-                  onClick={() => remove(selected.id)}
-                  className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  onClick={() => activate(selected.id)}
+                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ backgroundColor: design.color }}
                 >
-                  <Trash2 className="h-3.5 w-3.5" /> 삭제
+                  {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
                 </button>
-              )}
+                {!selected.isDefault && (
+                  <button
+                    onClick={() => remove(selected.id)}
+                    className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
+
+            {selected.description && (
+              <p className="mt-4 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed border-t border-white/10 pt-4">
+                {selected.description}
+              </p>
+            )}
           </div>
-          {selected.description && (
-            <p className="mt-4 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed">{selected.description}</p>
-          )}
         </div>
 
         {/* 특성 그리드 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5">
-          <h3 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-4">특성</h3>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5">
+          <h3 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-5 flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5" /> 특성
+          </h3>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-5">
             <TraitBar label="격식도" value={selected.formalityLevel} color={design.color} />
             <TraitBar label="공감도" value={selected.empathyLevel} color={design.color} />
             <TraitBar label="유머" value={selected.humorLevel} color={design.color} />
             <div>
-              <div className="flex justify-between items-center mb-1.5">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">응답 길이</span>
-                <span className="text-xs font-semibold text-slate-400 dark:text-[#8a8f98]">{selected.responseLength}</span>
+                <span className="text-xs font-bold" style={{ color: design.color }}>{selected.responseLength}</span>
               </div>
-              <div className="h-2 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: selected.responseLength === 'short' ? '33%' : selected.responseLength === 'medium' ? '66%' : '100%',
-                    backgroundColor: design.color,
-                  }}
-                />
+              <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-700" style={{
+                  width: selected.responseLength === 'short' ? '33%' : selected.responseLength === 'medium' ? '66%' : '100%',
+                  backgroundColor: design.color,
+                }} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* 허용 / 금지 행동 */}
+        {/* 허용/금지 행동 */}
         {(selected.allowedBehaviors?.length > 0 || selected.forbiddenBehaviors?.length > 0) && (
           <div className="grid grid-cols-2 gap-4">
             {selected.allowedBehaviors?.length > 0 && (
               <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20 p-4">
-                <h4 className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-3">허용 행동</h4>
+                <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-3">허용 행동</h4>
                 <ul className="space-y-1.5">
                   {selected.allowedBehaviors.map((b, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-emerald-800 dark:text-emerald-300">
@@ -447,7 +401,7 @@ export default function PersonaStudioPage() {
             )}
             {selected.forbiddenBehaviors?.length > 0 && (
               <div className="rounded-2xl border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-950/20 p-4">
-                <h4 className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-3">금지 행동</h4>
+                <h4 className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider mb-3">금지 행동</h4>
                 <ul className="space-y-1.5">
                   {selected.forbiddenBehaviors.map((b, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-red-800 dark:text-red-300">
@@ -462,8 +416,8 @@ export default function PersonaStudioPage() {
 
         {/* 프롬프트 조각 */}
         {selected.promptFragment && (
-          <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#191a1b] p-5">
-            <h3 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">시스템 프롬프트 조각</h3>
+          <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#0f1011] p-5">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">시스템 프롬프트 조각</h3>
             <pre className="text-xs text-slate-700 dark:text-[#d0d6e0] whitespace-pre-wrap font-mono leading-relaxed">
               {selected.promptFragment}
             </pre>
@@ -471,16 +425,16 @@ export default function PersonaStudioPage() {
         )}
 
         {/* 행동 정책 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5">
-          <h3 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-4">행동 정책</h3>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5">
+          <h3 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-4">행동 정책</h3>
           <div className="space-y-3">
             {[
               { label: '기본 응답', value: selected.fallbackBehavior },
               { label: '거절', value: selected.refusalBehavior },
               { label: '명확화', value: selected.clarificationBehavior },
             ].map(({ label, value }) => (
-              <div key={label} className="flex gap-3">
-                <span className="shrink-0 text-xs font-semibold text-slate-400 dark:text-[#8a8f98] w-16 pt-0.5">{label}</span>
+              <div key={label} className="flex gap-3 py-2 border-b border-slate-50 dark:border-white/5 last:border-0">
+                <span className="shrink-0 text-xs font-bold text-slate-400 dark:text-[#8a8f98] w-16 pt-0.5">{label}</span>
                 <p className="text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed">{value}</p>
               </div>
             ))}
@@ -492,26 +446,49 @@ export default function PersonaStudioPage() {
 
   // 우측 편집 탭
   function EditTab() {
+    const previewDesign = getPersonaDesign({ name: form.name, tone: form.tone })
     return (
       <div className="space-y-5">
         {/* 새 페르소나: 실시간 미리보기 */}
         {isNew && (
-          <div>
-            <p className={labelCls}>미리보기</p>
-            <PersonaPreviewCard name={form.name} tone={form.tone} description={form.description} />
+          <div
+            className="rounded-2xl border border-white/10 p-5"
+            style={{ background: `linear-gradient(135deg, ${previewDesign.color}25 0%, ${previewDesign.color}10 100%)` }}
+          >
+            <p className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">미리보기</p>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-3xl"
+                style={{ backgroundColor: `${previewDesign.color}20` }}>
+                {previewDesign.icon}
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 dark:text-[#f7f8f8]">{form.name || '새 페르소나'}</p>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-lg"
+                  style={{ backgroundColor: `${previewDesign.color}20`, color: previewDesign.color }}>
+                  {form.tone}
+                </span>
+              </div>
+            </div>
+            {form.description && (
+              <p className="mt-3 text-xs text-slate-600 dark:text-[#8a8f98] leading-relaxed line-clamp-2">{form.description}</p>
+            )}
           </div>
         )}
 
         {/* 기본 정보 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4">
-          <h2 className={`${labelCls} !mb-3`}>기본 정보</h2>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5 space-y-4">
+          <h2 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider flex items-center gap-2">
+            <Users2 className="h-3.5 w-3.5" /> 기본 정보
+          </h2>
           {field('name', '이름')}
           {field('description', '설명')}
         </div>
 
         {/* 성격 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4">
-          <h2 className={`${labelCls} !mb-3`}>성격</h2>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5 space-y-4">
+          <h2 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5" /> 성격
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             {(
               [
@@ -522,11 +499,7 @@ export default function PersonaStudioPage() {
             ).map(([key, label, opts]) => (
               <div key={key}>
                 <label className={labelCls}>{label}</label>
-                <select
-                  value={form[key] as string}
-                  onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                  className={inputCls}
-                >
+                <select value={form[key] as string} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className={inputCls}>
                   {opts.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               </div>
@@ -536,15 +509,10 @@ export default function PersonaStudioPage() {
               const labelMap = { formalityLevel: '격식도', empathyLevel: '공감도', humorLevel: '유머' }
               return (
                 <div key={key}>
-                  <label className={labelCls}>
-                    {labelMap[key]}: {form[key]}/5
-                  </label>
-                  <input
-                    type="range" min="1" max="5"
-                    value={form[key]}
+                  <label className={labelCls}>{labelMap[key]}: {form[key]}/5</label>
+                  <input type="range" min="1" max="5" value={form[key]}
                     onChange={e => setForm(f => ({ ...f, [key]: parseInt(e.target.value) }))}
-                    className="w-full accent-indigo-500 dark:accent-indigo-400"
-                  />
+                    className="w-full accent-indigo-500 dark:accent-[#7170ff] mt-2" />
                 </div>
               )
             })}
@@ -552,14 +520,14 @@ export default function PersonaStudioPage() {
         </div>
 
         {/* 시스템 프롬프트 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4">
-          <h2 className={`${labelCls} !mb-3`}>시스템 프롬프트</h2>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5 space-y-4">
+          <h2 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">시스템 프롬프트</h2>
           {field('promptFragment', '프롬프트 조각 (시스템 프롬프트에 삽입됨)', 'textarea')}
         </div>
 
         {/* 행동 정책 */}
-        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4">
-          <h2 className={`${labelCls} !mb-3`}>행동 정책</h2>
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5 space-y-4">
+          <h2 className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">행동 정책</h2>
           {field('fallbackBehavior', '기본 응답 정책')}
           {field('refusalBehavior', '거절 응답 정책')}
           {field('clarificationBehavior', '명확화 응답 정책')}
@@ -569,103 +537,114 @@ export default function PersonaStudioPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#08090a]">
+    <div className="flex h-[calc(100vh-56px)] bg-[#08090a]">
       {/* ── 좌측 패널 ── */}
-      <div className="flex flex-col w-72 shrink-0 border-r border-slate-200 dark:border-white/8 bg-white dark:bg-[#0f1011]">
+      <div className="flex flex-col w-72 shrink-0 border-r border-white/8 bg-[#0d0f10]">
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100 dark:border-white/8">
-          <div className="flex items-center gap-2">
-            <Users2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">페르소나</span>
-            <span className="text-xs text-slate-400 dark:text-[#8a8f98] border border-slate-200 dark:border-white/8 px-1.5 py-0.5 rounded">
-              {personas.length}
-            </span>
+        <div className="px-4 py-4 border-b border-white/8">
+          <div className="flex items-center justify-between mb-0.5">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                <Users2 className="h-3.5 w-3.5 text-[#7170ff]" />
+              </div>
+              <span className="text-sm font-bold text-[#f7f8f8]">페르소나 스튜디오</span>
+            </div>
+            <span className="text-[10px] font-bold text-[#8a8f98] bg-white/8 px-1.5 py-0.5 rounded">{personas.length}</span>
           </div>
+          <p className="text-[11px] text-[#8a8f98] mt-1 ml-8">AI 어시스턴트의 성격을 정의하세요</p>
+        </div>
+
+        {/* 새로만들기 버튼 */}
+        <div className="px-3 py-2.5 border-b border-white/5">
           <button
             onClick={startNew}
-            className="flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#5e6ad2]/15 hover:bg-[#5e6ad2]/25 border border-[#5e6ad2]/20 hover:border-[#5e6ad2]/40 px-3 py-2 text-xs font-semibold text-[#7170ff] transition-all"
           >
-            <Plus className="h-3.5 w-3.5" /> 새로만들기
+            <Plus className="h-3.5 w-3.5" /> 새 페르소나 만들기
           </button>
         </div>
 
         {/* 페르소나 목록 */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-8 text-center text-sm text-slate-400 dark:text-[#8a8f98]">불러오는 중...</div>
+            <div className="py-10 text-center text-sm text-[#8a8f98]">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
+              불러오는 중...
+            </div>
           ) : (
             <>
-              {/* 디폴트 그룹 */}
               {defaultPersonas.length > 0 && (
                 <div>
-                  <div className="px-4 pt-3 pb-1.5">
-                    <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8a8f98] uppercase tracking-widest">디폴트</span>
+                  <div className="px-4 pt-3 pb-1">
+                    <span className="text-[9px] font-bold text-[#8a8f98]/60 uppercase tracking-widest">기본 제공</span>
                   </div>
                   {defaultPersonas.map(p => <PersonaListItem key={p.id} p={p} selected={selected} onSelect={selectPersona} />)}
                 </div>
               )}
-
-              {/* 커스텀 그룹 */}
               {customPersonas.length > 0 && (
                 <div>
-                  <div className="px-4 pt-3 pb-1.5">
-                    <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8a8f98] uppercase tracking-widest">커스텀</span>
+                  <div className="px-4 pt-3 pb-1">
+                    <span className="text-[9px] font-bold text-[#8a8f98]/60 uppercase tracking-widest">커스텀</span>
                   </div>
                   {customPersonas.map(p => <PersonaListItem key={p.id} p={p} selected={selected} onSelect={selectPersona} />)}
                 </div>
               )}
+              {personas.length === 0 && (
+                <div className="py-10 text-center text-xs text-[#8a8f98]">페르소나가 없습니다</div>
+              )}
             </>
           )}
         </div>
+
+        {/* 하단 현재 활성 페르소나 */}
+        {activePersona && (
+          <div className="border-t border-white/8 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="text-[11px] text-[#8a8f98]">활성: <span className="text-[#d0d6e0] font-medium">{activePersona.name}</span></span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── 우측 패널 ── */}
-      <div className="flex flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#08090a]">
+      <div className="flex flex-1 flex-col overflow-hidden bg-[#08090a]">
         {!showEditor ? (
           /* 빈 상태 */
           <div className="flex flex-1 items-center justify-center">
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] shadow-sm">
-                <Users2 className="h-7 w-7 text-slate-300 dark:text-[#8a8f98]" />
+            <div className="text-center max-w-xs">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5e6ad2]/10 border border-[#5e6ad2]/20">
+                <Users2 className="h-8 w-8 text-[#5e6ad2]" />
               </div>
-              <p className="text-sm text-slate-400 dark:text-[#8a8f98]">페르소나를 선택하거나 새로 만드세요</p>
-              {activePersona && (
-                <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  활성: {activePersona.name}
-                </p>
-              )}
+              <p className="text-base font-semibold text-[#f7f8f8] mb-2">페르소나를 선택하세요</p>
+              <p className="text-sm text-[#8a8f98] leading-relaxed">
+                왼쪽에서 페르소나를 선택하거나 새로 만들어서 AI 어시스턴트의 성격을 설정하세요.
+              </p>
+              <button
+                onClick={startNew}
+                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-[#5e6ad2] hover:bg-[#6b77e0] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+              >
+                <Plus className="h-4 w-4" /> 첫 페르소나 만들기
+              </button>
             </div>
           </div>
         ) : (
           <div className="flex flex-col h-full">
             {/* 탭 바 + 액션 버튼 */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-0 shrink-0">
-              {/* 탭 */}
-              <div className="flex gap-1 border-b border-slate-200 dark:border-white/8 w-full pb-0">
+            <div className="flex items-center justify-between px-6 pt-5 border-b border-white/8 shrink-0 bg-[#08090a]">
+              <div className="flex gap-1">
                 {!isNew && (
-                  <TabButton
-                    active={rightTab === 'overview'}
-                    onClick={() => setRightTab('overview')}
-                    icon={<Eye className="h-3.5 w-3.5" />}
-                    label="개요"
-                  />
+                  <TabButton active={rightTab === 'overview'} onClick={() => setRightTab('overview')}
+                    icon={<Eye className="h-3.5 w-3.5" />} label="개요" />
                 )}
-                <TabButton
-                  active={rightTab === 'edit'}
-                  onClick={() => setRightTab('edit')}
-                  icon={<Pencil className="h-3.5 w-3.5" />}
-                  label={isNew ? '새 페르소나 만들기' : '편집'}
-                />
+                <TabButton active={rightTab === 'edit'} onClick={() => setRightTab('edit')}
+                  icon={<Pencil className="h-3.5 w-3.5" />} label={isNew ? '새 페르소나' : '편집'} />
               </div>
 
-              {/* 저장 버튼 */}
               {rightTab === 'edit' && (
-                <div className="shrink-0 ml-4 pb-0.5">
-                  <button
-                    onClick={save}
-                    disabled={saving}
-                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50"
-                  >
+                <div className="pb-2.5">
+                  <button onClick={save} disabled={saving}
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-[#5e6ad2] hover:bg-[#6b77e0] text-white transition-colors disabled:opacity-50">
                     <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
                   </button>
                 </div>

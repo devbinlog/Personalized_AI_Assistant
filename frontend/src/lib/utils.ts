@@ -54,18 +54,18 @@ export function strategyLabel(strategy: ResponseStrategy): string {
 
 export function tagLabel(tag: PreferenceTag): string {
   const labels: Record<PreferenceTag, string> = {
-    MORE_STRUCTURED: 'More structured',
-    EASIER_TO_UNDERSTAND: 'Easier to understand',
-    MORE_PROFESSIONAL: 'More professional',
-    BETTER_FORMATTING: 'Better formatting',
-    BETTER_EXPLANATION: 'Better explanation',
-    MORE_CONCISE: 'More concise',
-    BETTER_REASONING: 'Better reasoning',
-    FITS_MY_STYLE: 'Fits my style',
-    MORE_PRACTICAL: 'More practical',
-    BETTER_TONE: 'Better tone',
-    MORE_EXAMPLES: 'More examples',
-    MORE_DETAILED: 'More detailed',
+    MORE_STRUCTURED: '구조적으로 정리됨',
+    EASIER_TO_UNDERSTAND: '이해하기 쉬움',
+    MORE_PROFESSIONAL: '전문적인 느낌',
+    BETTER_FORMATTING: '포맷이 좋음',
+    BETTER_EXPLANATION: '설명이 명확함',
+    MORE_CONCISE: '간결함',
+    BETTER_REASONING: '논리적임',
+    FITS_MY_STYLE: '내 스타일과 맞음',
+    MORE_PRACTICAL: '실용적임',
+    BETTER_TONE: '어조가 좋음',
+    MORE_EXAMPLES: '예시가 풍부함',
+    MORE_DETAILED: '상세한 설명',
   }
   return labels[tag] ?? tag
 }

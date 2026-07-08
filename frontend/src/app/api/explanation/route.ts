@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { resolveUserId } from '@/lib/resolve-user'
 
+function safeJsonParse<T>(value: string | null | undefined, fallback: T): T {
+  if (value == null) return fallback
+  if (typeof value !== 'string') return value as unknown as T
+  try { return JSON.parse(value) } catch { return fallback }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const messageId = searchParams.get('messageId')
@@ -33,7 +39,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ explanation: null }, { status: 404 })
     }
 
-    return NextResponse.json({ explanation })
+    // SQLite/PostgreSQL JSON string fields → parse before returning
+    const parsed = {
+      ...explanation,
+      memoryInfluence: safeJsonParse(explanation.memoryInfluence, []),
+      reasoningFactors: safeJsonParse(explanation.reasoningFactors, []),
+      memorySnapshot: safeJsonParse(explanation.memorySnapshot, null),
+      rankingDetails: safeJsonParse(explanation.rankingDetails, null),
+    }
+
+    return NextResponse.json({ explanation: parsed })
   } catch {
     return NextResponse.json({ explanation: null })
   }

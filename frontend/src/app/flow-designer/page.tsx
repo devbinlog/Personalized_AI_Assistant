@@ -1,8 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitBranch, Plus, Save, Trash2, Zap, Check, Play, X } from 'lucide-react'
+import { GitBranch, Plus, Save, Trash2, Zap, Check, Play, X, ChevronDown, ChevronRight, Globe, Code, Briefcase, BookOpen, FlaskConical, GraduationCap } from 'lucide-react'
 import type { ConversationFlow, ConversationFlowStep } from '@/types'
+
+// ── 도메인 디자인 매핑 ──────────────────────────────────────────────────────
+
+interface DomainDesign {
+  icon: React.ReactNode
+  color: string
+  label: string
+}
+
+function getDomainDesign(domain: string): DomainDesign {
+  const map: Record<string, DomainDesign> = {
+    general: { icon: <Globe className="h-3.5 w-3.5" />, color: '#5e6ad2', label: '일반' },
+    technology: { icon: <Code className="h-3.5 w-3.5" />, color: '#8b5cf6', label: '기술' },
+    business: { icon: <Briefcase className="h-3.5 w-3.5" />, color: '#f59e0b', label: '비즈니스' },
+    career: { icon: <GraduationCap className="h-3.5 w-3.5" />, color: '#10b981', label: '커리어' },
+    education: { icon: <BookOpen className="h-3.5 w-3.5" />, color: '#06b6d4', label: '교육' },
+    science: { icon: <FlaskConical className="h-3.5 w-3.5" />, color: '#ec4899', label: '과학' },
+  }
+  return map[domain] ?? { icon: <Globe className="h-3.5 w-3.5" />, color: '#5e6ad2', label: domain }
+}
+
+// ── 기본값 ───────────────────────────────────────────────────────────────────
 
 const EMPTY_STEP: Omit<ConversationFlowStep, 'id'> = {
   name: '',
@@ -27,10 +49,12 @@ const EMPTY_FLOW = {
 type FlowForm = typeof EMPTY_FLOW
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c] focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-500/20 outline-none'
+  'w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-[#5e6ad2]/60 focus:bg-white dark:focus:bg-[#21262d] focus:ring-2 focus:ring-indigo-100 dark:focus:ring-[#5e6ad2]/15 outline-none transition-colors'
 
 const inputSmCls =
-  'w-full rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-2 py-1.5 text-xs text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c] outline-none'
+  'w-full rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-[#5e6ad2]/60 focus:bg-white dark:focus:bg-[#21262d] outline-none transition-colors'
+
+const labelCls = 'block mb-1.5 text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider'
 
 export default function FlowDesignerPage() {
   const [flows, setFlows] = useState<ConversationFlow[]>([])
@@ -63,6 +87,7 @@ export default function FlowDesignerPage() {
       searchPolicy: f.searchPolicy, steps: f.steps, isActive: f.isActive,
     })
     setSimResult(null)
+    setEditingStep(null)
   }
 
   function startNew() {
@@ -70,6 +95,7 @@ export default function FlowDesignerPage() {
     setIsNew(true)
     setForm(EMPTY_FLOW)
     setSimResult(null)
+    setEditingStep(null)
   }
 
   async function save() {
@@ -77,8 +103,7 @@ export default function FlowDesignerPage() {
     try {
       if (isNew) {
         const res = await fetch('/api/flows', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
         })
         const d = await res.json()
         setFlows(prev => [...prev, d.flow])
@@ -86,8 +111,7 @@ export default function FlowDesignerPage() {
         setIsNew(false)
       } else if (selected) {
         const res = await fetch(`/api/flows/${selected.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
         })
         const d = await res.json()
         setFlows(prev => prev.map(f => (f.id === d.flow.id ? d.flow : f)))
@@ -146,223 +170,372 @@ export default function FlowDesignerPage() {
   }
 
   const showEditor = selected !== null || isNew
+  const domainDesign = getDomainDesign(form.domain)
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#08090a]">
-      {/* Left panel */}
-      <div className="flex flex-col w-64 shrink-0 border-r border-slate-200 dark:border-white/8 bg-white dark:bg-[#0f1011]">
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100 dark:border-white/8">
-          <div className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">플로우</span>
-            <span className="text-xs text-slate-400 dark:text-[#8a8f98] border border-slate-200 dark:border-white/8 px-1.5 py-0.5 rounded">{flows.length}</span>
+    <div className="flex h-[calc(100vh-56px)] bg-[#08090a]">
+      {/* ── 좌측 패널 ── */}
+      <div className="flex flex-col w-64 shrink-0 border-r border-white/8 bg-[#0d0f10]">
+        {/* 헤더 */}
+        <div className="px-4 py-4 border-b border-white/8">
+          <div className="flex items-center justify-between mb-0.5">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                <GitBranch className="h-3.5 w-3.5 text-violet-400" />
+              </div>
+              <span className="text-sm font-bold text-[#f7f8f8]">플로우 디자이너</span>
+            </div>
+            <span className="text-[10px] font-bold text-[#8a8f98] bg-white/8 px-1.5 py-0.5 rounded">{flows.length}</span>
           </div>
-          <button onClick={startNew} className="flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
-            <Plus className="h-3.5 w-3.5" /> 새로만들기
+          <p className="text-[11px] text-[#8a8f98] mt-1 ml-8">대화 흐름과 분기를 설계하세요</p>
+        </div>
+
+        {/* 새로만들기 버튼 */}
+        <div className="px-3 py-2.5 border-b border-white/5">
+          <button
+            onClick={startNew}
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 border border-violet-500/20 hover:border-violet-500/40 px-3 py-2 text-xs font-semibold text-violet-400 transition-all"
+          >
+            <Plus className="h-3.5 w-3.5" /> 새 플로우 만들기
           </button>
         </div>
 
+        {/* 플로우 목록 */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-8 text-center text-sm text-slate-400 dark:text-[#8a8f98]">불러오는 중...</div>
+            <div className="py-10 text-center text-sm text-[#8a8f98]">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-violet-500 mx-auto mb-2" />
+              불러오는 중...
+            </div>
           ) : flows.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400 dark:text-[#8a8f98]">아직 플로우가 없습니다. 첫 번째 플로우를 만들어보세요.</div>
+            <div className="py-10 text-center text-xs text-[#8a8f98] px-4 leading-relaxed">
+              아직 플로우가 없습니다.<br />첫 번째 플로우를 만들어보세요.
+            </div>
           ) : (
-            flows.map(f => (
-              <button
-                key={f.id}
-                onClick={() => selectFlow(f)}
-                className={`w-full text-left px-3 py-2.5 border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors ${selected?.id === f.id ? 'bg-indigo-50 dark:bg-indigo-950/30' : ''}`}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className={`text-sm font-medium ${selected?.id === f.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-700 dark:text-[#d0d6e0]'}`}>{f.name}</span>
-                  {f.isActive && (
-                    <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-[10px] px-1.5 py-0.5">활성</span>
+            flows.map(f => {
+              const dd = getDomainDesign(f.domain)
+              const isSelected = selected?.id === f.id
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => selectFlow(f)}
+                  className={`w-full text-left px-3 py-3.5 border-b border-white/5 transition-all relative
+                    ${isSelected ? 'bg-[#1c1f26]' : 'hover:bg-white/[0.03]'}`}
+                >
+                  {isSelected && (
+                    <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full" style={{ backgroundColor: dd.color }} />
                   )}
-                </div>
-                <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{f.domain} · {f.steps.length}단계</span>
-              </button>
-            ))
+                  <div className="pl-2">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-sm font-semibold ${isSelected ? 'text-[#f7f8f8]' : 'text-[#d0d6e0]'}`}>{f.name}</span>
+                      {f.isActive && (
+                        <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
+                          <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                          활성
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
+                        style={{ backgroundColor: `${dd.color}18`, color: dd.color }}
+                      >
+                        {dd.icon}{dd.label}
+                      </span>
+                      <span className="text-[10px] text-[#8a8f98]">{f.steps.length}단계</span>
+                    </div>
+                  </div>
+                </button>
+              )
+            })
           )}
         </div>
       </div>
 
-      {/* Right panel */}
-      <div className="flex flex-1 flex-col overflow-y-auto bg-white dark:bg-[#0f1011]">
+      {/* ── 우측 패널 ── */}
+      <div className="flex flex-1 flex-col overflow-hidden bg-[#08090a]">
         {!showEditor ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] shadow-sm">
-                <GitBranch className="h-7 w-7 text-slate-300 dark:text-[#8a8f98]" />
+            <div className="text-center max-w-xs">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10 border border-violet-500/20">
+                <GitBranch className="h-8 w-8 text-violet-400" />
               </div>
-              <p className="text-sm text-slate-400 dark:text-[#8a8f98]">플로우를 선택하거나 새로 만드세요</p>
+              <p className="text-base font-semibold text-[#f7f8f8] mb-2">플로우를 선택하세요</p>
+              <p className="text-sm text-[#8a8f98] leading-relaxed">
+                왼쪽에서 플로우를 선택하거나 새로 만들어서 대화 흐름을 설계하세요.
+              </p>
+              <button
+                onClick={startNew}
+                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+              >
+                <Plus className="h-4 w-4" /> 첫 플로우 만들기
+              </button>
             </div>
           </div>
         ) : (
-          <div className="p-6 max-w-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
-                <p className="text-sm text-slate-500 dark:text-[#8a8f98] mt-0.5">트리거 조건과 대화 단계를 정의하세요</p>
-              </div>
-              <div className="flex gap-2">
-                {selected && !isNew && (
-                  <>
-                    <button
-                      onClick={() => activate(selected.id)}
-                      className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
+          <div className="flex flex-col h-full">
+            {/* 상단 헤더 */}
+            <div
+              className="shrink-0 px-6 py-5 border-b border-white/8 relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${domainDesign.color}18 0%, transparent 60%)` }}
+            >
+              <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
+                style={{ backgroundColor: domainDesign.color, transform: 'translate(30%, -30%)' }} />
+              <div className="relative flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span
+                      className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg"
+                      style={{ backgroundColor: `${domainDesign.color}20`, color: domainDesign.color }}
                     >
-                      {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
-                    </button>
-                    <button onClick={() => remove(selected.id)} className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
-                      <Trash2 className="h-3.5 w-3.5" /> 삭제
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={save} disabled={saving}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
-                >
-                  <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
-                </button>
+                      {domainDesign.icon} {domainDesign.label}
+                    </span>
+                    {(selected?.isActive) && (
+                      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        활성 중
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="text-xl font-bold text-[#f7f8f8]">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
+                  <p className="text-xs text-[#8a8f98] mt-1">{form.steps.length}개 단계 · {form.searchPolicy} 검색</p>
+                </div>
+                <div className="flex gap-2">
+                  {selected && !isNew && (
+                    <>
+                      <button
+                        onClick={() => activate(selected.id)}
+                        className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ backgroundColor: domainDesign.color }}
+                      >
+                        {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
+                      </button>
+                      <button onClick={() => remove(selected.id)}
+                        className="flex items-center gap-1.5 rounded-xl border border-red-900/50 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-950/30 transition-colors">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </>
+                  )}
+                  <button onClick={save} disabled={saving}
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-[#5e6ad2] hover:bg-[#6b77e0] text-white disabled:opacity-50 transition-colors">
+                    <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 space-y-4 shadow-sm">
-                <h2 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">기본 정보</h2>
-                {(['name', 'description', 'triggerCondition'] as const).map(key => (
-                  <div key={key}>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">
-                      {key === 'triggerCondition' ? '트리거 조건' : key === 'name' ? '이름' : '설명'}
-                    </label>
-                    <input type="text" value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className={inputCls} />
-                  </div>
-                ))}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">도메인</label>
-                    <select value={form.domain} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} className={inputCls}>
-                      {['general', 'technology', 'business', 'career', 'education', 'science'].map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">검색 정책</label>
-                    <select value={form.searchPolicy} onChange={e => setForm(f => ({ ...f, searchPolicy: e.target.value }))} className={inputCls}>
-                      {['auto', 'always', 'never'].map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">기본 응답 정책</label>
-                  <textarea value={form.fallbackPolicy} onChange={e => setForm(f => ({ ...f, fallbackPolicy: e.target.value }))} rows={2}
-                    className={inputCls} style={{ resize: 'vertical' }} />
-                </div>
-              </div>
-
-              {/* Steps */}
-              <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">
-                    단계 ({form.steps.length})
-                  </h2>
-                  <button onClick={addStep} className="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-white/8 text-sm text-slate-600 dark:text-[#d0d6e0] hover:bg-slate-50 dark:hover:bg-[#28282c] px-2 py-1 transition-colors">
-                    <Plus className="h-3.5 w-3.5" /> 단계 추가
-                  </button>
-                </div>
-
-                {form.steps.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-200 dark:border-white/8 py-8 text-center text-sm text-slate-400 dark:text-[#8a8f98]">
-                    아직 단계가 없습니다. 대화 분기를 정의하려면 단계를 추가하세요.
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {form.steps.map((step, i) => (
-                      <div key={step.id} className="rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] overflow-hidden shadow-sm">
-                        <div
-                          className={`flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors ${editingStep === i ? 'bg-slate-50 dark:bg-[#28282c]' : ''}`}
-                          onClick={() => setEditingStep(editingStep === i ? null : i)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="rounded border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] text-xs font-mono text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5">{i + 1}</span>
-                            <span className="text-sm font-medium text-slate-700 dark:text-[#d0d6e0]">{step.name || `단계 ${i + 1}`}</span>
-                            <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{step.triggerKeywords.join(', ') || '키워드 없음'}</span>
-                          </div>
-                          <button onClick={e => { e.stopPropagation(); removeStep(i) }} className="text-slate-300 dark:text-[#8a8f98] hover:text-red-500 dark:hover:text-red-400 transition-colors">
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        {editingStep === i && (
-                          <div className="p-3 space-y-3 border-t border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c]">
-                            <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">단계 이름</label>
-                              <input type="text" value={step.name} onChange={e => updateStep(i, { name: e.target.value })} className={inputSmCls} />
-                            </div>
-                            <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">트리거 키워드 (쉼표로 구분)</label>
-                              <input type="text" value={step.triggerKeywords.join(', ')}
-                                onChange={e => updateStep(i, { triggerKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
-                                className={inputSmCls} />
-                            </div>
-                            <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">지시사항</label>
-                              <textarea value={step.instruction} onChange={e => updateStep(i, { instruction: e.target.value })} rows={2}
-                                className={inputSmCls} style={{ resize: 'vertical' }} />
-                            </div>
-                            <div>
-                              <label className="block mb-1 text-xs font-semibold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider">검색 정책</label>
-                              <select value={step.searchPolicy} onChange={e => updateStep(i, { searchPolicy: e.target.value as 'auto' | 'always' | 'never' })}
-                                className="rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-2 py-1.5 text-xs text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-indigo-300 dark:focus:border-indigo-500/50">
-                                {['auto', 'always', 'never'].map(p => <option key={p} value={p}>{p}</option>)}
-                              </select>
-                            </div>
-                          </div>
-                        )}
+            {/* 컨텐츠 */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-5 max-w-3xl">
+                {/* 기본 정보 */}
+                <div className="rounded-2xl border border-white/8 bg-[#0f1011] p-5 space-y-4">
+                  <h2 className={labelCls}>기본 정보</h2>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className={labelCls}>이름</label>
+                      <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="예: 기술 지원 플로우" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>설명</label>
+                      <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                        placeholder="이 플로우의 목적을 설명하세요" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>트리거 조건</label>
+                      <input type="text" value={form.triggerCondition} onChange={e => setForm(f => ({ ...f, triggerCondition: e.target.value }))}
+                        placeholder="예: 기술 문제나 오류 메시지 관련 질문" className={inputCls} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={labelCls}>도메인</label>
+                        <select value={form.domain} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} className={inputCls}>
+                          {[
+                            ['general', '일반'], ['technology', '기술'], ['business', '비즈니스'],
+                            ['career', '커리어'], ['education', '교육'], ['science', '과학']
+                          ].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                        </select>
                       </div>
-                    ))}
+                      <div>
+                        <label className={labelCls}>검색 정책</label>
+                        <select value={form.searchPolicy} onChange={e => setForm(f => ({ ...f, searchPolicy: e.target.value }))} className={inputCls}>
+                          {[['auto', '자동'], ['always', '항상'], ['never', '사용 안 함']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelCls}>기본 응답 정책</label>
+                      <textarea value={form.fallbackPolicy} onChange={e => setForm(f => ({ ...f, fallbackPolicy: e.target.value }))}
+                        rows={2} className={inputCls} style={{ resize: 'vertical' }} />
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Simulation panel */}
-              {selected && (
-                <div className="rounded-xl border border-indigo-100 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Play className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">시뮬레이션</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={simInput}
-                      onChange={e => setSimInput(e.target.value)}
-                      placeholder="이 플로우를 테스트할 메시지를 입력하세요..."
-                      onKeyDown={e => e.key === 'Enter' && simulate()}
-                      className="flex-1 rounded-lg border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-100 dark:focus:ring-indigo-500/20"
-                    />
-                    <button
-                      onClick={simulate} disabled={simulating}
-                      className="rounded-xl px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white text-sm font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
-                    >
-                      {simulating ? '...' : '실행'}
+                {/* 대화 단계 */}
+                <div className="rounded-2xl border border-white/8 bg-[#0f1011] p-5">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h2 className={`${labelCls} mb-0.5`}>대화 단계</h2>
+                      <p className="text-[11px] text-[#8a8f98]">트리거 키워드에 따라 적절한 단계가 실행됩니다</p>
+                    </div>
+                    <button onClick={addStep}
+                      className="flex items-center gap-1.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/8 px-3 py-1.5 text-xs font-semibold text-[#d0d6e0] transition-all">
+                      <Plus className="h-3.5 w-3.5" /> 단계 추가
                     </button>
                   </div>
-                  {simResult && (
-                    <div className="mt-3 space-y-2">
-                      <div className="text-xs text-slate-500 dark:text-[#8a8f98]">
-                        일치하는 단계:{' '}
-                        <span className={simResult.matchedStep ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-red-500 dark:text-red-400'}>
-                          {simResult.matchedStep?.name ?? '없음 (기본 응답 사용)'}
-                        </span>
+
+                  {form.steps.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-white/10 py-10 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3">
+                        <GitBranch className="h-5 w-5 text-[#8a8f98]" />
                       </div>
-                      <div className="rounded-lg border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-3 text-sm text-slate-600 dark:text-[#d0d6e0]">
-                        {simResult.instruction}
+                      <p className="text-sm text-[#8a8f98] mb-1">단계가 없습니다</p>
+                      <p className="text-xs text-[#8a8f98]/60">대화 분기를 정의하려면 단계를 추가하세요</p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      {/* 왼쪽 연결선 */}
+                      {form.steps.length > 1 && (
+                        <div className="absolute left-[19px] top-9 bottom-9 w-px bg-white/8" />
+                      )}
+                      <div className="space-y-3">
+                        {form.steps.map((step, i) => {
+                          const isEditing = editingStep === i
+                          return (
+                            <div key={step.id} className="relative flex gap-3">
+                              {/* 스텝 번호 원 */}
+                              <div className="shrink-0 relative z-10">
+                                <div
+                                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
+                                    ${isEditing
+                                      ? 'bg-[#5e6ad2] border-[#5e6ad2] text-white'
+                                      : 'bg-[#1c1f26] border-white/15 text-[#8a8f98]'
+                                    }`}
+                                >
+                                  {i + 1}
+                                </div>
+                              </div>
+
+                              {/* 스텝 카드 */}
+                              <div className={`flex-1 rounded-xl border transition-all overflow-hidden
+                                ${isEditing ? 'border-[#5e6ad2]/40 bg-[#5e6ad2]/5' : 'border-white/8 bg-[#191a1b]'}`}>
+                                {/* 스텝 헤더 */}
+                                <div
+                                  className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.03] transition-colors`}
+                                  onClick={() => setEditingStep(isEditing ? null : i)}
+                                >
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-[#d0d6e0] truncate">
+                                      {step.name || `단계 ${i + 1}`}
+                                    </p>
+                                    {step.triggerKeywords.length > 0 && (
+                                      <div className="flex gap-1 mt-1 flex-wrap">
+                                        {step.triggerKeywords.slice(0, 3).map(kw => (
+                                          <span key={kw} className="text-[10px] px-1.5 py-0.5 rounded bg-white/8 text-[#8a8f98]">{kw}</span>
+                                        ))}
+                                        {step.triggerKeywords.length > 3 && (
+                                          <span className="text-[10px] text-[#8a8f98]">+{step.triggerKeywords.length - 3}</span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                                    <button onClick={e => { e.stopPropagation(); removeStep(i) }}
+                                      className="text-[#8a8f98] hover:text-red-400 transition-colors p-1 rounded hover:bg-red-950/30">
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                    {isEditing
+                                      ? <ChevronDown className="h-4 w-4 text-[#5e6ad2]" />
+                                      : <ChevronRight className="h-4 w-4 text-[#8a8f98]" />
+                                    }
+                                  </div>
+                                </div>
+
+                                {/* 스텝 편집 영역 */}
+                                {isEditing && (
+                                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/8">
+                                    <div>
+                                      <label className={labelCls}>단계 이름</label>
+                                      <input type="text" value={step.name} placeholder="예: 오류 진단"
+                                        onChange={e => updateStep(i, { name: e.target.value })} className={inputSmCls} />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>트리거 키워드 (쉼표로 구분)</label>
+                                      <input type="text" value={step.triggerKeywords.join(', ')}
+                                        placeholder="예: 오류, 에러, error, bug"
+                                        onChange={e => updateStep(i, { triggerKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
+                                        className={inputSmCls} />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>지시사항</label>
+                                      <textarea value={step.instruction} placeholder="이 단계에서 AI가 어떻게 행동해야 하는지..."
+                                        onChange={e => updateStep(i, { instruction: e.target.value })} rows={3}
+                                        className={inputSmCls} style={{ resize: 'vertical' }} />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>검색 정책</label>
+                                      <select value={step.searchPolicy}
+                                        onChange={e => updateStep(i, { searchPolicy: e.target.value as 'auto' | 'always' | 'never' })}
+                                        className="rounded-lg border border-white/8 bg-[#21262d] px-3 py-2 text-sm text-[#f7f8f8] outline-none focus:border-[#5e6ad2]/60">
+                                        {[['auto', '자동'], ['always', '항상'], ['never', '사용 안 함']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                      </select>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )}
                 </div>
-              )}
+
+                {/* 시뮬레이션 패널 */}
+                {selected && (
+                  <div className="rounded-2xl border border-[#5e6ad2]/25 bg-[#5e6ad2]/5 p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-7 h-7 rounded-lg bg-[#5e6ad2]/20 flex items-center justify-center">
+                        <Play className="h-3.5 w-3.5 text-[#7170ff]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#f7f8f8]">플로우 시뮬레이션</p>
+                        <p className="text-[11px] text-[#8a8f98]">입력 메시지로 어떤 단계가 실행될지 확인하세요</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={simInput}
+                        onChange={e => setSimInput(e.target.value)}
+                        placeholder="테스트 메시지를 입력하세요..."
+                        onKeyDown={e => e.key === 'Enter' && simulate()}
+                        className="flex-1 rounded-xl border border-white/10 bg-[#191a1b] px-3 py-2.5 text-sm text-[#f7f8f8] placeholder:text-[#8a8f98] outline-none focus:border-[#5e6ad2]/60"
+                      />
+                      <button
+                        onClick={simulate} disabled={simulating}
+                        className="rounded-xl px-4 py-2.5 bg-[#5e6ad2] hover:bg-[#6b77e0] text-white text-sm font-semibold disabled:opacity-50 transition-colors flex items-center gap-1.5"
+                      >
+                        {simulating ? <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+                        실행
+                      </button>
+                    </div>
+                    {simResult && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-[#8a8f98]">일치 단계:</span>
+                          <span className={`font-semibold ${simResult.matchedStep ? 'text-emerald-400' : 'text-amber-400'}`}>
+                            {simResult.matchedStep?.name ?? '없음 (기본 응답 사용)'}
+                          </span>
+                        </div>
+                        <div className="rounded-xl border border-white/8 bg-[#191a1b] p-3 text-sm text-[#d0d6e0] font-mono leading-relaxed">
+                          {simResult.instruction}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

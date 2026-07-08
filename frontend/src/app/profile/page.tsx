@@ -134,6 +134,7 @@ export default function ProfilePage() {
   }
 
   return (
+    <div className="min-h-full bg-slate-50 dark:bg-[#08090a]">
     <div className="mx-auto w-full max-w-2xl px-4 py-10">
       {/* Header */}
       <div className="mb-8">
@@ -396,6 +397,7 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+    </div>
     </div>
   )
 }
