@@ -247,6 +247,56 @@
   margin: 1rem 0;
 }
 
+/* Dark mode overrides for prose-chat */
+.dark .prose-chat h1,
+.dark .prose-chat h2,
+.dark .prose-chat h3 {
+  color: #f7f8f8;
+}
+
+.dark .prose-chat p {
+  color: #d0d6e0;
+}
+
+.dark .prose-chat ul,
+.dark .prose-chat ol {
+  color: #d0d6e0;
+}
+
+.dark .prose-chat li {
+  color: #d0d6e0;
+}
+
+.dark .prose-chat strong {
+  color: #f7f8f8;
+}
+
+.dark .prose-chat code {
+  background: #28282c;
+  color: #c9d1d9;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.dark .prose-chat th,
+.dark .prose-chat td {
+  border-color: rgba(255,255,255,0.08);
+  color: #d0d6e0;
+}
+
+.dark .prose-chat th {
+  color: #f7f8f8;
+  background: #28282c;
+}
+
+.dark .prose-chat blockquote {
+  color: #8a8f98;
+  border-color: #5e6ad2;
+}
+
+.dark .prose-chat hr {
+  border-color: rgba(255,255,255,0.08);
+}
+
 /* Landing page gradient */
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
