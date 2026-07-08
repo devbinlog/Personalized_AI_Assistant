@@ -19,6 +19,8 @@ import {
   Sparkles,
   Trash2,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { cn, formatDate } from '@/lib/utils'
@@ -58,8 +60,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
-  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey } = useAppStore()
+  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey, theme, setTheme } = useAppStore()
   const isLearning = mode === 'LEARNING'
+  const isDark = theme === 'dark'
 
   const isInDesignSection = DESIGN_NAV_ITEMS.some(item => pathname.startsWith(item.href))
   const [designOpen, setDesignOpen] = useState(isInDesignSection)
@@ -412,11 +415,11 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       {/* Spacer when no conversations */}
       {!showConversations && <div className="flex-1" />}
 
-      {/* Learning Mode Toggle — 푸터 border 위에 배치해서 선 위치 맞춤 */}
-      <div className="shrink-0 px-3 py-2">
+      {/* Learning Mode Toggle + Theme Toggle */}
+      <div className="shrink-0 px-3 py-2 flex items-center gap-2">
         <button
           onClick={() => setMode(isLearning ? 'NORMAL' : 'LEARNING')}
-          className="flex w-full items-center gap-2 rounded-md text-left transition-colors"
+          className="flex flex-1 items-center gap-2 rounded-md text-left transition-colors"
           style={{
             padding: '6px 8px',
             borderRadius: '6px',
@@ -425,24 +428,41 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             cursor: 'pointer',
           }}
           onMouseEnter={e => {
-            if (!isLearning) e.currentTarget.style.backgroundColor = '#f8fafc'
+            if (!isLearning) e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f8fafc'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = isLearning ? '#ecfdf5' : 'transparent'
+            e.currentTarget.style.backgroundColor = isLearning ? (isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5') : 'transparent'
           }}
         >
           <div
             className="flex h-6 w-6 items-center justify-center rounded-full shrink-0"
-            style={{ backgroundColor: isLearning ? '#d1fae5' : '#f5f5f4' }}
+            style={{ backgroundColor: isLearning ? (isDark ? 'rgba(16,185,129,0.2)' : '#d1fae5') : (isDark ? '#28282c' : '#f5f5f4') }}
           >
             <Sparkles
               className="h-3 w-3"
-              style={{ color: isLearning ? '#059669' : '#a8a29e' }}
+              style={{ color: isLearning ? '#059669' : (isDark ? '#8a8f98' : '#a8a29e') }}
             />
           </div>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: isLearning ? '#059669' : '#44403c' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: isLearning ? '#059669' : (isDark ? '#d0d6e0' : '#44403c') }}>
             학습 모드 {isLearning ? 'ON' : 'OFF'}
           </span>
+        </button>
+
+        {/* Theme toggle icon */}
+        <button
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          title={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors"
+          style={{
+            border: '1px solid transparent',
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+            color: isDark ? '#8a8f98' : '#78716c',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f1f5f9' }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
+        >
+          {isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
         </button>
       </div>
 
