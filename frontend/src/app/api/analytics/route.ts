@@ -38,7 +38,10 @@ export async function GET(_req: NextRequest) {
       .map(([strategy, count]) => ({ strategy: strategy as never, count }))
 
     const tagCounts = preferenceLogs.reduce<Record<string, number>>((acc, l) => {
-      for (const tag of l.selectedTags) acc[tag] = (acc[tag] ?? 0) + 1
+      const tags: string[] = typeof l.selectedTags === 'string'
+        ? (() => { try { return JSON.parse(l.selectedTags) } catch { return [] } })()
+        : (l.selectedTags as unknown as string[]) ?? []
+      for (const tag of tags) acc[tag] = (acc[tag] ?? 0) + 1
       return acc
     }, {})
     const topTags = Object.entries(tagCounts)

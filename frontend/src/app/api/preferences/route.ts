@@ -35,14 +35,26 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // 학습 모드에서는 ResponseCandidate가 저장되지 않으므로 여기서 생성
+    const candidate = await prisma.responseCandidate.create({
+      data: {
+        messageId: savedMsg.id,
+        strategy: selectedStrategy,
+        content: selectedContent ?? '',
+        index: 0,
+        isSelected: true,
+        score: 0.8,
+      },
+    })
+
     // Save preference log
     const log = await prisma.preferenceLog.create({
       data: {
         userId,
         messageId: savedMsg.id,
-        candidateId: savedMsg.id,
+        candidateId: candidate.id,
         selectedStrategy,
-        selectedTags: selectedTags ?? [],
+        selectedTags: JSON.stringify(selectedTags ?? []),
         taskType,
         domain,
         complexity,
