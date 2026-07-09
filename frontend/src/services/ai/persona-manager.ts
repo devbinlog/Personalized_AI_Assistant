@@ -118,13 +118,26 @@ function dbToPersona(row: Record<string, unknown>): Persona {
   } as Persona
 }
 
+const ENGLISH_PERSONA_NAMES = ['Professional Assistant', 'Friendly Mentor', 'Interview Coach', 'Developer Mentor', 'Research Assistant']
+
 export async function getPersonas(): Promise<Persona[]> {
   const rows = await prisma.persona.findMany({ orderBy: { createdAt: 'asc' } })
+
   if (rows.length === 0) {
     await seedDefaultPersonas()
     const seeded = await prisma.persona.findMany({ orderBy: { createdAt: 'asc' } })
     return seeded.map(r => dbToPersona(r as Record<string, unknown>))
   }
+
+  // 영문 기본 페르소나가 남아 있으면 한국어로 자동 교체
+  const hasEnglish = rows.some(r => ENGLISH_PERSONA_NAMES.includes(r.name as string))
+  if (hasEnglish) {
+    await prisma.persona.deleteMany({ where: { name: { in: ENGLISH_PERSONA_NAMES } } })
+    await seedDefaultPersonas()
+    const migrated = await prisma.persona.findMany({ orderBy: { createdAt: 'asc' } })
+    return migrated.map(r => dbToPersona(r as Record<string, unknown>))
+  }
+
   return rows.map(r => dbToPersona(r as Record<string, unknown>))
 }
 
