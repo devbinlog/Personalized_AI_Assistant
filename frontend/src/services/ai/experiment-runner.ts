@@ -12,9 +12,64 @@ function dbToExperiment(row: Record<string, unknown>): PromptExperiment {
   } as PromptExperiment
 }
 
+const DEFAULT_EXPERIMENTS: Pick<PromptExperiment, 'name' | 'description' | 'promptA' | 'promptB' | 'testInputs'>[] = [
+  {
+    name: '격식체 vs 친근한 어조',
+    description: '동일한 질문에 격식 있는 어조와 친근한 어조로 답변할 때 사용자 경험 차이 비교',
+    promptA: '격식 있고 전문적인 방식으로 답변하세요. 명확한 구조를 사용하고 비공식적 언어를 피하며 간결함보다 정확성을 우선시하세요.',
+    promptB: '친근하고 따뜻한 말투로 답변하세요. 어려운 용어 대신 쉬운 언어를 사용하고 사용자가 편안함을 느낄 수 있도록 공감적인 표현을 활용하세요.',
+    testInputs: [
+      '파이썬에서 리스트를 정렬하는 방법을 알려줘',
+      '오늘 할 일을 정리하는 데 도움을 줘',
+      '이력서 자기소개서 첫 문장 어떻게 시작하면 좋을까?',
+    ],
+  },
+  {
+    name: '간결한 답변 vs 상세한 답변',
+    description: '짧고 핵심적인 답변과 충분한 배경 설명을 포함한 상세 답변 중 어느 쪽이 더 효과적인지 평가',
+    promptA: '응답을 간결하고 핵심적으로 유지하세요. 3~5문장 이내로 답변하고 가장 중요한 정보만 전달하세요.',
+    promptB: '상세하고 충분한 응답을 제공하세요. 배경 설명, 단계별 절차, 예시를 포함하여 사용자가 완전히 이해할 수 있도록 안내하세요.',
+    testInputs: [
+      'JWT 토큰 인증은 어떻게 작동하나요?',
+      '리액트 useEffect 훅을 언제 사용해야 하나요?',
+      '데이터베이스 인덱스가 왜 중요한가요?',
+    ],
+  },
+  {
+    name: '단계별 설명 vs 예시 중심 설명',
+    description: '개념을 순서대로 단계별로 설명하는 방식과 구체적인 예시와 코드를 먼저 보여주는 방식 비교',
+    promptA: '개념을 먼저 정의하고 작동 원리를 순서대로 단계별로 설명하세요. 논리적 흐름을 중시하며 이론적 배경부터 실용적 적용으로 진행하세요.',
+    promptB: '먼저 구체적인 코드 예시나 실제 사례를 보여주고 그것을 바탕으로 개념을 설명하세요. 실습 중심으로 접근하여 직관적 이해를 돕습니다.',
+    testInputs: [
+      '클로저(closure)가 뭔지 설명해줘',
+      'REST API와 GraphQL 차이점이 뭐야?',
+      '도커 컨테이너와 가상 머신의 차이는?',
+    ],
+  },
+]
+
 export async function getExperiments(): Promise<PromptExperiment[]> {
   const rows = await prisma.promptExperiment.findMany({ orderBy: { createdAt: 'desc' } })
+
+  if (rows.length === 0) {
+    await seedDefaultExperiments()
+    const seeded = await prisma.promptExperiment.findMany({ orderBy: { createdAt: 'desc' } })
+    return seeded.map(r => dbToExperiment(r as Record<string, unknown>))
+  }
+
   return rows.map(r => dbToExperiment(r as Record<string, unknown>))
+}
+
+async function seedDefaultExperiments(): Promise<void> {
+  for (const exp of DEFAULT_EXPERIMENTS) {
+    await prisma.promptExperiment.create({
+      data: {
+        ...exp,
+        testInputs: JSON.stringify(exp.testInputs),
+        status: 'DRAFT',
+      } as never,
+    })
+  }
 }
 
 export async function getExperimentResults(id: string): Promise<PromptExperimentResult[]> {

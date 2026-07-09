@@ -72,21 +72,21 @@
     --input: 222 47% 16%;
     --ring: 239 68% 61%;
 
-    /* Semantic color tokens — dark mode */
-    --color-bg: #0d1117;
-    --color-surface: #161b22;
-    --color-surface-hover: #21262d;
-    --color-border: rgba(255,255,255,0.1);
-    --color-text-primary: #e6edf3;
-    --color-text-secondary: #8b949e;
-    --color-text-muted: #6e7681;
-    --color-sidebar-bg: #0d1117;
+    /* Semantic color tokens — dark mode (Linear design system) */
+    --color-bg: #08090a;
+    --color-surface: #0f1011;
+    --color-surface-hover: #28282c;
+    --color-border: rgba(255,255,255,0.08);
+    --color-text-primary: #f7f8f8;
+    --color-text-secondary: #d0d6e0;
+    --color-text-muted: #8a8f98;
+    --color-sidebar-bg: #0d0f10;
     --color-sidebar-border: rgba(255,255,255,0.08);
-    --color-card: #161b22;
-    --color-card-border: rgba(255,255,255,0.1);
+    --color-card: #191a1b;
+    --color-card-border: rgba(255,255,255,0.08);
     --color-input-bg: #21262d;
     --color-dropdown-bg: #21262d;
-    --color-dropdown-hover: #30363d;
+    --color-dropdown-hover: #28282c;
   }
 }
 

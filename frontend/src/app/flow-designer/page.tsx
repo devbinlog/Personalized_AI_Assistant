@@ -173,25 +173,25 @@ export default function FlowDesignerPage() {
   const domainDesign = getDomainDesign(form.domain)
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-[#08090a]">
+    <div className="flex h-[calc(100vh-56px)] bg-white dark:bg-[#08090a]">
       {/* ── 좌측 패널 ── */}
-      <div className="flex flex-col w-64 shrink-0 border-r border-white/8 bg-[#0d0f10]">
+      <div className="flex flex-col w-64 shrink-0 border-r border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#0d0f10]">
         {/* 헤더 */}
-        <div className="px-4 py-4 border-b border-white/8">
+        <div className="px-4 py-4 border-b border-slate-200 dark:border-white/8">
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-[#5e6ad2]/20 flex items-center justify-center">
                 <GitBranch className="h-3.5 w-3.5 text-[#7170ff]" />
               </div>
-              <span className="text-sm font-bold text-[#f7f8f8]">플로우 디자이너</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">플로우 디자이너</span>
             </div>
-            <span className="text-[10px] font-bold text-[#8a8f98] bg-white/8 px-1.5 py-0.5 rounded">{flows.length}</span>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-[#8a8f98] bg-slate-200 dark:bg-white/8 px-1.5 py-0.5 rounded">{flows.length}</span>
           </div>
-          <p className="text-[11px] text-[#8a8f98] mt-1 ml-8">대화 흐름과 분기를 설계하세요</p>
+          <p className="text-[11px] text-slate-500 dark:text-[#8a8f98] mt-1 ml-8">대화 흐름과 분기를 설계하세요</p>
         </div>
 
         {/* 새로만들기 버튼 */}
-        <div className="px-3 py-2.5 border-b border-white/5">
+        <div className="px-3 py-2.5 border-b border-slate-100 dark:border-white/5">
           <button
             onClick={startNew}
             className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#5e6ad2]/15 hover:bg-[#5e6ad2]/25 border border-[#5e6ad2]/20 hover:border-[#5e6ad2]/40 px-3 py-2 text-xs font-semibold text-[#7170ff] transition-all"
@@ -203,12 +203,12 @@ export default function FlowDesignerPage() {
         {/* 플로우 목록 */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-10 text-center text-sm text-[#8a8f98]">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
+            <div className="py-10 text-center text-sm text-slate-500 dark:text-[#8a8f98]">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
               불러오는 중...
             </div>
           ) : flows.length === 0 ? (
-            <div className="py-10 text-center text-xs text-[#8a8f98] px-4 leading-relaxed">
+            <div className="py-10 text-center text-xs text-slate-500 dark:text-[#8a8f98] px-4 leading-relaxed">
               아직 플로우가 없습니다.<br />첫 번째 플로우를 만들어보세요.
             </div>
           ) : (
@@ -219,15 +219,15 @@ export default function FlowDesignerPage() {
                 <button
                   key={f.id}
                   onClick={() => selectFlow(f)}
-                  className={`w-full text-left px-3 py-3.5 border-b border-white/5 transition-all relative
-                    ${isSelected ? 'bg-[#1c1f26]' : 'hover:bg-white/[0.03]'}`}
+                  className={`w-full text-left px-3 py-3.5 border-b border-slate-100 dark:border-white/5 transition-all relative
+                    ${isSelected ? 'bg-slate-100 dark:bg-[#1c1f26]' : 'hover:bg-slate-50 dark:hover:bg-white/[0.03]'}`}
                 >
                   {isSelected && (
                     <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full bg-[#5e6ad2]" />
                   )}
                   <div className="pl-2">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className={`text-sm font-semibold ${isSelected ? 'text-[#f7f8f8]' : 'text-[#d0d6e0]'}`}>{f.name}</span>
+                      <span className={`text-sm font-semibold ${isSelected ? 'text-slate-900 dark:text-[#f7f8f8]' : 'text-slate-600 dark:text-[#d0d6e0]'}`}>{f.name}</span>
                       {f.isActive && (
                         <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
                           <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
@@ -239,7 +239,7 @@ export default function FlowDesignerPage() {
                       <span className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#5e6ad2]/10 text-[#7170ff]">
                         {dd.icon}{dd.label}
                       </span>
-                      <span className="text-[10px] text-[#8a8f98]">{f.steps.length}단계</span>
+                      <span className="text-[10px] text-slate-500 dark:text-[#8a8f98]">{f.steps.length}단계</span>
                     </div>
                   </div>
                 </button>
@@ -250,15 +250,15 @@ export default function FlowDesignerPage() {
       </div>
 
       {/* ── 우측 패널 ── */}
-      <div className="flex flex-1 flex-col overflow-hidden bg-[#08090a]">
+      <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-[#08090a]">
         {!showEditor ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="text-center max-w-xs">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5e6ad2]/10 border border-[#5e6ad2]/20">
                 <GitBranch className="h-8 w-8 text-[#5e6ad2]" />
               </div>
-              <p className="text-base font-semibold text-[#f7f8f8] mb-2">플로우를 선택하세요</p>
-              <p className="text-sm text-[#8a8f98] leading-relaxed">
+              <p className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8] mb-2">플로우를 선택하세요</p>
+              <p className="text-sm text-slate-500 dark:text-[#8a8f98] leading-relaxed">
                 왼쪽에서 플로우를 선택하거나 새로 만들어서 대화 흐름을 설계하세요.
               </p>
               <button
@@ -272,7 +272,7 @@ export default function FlowDesignerPage() {
         ) : (
           <div className="flex flex-col h-full">
             {/* 상단 헤더 */}
-            <div className="shrink-0 px-6 py-5 border-b border-white/8 bg-[#08090a]">
+            <div className="shrink-0 px-6 py-5 border-b border-slate-200 dark:border-white/8 bg-white dark:bg-[#08090a]">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
@@ -286,8 +286,8 @@ export default function FlowDesignerPage() {
                       </span>
                     )}
                   </div>
-                  <h1 className="text-xl font-bold text-[#f7f8f8]">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
-                  <p className="text-xs text-[#8a8f98] mt-1">{form.steps.length}개 단계 · {form.searchPolicy} 검색</p>
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-[#f7f8f8]">{isNew ? '새 플로우' : form.name || '플로우 편집'}</h1>
+                  <p className="text-xs text-slate-500 dark:text-[#8a8f98] mt-1">{form.steps.length}개 단계 · {form.searchPolicy} 검색</p>
                 </div>
                 <div className="flex gap-2">
                   {selected && !isNew && (
@@ -316,7 +316,7 @@ export default function FlowDesignerPage() {
             <div className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-5 max-w-3xl">
                 {/* 기본 정보 */}
-                <div className="rounded-2xl border border-white/8 bg-[#0f1011] p-5 space-y-4">
+                <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5 space-y-4">
                   <h2 className={labelCls}>기본 정보</h2>
                   <div className="grid grid-cols-1 gap-4">
                     <div>
@@ -360,31 +360,31 @@ export default function FlowDesignerPage() {
                 </div>
 
                 {/* 대화 단계 */}
-                <div className="rounded-2xl border border-white/8 bg-[#0f1011] p-5">
+                <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h2 className={`${labelCls} mb-0.5`}>대화 단계</h2>
-                      <p className="text-[11px] text-[#8a8f98]">트리거 키워드에 따라 적절한 단계가 실행됩니다</p>
+                      <p className="text-[11px] text-slate-500 dark:text-[#8a8f98]">트리거 키워드에 따라 적절한 단계가 실행됩니다</p>
                     </div>
                     <button onClick={addStep}
-                      className="flex items-center gap-1.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/8 px-3 py-1.5 text-xs font-semibold text-[#d0d6e0] transition-all">
+                      className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/8 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-[#d0d6e0] transition-all">
                       <Plus className="h-3.5 w-3.5" /> 단계 추가
                     </button>
                   </div>
 
                   {form.steps.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-white/10 py-10 text-center">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3">
-                        <GitBranch className="h-5 w-5 text-[#8a8f98]" />
+                    <div className="rounded-xl border border-dashed border-slate-200 dark:border-white/10 py-10 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mx-auto mb-3">
+                        <GitBranch className="h-5 w-5 text-slate-500 dark:text-[#8a8f98]" />
                       </div>
-                      <p className="text-sm text-[#8a8f98] mb-1">단계가 없습니다</p>
-                      <p className="text-xs text-[#8a8f98]/60">대화 분기를 정의하려면 단계를 추가하세요</p>
+                      <p className="text-sm text-slate-500 dark:text-[#8a8f98] mb-1">단계가 없습니다</p>
+                      <p className="text-xs text-slate-400 dark:text-[#8a8f98]/60">대화 분기를 정의하려면 단계를 추가하세요</p>
                     </div>
                   ) : (
                     <div className="relative">
                       {/* 왼쪽 연결선 */}
                       {form.steps.length > 1 && (
-                        <div className="absolute left-[19px] top-9 bottom-9 w-px bg-white/8" />
+                        <div className="absolute left-[19px] top-9 bottom-9 w-px bg-slate-200 dark:bg-white/8" />
                       )}
                       <div className="space-y-3">
                         {form.steps.map((step, i) => {
@@ -397,7 +397,7 @@ export default function FlowDesignerPage() {
                                   className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
                                     ${isEditing
                                       ? 'bg-[#5e6ad2] border-[#5e6ad2] text-white'
-                                      : 'bg-[#1c1f26] border-white/15 text-[#8a8f98]'
+                                      : 'bg-slate-100 dark:bg-[#1c1f26] border-slate-300 dark:border-white/15 text-slate-500 dark:text-[#8a8f98]'
                                     }`}
                                 >
                                   {i + 1}
@@ -406,42 +406,42 @@ export default function FlowDesignerPage() {
 
                               {/* 스텝 카드 */}
                               <div className={`flex-1 rounded-xl border transition-all overflow-hidden
-                                ${isEditing ? 'border-[#5e6ad2]/40 bg-[#5e6ad2]/5' : 'border-white/8 bg-[#191a1b]'}`}>
+                                ${isEditing ? 'border-[#5e6ad2]/40 bg-[#5e6ad2]/5' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
                                 {/* 스텝 헤더 */}
                                 <div
-                                  className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.03] transition-colors`}
+                                  className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors`}
                                   onClick={() => setEditingStep(isEditing ? null : i)}
                                 >
                                   <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-[#d0d6e0] truncate">
+                                    <p className="text-sm font-semibold text-slate-600 dark:text-[#d0d6e0] truncate">
                                       {step.name || `단계 ${i + 1}`}
                                     </p>
                                     {step.triggerKeywords.length > 0 && (
                                       <div className="flex gap-1 mt-1 flex-wrap">
                                         {step.triggerKeywords.slice(0, 3).map(kw => (
-                                          <span key={kw} className="text-[10px] px-1.5 py-0.5 rounded bg-white/8 text-[#8a8f98]">{kw}</span>
+                                          <span key={kw} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/8 text-slate-500 dark:text-[#8a8f98]">{kw}</span>
                                         ))}
                                         {step.triggerKeywords.length > 3 && (
-                                          <span className="text-[10px] text-[#8a8f98]">+{step.triggerKeywords.length - 3}</span>
+                                          <span className="text-[10px] text-slate-500 dark:text-[#8a8f98]">+{step.triggerKeywords.length - 3}</span>
                                         )}
                                       </div>
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0 ml-3">
                                     <button onClick={e => { e.stopPropagation(); removeStep(i) }}
-                                      className="text-[#8a8f98] hover:text-red-400 transition-colors p-1 rounded hover:bg-red-950/30">
+                                      className="text-slate-400 dark:text-[#8a8f98] hover:text-red-400 transition-colors p-1 rounded hover:bg-red-950/30">
                                       <X className="h-3.5 w-3.5" />
                                     </button>
                                     {isEditing
                                       ? <ChevronDown className="h-4 w-4 text-[#5e6ad2]" />
-                                      : <ChevronRight className="h-4 w-4 text-[#8a8f98]" />
+                                      : <ChevronRight className="h-4 w-4 text-slate-400 dark:text-[#8a8f98]" />
                                     }
                                   </div>
                                 </div>
 
                                 {/* 스텝 편집 영역 */}
                                 {isEditing && (
-                                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/8">
+                                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-200 dark:border-white/8">
                                     <div>
                                       <label className={labelCls}>단계 이름</label>
                                       <input type="text" value={step.name} placeholder="예: 오류 진단"
@@ -464,7 +464,7 @@ export default function FlowDesignerPage() {
                                       <label className={labelCls}>검색 정책</label>
                                       <select value={step.searchPolicy}
                                         onChange={e => updateStep(i, { searchPolicy: e.target.value as 'auto' | 'always' | 'never' })}
-                                        className="rounded-lg border border-white/8 bg-[#21262d] px-3 py-2 text-sm text-[#f7f8f8] outline-none focus:border-[#5e6ad2]/60">
+                                        className="rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-[#5e6ad2]/60">
                                         {[['auto', '자동'], ['always', '항상'], ['never', '사용 안 함']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                                       </select>
                                     </div>
@@ -487,8 +487,8 @@ export default function FlowDesignerPage() {
                         <Play className="h-3.5 w-3.5 text-[#7170ff]" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-[#f7f8f8]">플로우 시뮬레이션</p>
-                        <p className="text-[11px] text-[#8a8f98]">입력 메시지로 어떤 단계가 실행될지 확인하세요</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">플로우 시뮬레이션</p>
+                        <p className="text-[11px] text-slate-500 dark:text-[#8a8f98]">입력 메시지로 어떤 단계가 실행될지 확인하세요</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -498,7 +498,7 @@ export default function FlowDesignerPage() {
                         onChange={e => setSimInput(e.target.value)}
                         placeholder="테스트 메시지를 입력하세요..."
                         onKeyDown={e => e.key === 'Enter' && simulate()}
-                        className="flex-1 rounded-xl border border-white/10 bg-[#191a1b] px-3 py-2.5 text-sm text-[#f7f8f8] placeholder:text-[#8a8f98] outline-none focus:border-[#5e6ad2]/60"
+                        className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#191a1b] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] outline-none focus:border-[#5e6ad2]/60"
                       />
                       <button
                         onClick={simulate} disabled={simulating}
@@ -511,12 +511,12 @@ export default function FlowDesignerPage() {
                     {simResult && (
                       <div className="mt-4 space-y-2">
                         <div className="flex items-center gap-2 text-xs">
-                          <span className="text-[#8a8f98]">일치 단계:</span>
+                          <span className="text-slate-500 dark:text-[#8a8f98]">일치 단계:</span>
                           <span className={`font-semibold ${simResult.matchedStep ? 'text-emerald-400' : 'text-amber-400'}`}>
                             {simResult.matchedStep?.name ?? '없음 (기본 응답 사용)'}
                           </span>
                         </div>
-                        <div className="rounded-xl border border-white/8 bg-[#191a1b] p-3 text-sm text-[#d0d6e0] font-mono leading-relaxed">
+                        <div className="rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-3 text-sm text-slate-600 dark:text-[#d0d6e0] font-mono leading-relaxed">
                           {simResult.instruction}
                         </div>
                       </div>

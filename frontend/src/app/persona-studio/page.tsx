@@ -14,6 +14,14 @@ function getPersonaDesign(persona: { name: string; tone: string }): PersonaDesig
   const name = persona.name.toLowerCase()
   const tone = persona.tone.toLowerCase()
 
+  // Korean names
+  if (name.includes('전문')) return { icon: '💼' }
+  if (name.includes('친근') || name.includes('멘토')) return { icon: '🌱' }
+  if (name.includes('면접') || name.includes('코치')) return { icon: '🎯' }
+  if (name.includes('개발')) return { icon: '⚡' }
+  if (name.includes('리서치') || name.includes('분석')) return { icon: '🔬' }
+
+  // English names / tone fallback
   if (name.includes('professional') || tone === 'professional') return { icon: '💼' }
   if (name.includes('friendly') || (name.includes('mentor') && tone === 'friendly')) return { icon: '🌱' }
   if (name.includes('interview') || tone === 'motivational') return { icon: '🎯' }
@@ -115,7 +123,7 @@ function PersonaListItem({
         {/* 텍스트 */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-1 mb-0.5">
-            <span className={`text-sm font-semibold truncate ${isSelected ? 'dark:text-[#f7f8f8]' : 'text-slate-800 dark:text-[#d0d6e0]'}`}>
+            <span className={`text-sm font-semibold truncate ${isSelected ? 'text-slate-900 dark:text-[#f7f8f8]' : 'text-slate-800 dark:text-[#d0d6e0]'}`}>
               {p.name}
             </span>
             <div className="flex items-center gap-1 shrink-0">
@@ -398,7 +406,7 @@ export default function PersonaStudioPage() {
               { label: '거절', value: selected.refusalBehavior },
               { label: '명확화', value: selected.clarificationBehavior },
             ].map(({ label, value }) => (
-              <div key={label} className="flex gap-3 py-2 border-b border-slate-50 dark:border-white/5 last:border-0">
+              <div key={label} className="flex gap-3 py-2 border-b border-slate-100 dark:border-white/5 last:border-0">
                 <span className="shrink-0 text-xs font-bold text-slate-400 dark:text-[#8a8f98] w-16 pt-0.5">{label}</span>
                 <p className="text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed">{value}</p>
               </div>
@@ -497,25 +505,25 @@ export default function PersonaStudioPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-[#08090a]">
+    <div className="flex h-[calc(100vh-56px)] bg-white dark:bg-[#08090a]">
       {/* ── 좌측 패널 ── */}
-      <div className="flex flex-col w-72 shrink-0 border-r border-white/8 bg-[#0d0f10]">
+      <div className="flex flex-col w-72 shrink-0 border-r border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#0d0f10]">
         {/* 헤더 */}
-        <div className="px-4 py-4 border-b border-white/8">
+        <div className="px-4 py-4 border-b border-slate-200 dark:border-white/8">
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center">
                 <Users2 className="h-3.5 w-3.5 text-[#7170ff]" />
               </div>
-              <span className="text-sm font-bold text-[#f7f8f8]">페르소나 스튜디오</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">페르소나 스튜디오</span>
             </div>
-            <span className="text-[10px] font-bold text-[#8a8f98] bg-white/8 px-1.5 py-0.5 rounded">{personas.length}</span>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-[#8a8f98] bg-slate-200 dark:bg-white/8 px-1.5 py-0.5 rounded">{personas.length}</span>
           </div>
-          <p className="text-[11px] text-[#8a8f98] mt-1 ml-8">AI 어시스턴트의 성격을 정의하세요</p>
+          <p className="text-[11px] text-slate-500 dark:text-[#8a8f98] mt-1 ml-8">AI 어시스턴트의 성격을 정의하세요</p>
         </div>
 
         {/* 새로만들기 버튼 */}
-        <div className="px-3 py-2.5 border-b border-white/5">
+        <div className="px-3 py-2.5 border-b border-slate-100 dark:border-white/5">
           <button
             onClick={startNew}
             className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#5e6ad2]/15 hover:bg-[#5e6ad2]/25 border border-[#5e6ad2]/20 hover:border-[#5e6ad2]/40 px-3 py-2 text-xs font-semibold text-[#7170ff] transition-all"
@@ -527,8 +535,8 @@ export default function PersonaStudioPage() {
         {/* 페르소나 목록 */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="py-10 text-center text-sm text-[#8a8f98]">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
+            <div className="py-10 text-center text-sm text-slate-500 dark:text-[#8a8f98]">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
               불러오는 중...
             </div>
           ) : (
@@ -536,7 +544,7 @@ export default function PersonaStudioPage() {
               {defaultPersonas.length > 0 && (
                 <div>
                   <div className="px-4 pt-3 pb-1">
-                    <span className="text-[9px] font-bold text-[#8a8f98]/60 uppercase tracking-widest">기본 제공</span>
+                    <span className="text-[9px] font-bold text-slate-400 dark:text-[#8a8f98]/60 uppercase tracking-widest">기본 제공</span>
                   </div>
                   {defaultPersonas.map(p => <PersonaListItem key={p.id} p={p} selected={selected} onSelect={selectPersona} />)}
                 </div>
@@ -544,13 +552,13 @@ export default function PersonaStudioPage() {
               {customPersonas.length > 0 && (
                 <div>
                   <div className="px-4 pt-3 pb-1">
-                    <span className="text-[9px] font-bold text-[#8a8f98]/60 uppercase tracking-widest">커스텀</span>
+                    <span className="text-[9px] font-bold text-slate-400 dark:text-[#8a8f98]/60 uppercase tracking-widest">커스텀</span>
                   </div>
                   {customPersonas.map(p => <PersonaListItem key={p.id} p={p} selected={selected} onSelect={selectPersona} />)}
                 </div>
               )}
               {personas.length === 0 && (
-                <div className="py-10 text-center text-xs text-[#8a8f98]">페르소나가 없습니다</div>
+                <div className="py-10 text-center text-xs text-slate-500 dark:text-[#8a8f98]">페르소나가 없습니다</div>
               )}
             </>
           )}
@@ -558,17 +566,17 @@ export default function PersonaStudioPage() {
 
         {/* 하단 현재 활성 페르소나 */}
         {activePersona && (
-          <div className="border-t border-white/8 px-4 py-3">
+          <div className="border-t border-slate-200 dark:border-white/8 px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-              <span className="text-[11px] text-[#8a8f98]">활성: <span className="text-[#d0d6e0] font-medium">{activePersona.name}</span></span>
+              <span className="text-[11px] text-slate-500 dark:text-[#8a8f98]">활성: <span className="text-slate-700 dark:text-[#d0d6e0] font-medium">{activePersona.name}</span></span>
             </div>
           </div>
         )}
       </div>
 
       {/* ── 우측 패널 ── */}
-      <div className="flex flex-1 flex-col overflow-hidden bg-[#08090a]">
+      <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-[#08090a]">
         {!showEditor ? (
           /* 빈 상태 */
           <div className="flex flex-1 items-center justify-center">
@@ -576,8 +584,8 @@ export default function PersonaStudioPage() {
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5e6ad2]/10 border border-[#5e6ad2]/20">
                 <Users2 className="h-8 w-8 text-[#5e6ad2]" />
               </div>
-              <p className="text-base font-semibold text-[#f7f8f8] mb-2">페르소나를 선택하세요</p>
-              <p className="text-sm text-[#8a8f98] leading-relaxed">
+              <p className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8] mb-2">페르소나를 선택하세요</p>
+              <p className="text-sm text-slate-500 dark:text-[#8a8f98] leading-relaxed">
                 왼쪽에서 페르소나를 선택하거나 새로 만들어서 AI 어시스턴트의 성격을 설정하세요.
               </p>
               <button
@@ -591,7 +599,7 @@ export default function PersonaStudioPage() {
         ) : (
           <div className="flex flex-col h-full">
             {/* 탭 바 + 액션 버튼 */}
-            <div className="flex items-center justify-between px-6 pt-5 border-b border-white/8 shrink-0 bg-[#08090a]">
+            <div className="flex items-center justify-between px-6 pt-5 border-b border-slate-200 dark:border-white/8 shrink-0 bg-white dark:bg-[#08090a]">
               <div className="flex gap-1">
                 {!isNew && (
                   <TabButton active={rightTab === 'overview'} onClick={() => setRightTab('overview')}
