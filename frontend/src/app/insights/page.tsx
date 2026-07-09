@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Lightbulb, Brain, TrendingUp, RefreshCw, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { formatDate } from '@/lib/utils'
+import { formatDate, memoryFieldLabel } from '@/lib/utils'
 import type { PreferenceMemory } from '@/types'
 
 const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
@@ -116,9 +116,9 @@ export default function InsightsPage() {
           {memory ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { label: '선호 어조', value: memory.preferredTone, icon: '🎭' },
-                { label: '선호 길이', value: memory.preferredLength, icon: '📏' },
-                { label: '선호 구조', value: memory.preferredStructure, icon: '🏗️' },
+                { label: '선호 어조', value: memory.preferredTone, icon: '🎭', type: 'tone' as const },
+                { label: '선호 길이', value: memory.preferredLength, icon: '📏', type: 'length' as const },
+                { label: '선호 구조', value: memory.preferredStructure, icon: '🏗️', type: 'structure' as const },
               ].map(item => (
                 <div
                   key={item.label}
@@ -128,8 +128,8 @@ export default function InsightsPage() {
                     <span>{item.icon}</span>
                     <p className="text-xs text-slate-500 dark:text-[#8a8f98]">{item.label}</p>
                   </div>
-                  <p className="capitalize text-lg font-semibold text-slate-900 dark:text-[#f7f8f8]">
-                    {item.value ?? '아직 미정'}
+                  <p className="text-lg font-semibold text-slate-900 dark:text-[#f7f8f8]">
+                    {memoryFieldLabel(item.value, item.type)}
                   </p>
                 </div>
               ))}

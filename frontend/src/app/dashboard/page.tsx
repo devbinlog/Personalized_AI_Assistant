@@ -8,7 +8,8 @@ import { StatsGrid } from '@/features/dashboard/components/stats-grid'
 import { StrategyChart } from '@/features/dashboard/components/strategy-chart'
 import { ActivityChart } from '@/features/dashboard/components/activity-chart'
 import { MemoryCard } from '@/features/dashboard/components/memory-card'
-import type { DashboardStats, PreferenceMemory } from '@/types'
+import { tagLabel } from '@/lib/utils'
+import type { DashboardStats, PreferenceMemory, PreferenceTag } from '@/types'
 
 interface GlobalMemoryData {
   summary: string
@@ -194,7 +195,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-[#28282c] px-3 py-1"
               >
                 <span className="text-xs font-medium text-slate-800 dark:text-[#d0d6e0]">
-                  {tag.replace(/_/g, ' ')}
+                  {tagLabel(tag as PreferenceTag)}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{count}</span>
               </div>

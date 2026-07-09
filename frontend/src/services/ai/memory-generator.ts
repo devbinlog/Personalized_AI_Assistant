@@ -11,9 +11,9 @@ const MemorySchema = z.object({
   preferredStructure: z.string().nullable(),
   preferredStrategies: z.array(z.string()),
   avoidedPatterns: z.array(z.string()),
-  domainPreferences: z.record(z.number()),
-  strategyWeights: z.record(z.number()),
-  rawSummary: z.string(),
+  domainPreferences: z.record(z.number()).optional().default({}),
+  strategyWeights: z.record(z.number()).optional().default({}),
+  rawSummary: z.string().optional().default(''),
 })
 
 type MemoryData = z.infer<typeof MemorySchema>
@@ -28,7 +28,7 @@ Given a list of preference logs (each showing what response strategy and tags th
 - avoidedPatterns: patterns they seem to avoid
 - domainPreferences: { domain: weight } where weight 0-1 shows preference strength
 - strategyWeights: { strategy: score } normalized 0-1
-- rawSummary: 2-3 sentence human-readable summary of this user's preferences`
+- rawSummary: 2-3문장으로 이 사용자의 선호도를 요약하세요. 반드시 한국어로 작성하세요.`
 
 export async function generateMemory(
   userId: string,
@@ -108,18 +108,38 @@ export async function generateMemory(
       })
     }
 
-    return memory as unknown as PreferenceMemory
+    return parseMemoryRow(memory as unknown as Record<string, unknown>)
   } catch (err) {
     console.error('Memory generation failed:', err)
     return null
   }
 }
 
+function parseMemoryRow(row: Record<string, unknown>): PreferenceMemory {
+  const safeParseArray = (v: unknown): string[] => {
+    if (Array.isArray(v)) return v
+    if (typeof v === 'string') { try { return JSON.parse(v) } catch { return [] } }
+    return []
+  }
+  const safeParseObj = (v: unknown): Record<string, number> => {
+    if (v && typeof v === 'object' && !Array.isArray(v)) return v as Record<string, number>
+    if (typeof v === 'string') { try { return JSON.parse(v) } catch { return {} } }
+    return {}
+  }
+  return {
+    ...row,
+    preferredStrategies: safeParseArray(row.preferredStrategies),
+    avoidedPatterns: safeParseArray(row.avoidedPatterns),
+    domainPreferences: safeParseObj(row.domainPreferences),
+    strategyWeights: safeParseObj(row.strategyWeights),
+  } as unknown as PreferenceMemory
+}
+
 export async function getMemory(userId: string): Promise<PreferenceMemory | null> {
   try {
-    return (await prisma.preferenceMemory.findUnique({
-      where: { userId },
-    })) as unknown as PreferenceMemory | null
+    const row = await prisma.preferenceMemory.findUnique({ where: { userId } })
+    if (!row) return null
+    return parseMemoryRow(row as unknown as Record<string, unknown>)
   } catch {
     return null
   }

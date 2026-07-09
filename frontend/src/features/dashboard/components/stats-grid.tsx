@@ -22,14 +22,14 @@ export function StatsGrid({ stats }: StatsGridProps) {
       {items.map(item => (
         <div
           key={item.label}
-          className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-3 hover:bg-slate-50 transition-colors"
+          className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm space-y-3 hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors"
         >
           <item.icon className={`h-4 w-4 ${item.iconCls}`} />
           <div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">
               {item.value}
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-[#8a8f98] mt-1">
               {item.label}
             </p>
           </div>

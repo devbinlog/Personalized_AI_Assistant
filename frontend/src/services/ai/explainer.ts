@@ -67,15 +67,15 @@ memoryInfluence(선호도 메모리가 이 선택에 미친 영향)와 reasoning
   // Append persona/flow/global memory influence
   if (activePersona) {
     memoryInfluence.unshift(
-      `'${activePersona.name}' persona guided the ${activePersona.tone} tone and ${activePersona.speakingStyle} style`,
+      `'${activePersona.name}' 페르소나가 ${activePersona.tone} 어조와 ${activePersona.speakingStyle} 스타일을 적용했습니다`,
     )
   }
   if (activeFlow) {
-    reasoningFactors.push(`'${activeFlow.name}' conversation flow shaped the response structure`)
+    reasoningFactors.push(`'${activeFlow.name}' 대화 플로우가 응답 구조를 설계했습니다`)
   }
   if (globalMemory?.mostSelectedStrategies?.[0]) {
     reasoningFactors.push(
-      `Global patterns: ${globalMemory.mostSelectedStrategies[0].strategy} is the most effective strategy across all users`,
+      `글로벌 패턴: ${globalMemory.mostSelectedStrategies[0].strategy}이(가) 전체 사용자 중 가장 효과적인 전략입니다`,
     )
   }
 

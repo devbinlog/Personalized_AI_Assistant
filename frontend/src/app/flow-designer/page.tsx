@@ -38,9 +38,9 @@ const EMPTY_FLOW = {
   description: '',
   domain: 'general',
   triggerCondition: '',
-  fallbackPolicy: 'Provide a helpful response.',
-  clarificationPolicy: 'Could you clarify what you mean?',
-  errorRecoveryPolicy: 'Let me try a different approach.',
+  fallbackPolicy: '도움이 되는 응답을 제공하겠습니다.',
+  clarificationPolicy: '좀 더 자세히 설명해 주시겠어요?',
+  errorRecoveryPolicy: '다른 방법으로 시도해 보겠습니다.',
   searchPolicy: 'auto',
   steps: [] as ConversationFlowStep[],
   isActive: false,
@@ -180,8 +180,8 @@ export default function FlowDesignerPage() {
         <div className="px-4 py-4 border-b border-white/8">
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <GitBranch className="h-3.5 w-3.5 text-violet-400" />
+              <div className="w-6 h-6 rounded-lg bg-[#5e6ad2]/20 flex items-center justify-center">
+                <GitBranch className="h-3.5 w-3.5 text-[#7170ff]" />
               </div>
               <span className="text-sm font-bold text-[#f7f8f8]">플로우 디자이너</span>
             </div>
@@ -194,7 +194,7 @@ export default function FlowDesignerPage() {
         <div className="px-3 py-2.5 border-b border-white/5">
           <button
             onClick={startNew}
-            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 border border-violet-500/20 hover:border-violet-500/40 px-3 py-2 text-xs font-semibold text-violet-400 transition-all"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#5e6ad2]/15 hover:bg-[#5e6ad2]/25 border border-[#5e6ad2]/20 hover:border-[#5e6ad2]/40 px-3 py-2 text-xs font-semibold text-[#7170ff] transition-all"
           >
             <Plus className="h-3.5 w-3.5" /> 새 플로우 만들기
           </button>
@@ -204,7 +204,7 @@ export default function FlowDesignerPage() {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="py-10 text-center text-sm text-[#8a8f98]">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-violet-500 mx-auto mb-2" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
               불러오는 중...
             </div>
           ) : flows.length === 0 ? (
@@ -223,7 +223,7 @@ export default function FlowDesignerPage() {
                     ${isSelected ? 'bg-[#1c1f26]' : 'hover:bg-white/[0.03]'}`}
                 >
                   {isSelected && (
-                    <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full" style={{ backgroundColor: dd.color }} />
+                    <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full bg-[#5e6ad2]" />
                   )}
                   <div className="pl-2">
                     <div className="flex items-center justify-between mb-1.5">
@@ -236,10 +236,7 @@ export default function FlowDesignerPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span
-                        className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
-                        style={{ backgroundColor: `${dd.color}18`, color: dd.color }}
-                      >
+                      <span className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#5e6ad2]/10 text-[#7170ff]">
                         {dd.icon}{dd.label}
                       </span>
                       <span className="text-[10px] text-[#8a8f98]">{f.steps.length}단계</span>
@@ -257,8 +254,8 @@ export default function FlowDesignerPage() {
         {!showEditor ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="text-center max-w-xs">
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10 border border-violet-500/20">
-                <GitBranch className="h-8 w-8 text-violet-400" />
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5e6ad2]/10 border border-[#5e6ad2]/20">
+                <GitBranch className="h-8 w-8 text-[#5e6ad2]" />
               </div>
               <p className="text-base font-semibold text-[#f7f8f8] mb-2">플로우를 선택하세요</p>
               <p className="text-sm text-[#8a8f98] leading-relaxed">
@@ -266,7 +263,7 @@ export default function FlowDesignerPage() {
               </p>
               <button
                 onClick={startNew}
-                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-[#5e6ad2] hover:bg-[#6b77e0] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
               >
                 <Plus className="h-4 w-4" /> 첫 플로우 만들기
               </button>
@@ -275,19 +272,11 @@ export default function FlowDesignerPage() {
         ) : (
           <div className="flex flex-col h-full">
             {/* 상단 헤더 */}
-            <div
-              className="shrink-0 px-6 py-5 border-b border-white/8 relative overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${domainDesign.color}18 0%, transparent 60%)` }}
-            >
-              <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
-                style={{ backgroundColor: domainDesign.color, transform: 'translate(30%, -30%)' }} />
-              <div className="relative flex items-start justify-between">
+            <div className="shrink-0 px-6 py-5 border-b border-white/8 bg-[#08090a]">
+              <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span
-                      className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg"
-                      style={{ backgroundColor: `${domainDesign.color}20`, color: domainDesign.color }}
-                    >
+                    <span className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg bg-[#5e6ad2]/10 text-[#7170ff]">
                       {domainDesign.icon} {domainDesign.label}
                     </span>
                     {(selected?.isActive) && (
@@ -305,8 +294,7 @@ export default function FlowDesignerPage() {
                     <>
                       <button
                         onClick={() => activate(selected.id)}
-                        className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
-                        style={{ backgroundColor: domainDesign.color }}
+                        className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-[#5e6ad2] hover:bg-[#6b77e0] transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
                       </button>

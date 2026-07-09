@@ -7,37 +7,23 @@ import type { Persona } from '@/types'
 // ── 비주얼 디자인 매핑 ───────────────────────────────────────────────────────
 
 interface PersonaDesign {
-  color: string
-  darkColor: string
   icon: string
-  gradient: string
-  ringColor: string
 }
 
 function getPersonaDesign(persona: { name: string; tone: string }): PersonaDesign {
   const name = persona.name.toLowerCase()
   const tone = persona.tone.toLowerCase()
 
-  if (name.includes('professional') || tone === 'professional')
-    return { color: '#5e6ad2', darkColor: '#818cf8', icon: '💼', gradient: 'from-indigo-500/25 via-indigo-500/10 to-transparent', ringColor: 'ring-indigo-500/30' }
-  if (name.includes('friendly') || (name.includes('mentor') && tone === 'friendly'))
-    return { color: '#10b981', darkColor: '#34d399', icon: '🌱', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' }
-  if (name.includes('interview') || tone === 'motivational')
-    return { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' }
-  if (name.includes('developer') || tone === 'precise' || tone === 'technical')
-    return { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', gradient: 'from-violet-500/25 via-violet-500/10 to-transparent', ringColor: 'ring-violet-500/30' }
-  if (name.includes('research') || tone === 'analytical')
-    return { color: '#06b6d4', darkColor: '#22d3ee', icon: '🔬', gradient: 'from-cyan-500/25 via-cyan-500/10 to-transparent', ringColor: 'ring-cyan-500/30' }
+  if (name.includes('professional') || tone === 'professional') return { icon: '💼' }
+  if (name.includes('friendly') || (name.includes('mentor') && tone === 'friendly')) return { icon: '🌱' }
+  if (name.includes('interview') || tone === 'motivational') return { icon: '🎯' }
+  if (name.includes('developer') || tone === 'precise' || tone === 'technical') return { icon: '⚡' }
+  if (name.includes('research') || tone === 'analytical') return { icon: '🔬' }
 
-  const toneMap: Record<string, PersonaDesign> = {
-    helpful: { color: '#10b981', darkColor: '#34d399', icon: '✨', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' },
-    analytical: { color: '#06b6d4', darkColor: '#22d3ee', icon: '📊', gradient: 'from-cyan-500/25 via-cyan-500/10 to-transparent', ringColor: 'ring-cyan-500/30' },
-    coaching: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🏆', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' },
-    friendly: { color: '#10b981', darkColor: '#34d399', icon: '🌱', gradient: 'from-emerald-500/25 via-emerald-500/10 to-transparent', ringColor: 'ring-emerald-500/30' },
-    precise: { color: '#8b5cf6', darkColor: '#a78bfa', icon: '⚡', gradient: 'from-violet-500/25 via-violet-500/10 to-transparent', ringColor: 'ring-violet-500/30' },
-    motivational: { color: '#f59e0b', darkColor: '#fbbf24', icon: '🎯', gradient: 'from-amber-500/25 via-amber-500/10 to-transparent', ringColor: 'ring-amber-500/30' },
+  const toneMap: Record<string, string> = {
+    helpful: '✨', analytical: '📊', coaching: '🏆', friendly: '🌱', precise: '⚡', motivational: '🎯',
   }
-  return toneMap[tone] ?? { color: '#5e6ad2', darkColor: '#818cf8', icon: '🤖', gradient: 'from-indigo-500/25 via-indigo-500/10 to-transparent', ringColor: 'ring-indigo-500/30' }
+  return { icon: toneMap[tone] ?? '🤖' }
 }
 
 // ── 기본값 ───────────────────────────────────────────────────────────────────
@@ -53,9 +39,9 @@ const EMPTY_FORM = {
   responseLength: 'medium',
   pronounPolicy: 'I',
   promptFragment: '',
-  fallbackBehavior: 'Provide a helpful response.',
-  refusalBehavior: 'I cannot assist with that.',
-  clarificationBehavior: 'Could you clarify?',
+  fallbackBehavior: '도움이 되는 응답을 제공하겠습니다.',
+  refusalBehavior: '죄송합니다, 그 요청은 처리할 수 없습니다.',
+  clarificationBehavior: '좀 더 자세히 설명해 주시겠어요?',
   allowedBehaviors: [] as string[],
   forbiddenBehaviors: [] as string[],
   exampleResponses: [] as string[],
@@ -75,18 +61,18 @@ const labelCls = 'block mb-1.5 text-xs font-semibold text-slate-500 uppercase tr
 
 // ── 특성 바 컴포넌트 ─────────────────────────────────────────────────────────
 
-function TraitBar({ label, value, max = 5, color }: { label: string; value: number; max?: number; color: string }) {
+function TraitBar({ label, value, max = 5 }: { label: string; value: number; max?: number }) {
   const pct = (value / max) * 100
   return (
     <div>
       <div className="flex justify-between items-center mb-2">
         <span className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">{label}</span>
-        <span className="text-xs font-bold tabular-nums" style={{ color }}>{value}<span className="text-slate-400 dark:text-[#8a8f98] font-normal">/{max}</span></span>
+        <span className="text-xs font-bold tabular-nums text-[#5e6ad2] dark:text-[#7170ff]">{value}<span className="text-slate-400 dark:text-[#8a8f98] font-normal">/{max}</span></span>
       </div>
       <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, backgroundColor: color }}
+          className="h-full rounded-full bg-[#5e6ad2] transition-all duration-700"
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>
@@ -118,15 +104,11 @@ function PersonaListItem({
     >
       {/* 선택 표시 줄 */}
       {isSelected && (
-        <div className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full" style={{ backgroundColor: design.color }} />
+        <div className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full bg-[#5e6ad2]" />
       )}
       <div className="flex items-center gap-3 pl-2">
         {/* 아이콘 뱃지 */}
-        <div
-          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-all
-            ${isSelected ? 'ring-2' : 'ring-0'} ${design.ringColor}`}
-          style={{ backgroundColor: `${design.color}18` }}
-        >
+        <div className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-slate-100 dark:bg-white/8 transition-all">
           {design.icon}
         </div>
 
@@ -147,10 +129,7 @@ function PersonaListItem({
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <span
-              className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
-              style={{ backgroundColor: `${design.color}15`, color: design.color }}
-            >
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#5e6ad2]/10 text-[#5e6ad2] dark:text-[#7170ff]">
               {p.tone}
             </span>
             <span className="text-[10px] text-slate-400 dark:text-[#8a8f98]">{p.speakingStyle}</span>
@@ -289,75 +268,62 @@ export default function PersonaStudioPage() {
     const design = getPersonaDesign(selected)
     return (
       <div className="space-y-5">
-        {/* 그라디언트 히어로 */}
-        <div
-          className="relative rounded-2xl overflow-hidden border border-white/10"
-          style={{ background: `linear-gradient(135deg, ${design.color}35 0%, ${design.color}15 50%, transparent 100%)` }}
-        >
-          {/* 배경 장식 */}
-          <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10 blur-3xl"
-            style={{ backgroundColor: design.color, transform: 'translate(30%, -30%)' }} />
+        {/* 히어로 카드 */}
+        <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-6">
+          <div className="flex items-start gap-5">
+            {/* 이모지 뱃지 */}
+            <div className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl bg-[#5e6ad2]/10 dark:bg-[#5e6ad2]/15">
+              {design.icon}
+            </div>
 
-          <div className="relative p-6">
-            <div className="flex items-start gap-5">
-              {/* 큰 이모지 뱃지 */}
-              <div
-                className="shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shadow-xl ring-2"
-                style={{ backgroundColor: `${design.color}20`, boxShadow: `0 0 0 2px ${design.color}40` }}
-              >
-                {design.icon}
-              </div>
-
-              {/* 이름/상태 */}
-              <div className="flex-1 min-w-0 pt-1">
-                <div className="flex items-center gap-2.5 flex-wrap mb-2">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-[#f7f8f8]">{selected.name}</h2>
-                  {selected.isActive && (
-                    <span className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      활성 중
-                    </span>
-                  )}
-                  {selected.isDefault && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-[#d0d6e0]">디폴트</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2 py-1 rounded-lg" style={{ backgroundColor: `${design.color}20`, color: design.color }}>
-                    {selected.tone}
+            {/* 이름/상태 */}
+            <div className="flex-1 min-w-0 pt-0.5">
+              <div className="flex items-center gap-2.5 flex-wrap mb-2">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-[#f7f8f8]">{selected.name}</h2>
+                {selected.isActive && (
+                  <span className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    활성 중
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.speakingStyle}</span>
-                  <span className="text-xs text-slate-400 dark:text-[#8a8f98]">·</span>
-                  <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.responseLength} 응답</span>
-                </div>
-              </div>
-
-              {/* 액션 버튼 */}
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => activate(selected.id)}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: design.color }}
-                >
-                  {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
-                </button>
-                {!selected.isDefault && (
-                  <button
-                    onClick={() => remove(selected.id)}
-                    className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
                 )}
+                {selected.isDefault && (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-[#d0d6e0]">디폴트</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold px-2 py-1 rounded-lg bg-[#5e6ad2]/10 text-[#5e6ad2] dark:text-[#7170ff]">
+                  {selected.tone}
+                </span>
+                <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.speakingStyle}</span>
+                <span className="text-xs text-slate-400 dark:text-[#8a8f98]">·</span>
+                <span className="text-xs text-slate-500 dark:text-[#8a8f98]">{selected.responseLength} 응답</span>
               </div>
             </div>
 
-            {selected.description && (
-              <p className="mt-4 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed border-t border-white/10 pt-4">
-                {selected.description}
-              </p>
-            )}
+            {/* 액션 버튼 */}
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => activate(selected.id)}
+                className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-[#5e6ad2] hover:bg-[#6b77e0] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
+              </button>
+              {!selected.isDefault && (
+                <button
+                  onClick={() => remove(selected.id)}
+                  className="flex items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/50 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
+
+          {selected.description && (
+            <p className="mt-4 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed border-t border-slate-100 dark:border-white/8 pt-4">
+              {selected.description}
+            </p>
+          )}
         </div>
 
         {/* 특성 그리드 */}
@@ -366,18 +332,17 @@ export default function PersonaStudioPage() {
             <Sparkles className="h-3.5 w-3.5" /> 특성
           </h3>
           <div className="grid grid-cols-2 gap-x-8 gap-y-5">
-            <TraitBar label="격식도" value={selected.formalityLevel} color={design.color} />
-            <TraitBar label="공감도" value={selected.empathyLevel} color={design.color} />
-            <TraitBar label="유머" value={selected.humorLevel} color={design.color} />
+            <TraitBar label="격식도" value={selected.formalityLevel} />
+            <TraitBar label="공감도" value={selected.empathyLevel} />
+            <TraitBar label="유머" value={selected.humorLevel} />
             <div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">응답 길이</span>
-                <span className="text-xs font-bold" style={{ color: design.color }}>{selected.responseLength}</span>
+                <span className="text-xs font-bold text-[#5e6ad2] dark:text-[#7170ff]">{selected.responseLength}</span>
               </div>
               <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/8 overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-700" style={{
+                <div className="h-full rounded-full bg-[#5e6ad2] transition-all duration-700" style={{
                   width: selected.responseLength === 'short' ? '33%' : selected.responseLength === 'medium' ? '66%' : '100%',
-                  backgroundColor: design.color,
                 }} />
               </div>
             </div>
@@ -451,20 +416,15 @@ export default function PersonaStudioPage() {
       <div className="space-y-5">
         {/* 새 페르소나: 실시간 미리보기 */}
         {isNew && (
-          <div
-            className="rounded-2xl border border-white/10 p-5"
-            style={{ background: `linear-gradient(135deg, ${previewDesign.color}25 0%, ${previewDesign.color}10 100%)` }}
-          >
+          <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#0f1011] p-5">
             <p className="text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider mb-3">미리보기</p>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-3xl"
-                style={{ backgroundColor: `${previewDesign.color}20` }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-3xl bg-[#5e6ad2]/10 dark:bg-[#5e6ad2]/15">
                 {previewDesign.icon}
               </div>
               <div>
                 <p className="font-bold text-slate-900 dark:text-[#f7f8f8]">{form.name || '새 페르소나'}</p>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-lg"
-                  style={{ backgroundColor: `${previewDesign.color}20`, color: previewDesign.color }}>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-lg bg-[#5e6ad2]/10 text-[#5e6ad2] dark:text-[#7170ff]">
                   {form.tone}
                 </span>
               </div>

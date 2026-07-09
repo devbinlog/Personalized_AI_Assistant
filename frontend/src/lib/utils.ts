@@ -8,10 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return d.toLocaleDateString('ko-KR', {
     year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   })
 }
 
@@ -24,10 +24,10 @@ export function formatRelativeTime(date: Date | string): string {
   const diffHour = Math.floor(diffMin / 60)
   const diffDay = Math.floor(diffHour / 24)
 
-  if (diffSec < 60) return 'just now'
-  if (diffMin < 60) return `${diffMin}m ago`
-  if (diffHour < 24) return `${diffHour}h ago`
-  if (diffDay < 7) return `${diffDay}d ago`
+  if (diffSec < 60) return '방금 전'
+  if (diffMin < 60) return `${diffMin}분 전`
+  if (diffHour < 24) return `${diffHour}시간 전`
+  if (diffDay < 7) return `${diffDay}일 전`
   return formatDate(d)
 }
 
@@ -36,20 +36,39 @@ export function truncate(text: string, maxLength: number): string {
   return text.slice(0, maxLength).trim() + '…'
 }
 
-export function strategyLabel(strategy: ResponseStrategy): string {
-  const labels: Record<ResponseStrategy, string> = {
-    CONCISE: 'Concise',
-    STRUCTURED: 'Structured',
-    PROFESSIONAL: 'Professional',
-    ANALYTICAL: 'Analytical',
-    FRIENDLY: 'Friendly',
-    ACTIONABLE: 'Actionable',
-    EDUCATIONAL: 'Educational',
-    CREATIVE: 'Creative',
-    DIRECT: 'Direct',
-    COMPREHENSIVE: 'Comprehensive',
+export function strategyLabel(strategy: ResponseStrategy | string): string {
+  const labels: Record<string, string> = {
+    CONCISE: '간결한 답변',
+    STRUCTURED: '구조적 정리',
+    PROFESSIONAL: '전문적 어조',
+    ANALYTICAL: '분석적 설명',
+    FRIENDLY: '친근한 어조',
+    ACTIONABLE: '실행 중심',
+    EDUCATIONAL: '교육적 설명',
+    CREATIVE: '창의적 접근',
+    DIRECT: '직접적 답변',
+    COMPREHENSIVE: '종합적 답변',
   }
-  return labels[strategy] ?? strategy
+  return labels[strategy?.toUpperCase()] ?? strategy
+}
+
+export function memoryFieldLabel(field: string | null | undefined, type: 'tone' | 'length' | 'structure'): string {
+  if (!field) return '—'
+  const maps: Record<string, Record<string, string>> = {
+    tone: {
+      professional: '전문적', friendly: '친근한', neutral: '중립적',
+      casual: '캐주얼', formal: '격식체', conversational: '대화체',
+    },
+    length: {
+      concise: '간결하게', medium: '적당히', detailed: '상세하게',
+      short: '짧게', long: '길게',
+    },
+    structure: {
+      paragraph: '단락형', 'bullet-points': '불릿 포인트', 'step-by-step': '단계별',
+      structured: '구조적 정리', mixed: '혼합형',
+    },
+  }
+  return maps[type][field.toLowerCase()] ?? field
 }
 
 export function tagLabel(tag: PreferenceTag): string {

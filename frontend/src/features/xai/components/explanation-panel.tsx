@@ -73,7 +73,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
               <ul className="space-y-1">
                 {explanation.memoryInfluence.map((item, i) => (
                   <li key={i} className="pl-3 border-l-2 border-slate-300 dark:border-white/20 text-xs text-slate-600 dark:text-[#d0d6e0]">
-                    {item}
+                    {strategyLabel(item)}
                   </li>
                 ))}
               </ul>

@@ -26,39 +26,40 @@ export function StrategyChart({ data }: StrategyChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-        No preference data yet · Use Learning Mode to collect preferences
+      <div className="flex h-48 items-center justify-center text-sm text-slate-400 dark:text-[#8a8f98]">
+        학습 모드로 대화하면 전략 통계가 쌓입니다
       </div>
     )
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-transparent">
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: '#94a3b8' }}
+            tick={{ fontSize: 11, fill: '#8a8f98' }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
             dataKey="label"
             type="category"
-            tick={{ fontSize: 11, fill: '#94a3b8' }}
+            tick={{ fontSize: 11, fill: '#8a8f98' }}
             tickLine={false}
             axisLine={false}
             width={90}
           />
           <Tooltip
             contentStyle={{
-              background: '#fff',
-              border: '1px solid #e2e8f0',
+              background: '#191a1b',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: 8,
               fontSize: 12,
-              color: '#0f172a',
+              color: '#f7f8f8',
             }}
-            cursor={{ fill: 'rgba(99,102,241,0.06)' }}
+            cursor={{ fill: 'rgba(99,102,241,0.08)' }}
+            formatter={(value: number) => [`${value}회 선택`, '횟수']}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
             {chartData.map((_, index) => (
