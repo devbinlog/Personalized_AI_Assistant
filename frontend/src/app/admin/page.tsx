@@ -138,7 +138,7 @@ export default function AdminPage() {
   const STAT_CARDS = [
     { label: '총 사용자 수', value: stats?.totalUsers ?? 0, icon: Users, iconCls: 'text-slate-700' },
     { label: '총 대화 수', value: stats?.totalConversations ?? 0, icon: MessageSquare, iconCls: 'text-emerald-500' },
-    { label: '총 학습 로그 수', value: stats?.totalPreferenceLogs ?? 0, icon: BookOpen, iconCls: 'text-violet-500' },
+    { label: '총 학습 로그 수', value: stats?.totalPreferenceLogs ?? 0, icon: BookOpen, iconCls: 'text-slate-600' },
     { label: '오늘 신규 가입', value: stats?.todayActivity ?? 0, icon: Activity, iconCls: 'text-slate-500' },
   ]
 

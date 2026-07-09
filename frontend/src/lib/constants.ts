@@ -81,13 +81,13 @@ export const API_ROUTES = {
 // Strategy color mapping for UI
 export const STRATEGY_COLORS: Record<ResponseStrategy, string> = {
   CONCISE: 'bg-blue-50 text-blue-700 border-blue-100',
-  STRUCTURED: 'bg-purple-50 text-purple-700 border-purple-100',
-  PROFESSIONAL: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+  STRUCTURED: 'bg-slate-50 text-slate-700 border-slate-200',
+  PROFESSIONAL: 'bg-slate-50 text-slate-800 border-slate-200',
   ANALYTICAL: 'bg-cyan-50 text-cyan-700 border-cyan-100',
   FRIENDLY: 'bg-green-50 text-green-700 border-green-100',
   ACTIONABLE: 'bg-orange-50 text-orange-700 border-orange-100',
   EDUCATIONAL: 'bg-yellow-50 text-yellow-700 border-yellow-100',
   CREATIVE: 'bg-pink-50 text-pink-700 border-pink-100',
   DIRECT: 'bg-red-50 text-red-700 border-red-100',
-  COMPREHENSIVE: 'bg-violet-50 text-violet-700 border-violet-100',
+  COMPREHENSIVE: 'bg-slate-50 text-slate-800 border-slate-200',
 }

@@ -59,7 +59,7 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
               className={cn(
                 'rounded-xl border p-4 transition-all overflow-hidden',
                 isSelected
-                  ? 'border-slate-500 dark:border-[#5e6ad2] bg-slate-100 dark:bg-[#28282c] shadow-sm'
+                  ? 'border-slate-500 dark:border-[#1E293B] bg-slate-100 dark:bg-[#28282c] shadow-sm'
                   : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] hover:border-slate-400 dark:hover:border-white/20 hover:shadow-sm',
               )}
             >
@@ -99,7 +99,7 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
                 }}
                 disabled={isSubmitting}
                 className={cn(
-                  'mt-4 w-full rounded-lg bg-slate-700 dark:bg-[#5e6ad2] py-2 text-xs font-semibold text-white hover:bg-slate-600 dark:hover:bg-[#6b77e0] transition-colors',
+                  'mt-4 w-full rounded-lg bg-slate-700 dark:bg-[#1E293B] py-2 text-xs font-semibold text-white hover:bg-slate-600 dark:hover:bg-[#334155] transition-colors',
                   isSubmitting && 'opacity-50 cursor-not-allowed',
                 )}
               >

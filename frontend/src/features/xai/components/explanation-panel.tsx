@@ -113,7 +113,7 @@ export function ExplanationPanel({ messageId, initialConfidence, initialStrategy
                       </span>
                       <div className="mx-3 flex-1 h-1.5 rounded-full overflow-hidden bg-slate-100 dark:bg-[#28282c]">
                         <div
-                          className="h-full rounded-full transition-all bg-slate-600 dark:bg-[#5e6ad2]"
+                          className="h-full rounded-full transition-all bg-slate-600 dark:bg-[#1E293B]"
                           style={{
                             width: `${detail.score * 100}%`,
                             opacity: i === 0 ? 1 : 0.35,

@@ -75,7 +75,7 @@ export default function DatasetsPage() {
       <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          <Database className="h-5 w-5 text-slate-700 dark:text-slate-500" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">데이터셋 내보내기</h1>
             <p className="text-sm text-slate-500 dark:text-[#8a8f98]">파인튜닝 및 분석용 학습 데이터 내보내기</p>
@@ -94,12 +94,12 @@ export default function DatasetsPage() {
                 onClick={() => setConfig(c => ({ ...c, exportType: t.type }))}
                 className={`rounded-xl border p-5 cursor-pointer transition-all hover:shadow-sm ${
                   config.exportType === t.type
-                    ? 'border-indigo-400 dark:border-indigo-500/50 bg-indigo-50 dark:bg-indigo-950/30'
-                    : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] hover:border-indigo-300 dark:hover:border-indigo-700'
+                    ? 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/30'
+                    : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] hover:border-slate-200 dark:hover:border-slate-500'
                 }`}
               >
                 <div className="text-xl mb-2">{t.icon}</div>
-                <div className={`text-sm font-semibold mb-1 ${config.exportType === t.type ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-900 dark:text-[#f7f8f8]'}`}>{t.label}</div>
+                <div className={`text-sm font-semibold mb-1 ${config.exportType === t.type ? 'text-slate-800 dark:text-slate-400' : 'text-slate-900 dark:text-[#f7f8f8]'}`}>{t.label}</div>
                 <div className="text-[11px] text-slate-500 dark:text-[#8a8f98] leading-snug">{t.description}</div>
               </div>
             ))}
@@ -118,8 +118,8 @@ export default function DatasetsPage() {
                     onClick={() => setConfig(c => ({ ...c, format: f }))}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
                       config.format === f
-                        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
-                        : 'bg-white dark:bg-[#191a1b] border-slate-200 dark:border-white/8 text-slate-600 dark:text-[#d0d6e0] hover:border-indigo-300 dark:hover:border-indigo-700'
+                        ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-400'
+                        : 'bg-white dark:bg-[#191a1b] border-slate-200 dark:border-white/8 text-slate-600 dark:text-[#d0d6e0] hover:border-slate-200 dark:hover:border-slate-500'
                     }`}
                   >
                     {f === 'json' || f === 'jsonl' ? <FileJson className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
@@ -136,7 +136,7 @@ export default function DatasetsPage() {
                 min={1}
                 max={10000}
                 onChange={e => setConfig(c => ({ ...c, limit: parseInt(e.target.value) || 1000 }))}
-                className="w-28 rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-indigo-300 dark:focus:border-indigo-500/50 focus:bg-white dark:focus:bg-[#28282c]"
+                className="w-28 rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-slate-200 dark:focus:border-slate-400/50 focus:bg-white dark:focus:bg-[#28282c]"
               />
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function DatasetsPage() {
           <button
             onClick={doExport}
             disabled={exporting}
-            className="flex items-center gap-2 rounded-xl px-5 py-2.5 bg-indigo-600 dark:bg-indigo-700 text-white text-sm font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 bg-slate-700 dark:bg-slate-700 text-white text-sm font-medium hover:bg-slate-700 dark:hover:bg-slate-700 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
           >
             <Download className="h-4 w-4" />
             {exporting ? '내보내는 중...' : `${selected.label} 내보내기`}

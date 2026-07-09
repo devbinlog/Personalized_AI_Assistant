@@ -14,14 +14,14 @@ interface DomainDesign {
 
 function getDomainDesign(domain: string): DomainDesign {
   const map: Record<string, DomainDesign> = {
-    general: { icon: <Globe className="h-3.5 w-3.5" />, color: '#5e6ad2', label: '일반' },
+    general: { icon: <Globe className="h-3.5 w-3.5" />, color: '#1E293B', label: '일반' },
     technology: { icon: <Code className="h-3.5 w-3.5" />, color: '#8b5cf6', label: '기술' },
     business: { icon: <Briefcase className="h-3.5 w-3.5" />, color: '#f59e0b', label: '비즈니스' },
     career: { icon: <GraduationCap className="h-3.5 w-3.5" />, color: '#10b981', label: '커리어' },
     education: { icon: <BookOpen className="h-3.5 w-3.5" />, color: '#06b6d4', label: '교육' },
     science: { icon: <FlaskConical className="h-3.5 w-3.5" />, color: '#ec4899', label: '과학' },
   }
-  return map[domain] ?? { icon: <Globe className="h-3.5 w-3.5" />, color: '#5e6ad2', label: domain }
+  return map[domain] ?? { icon: <Globe className="h-3.5 w-3.5" />, color: '#1E293B', label: domain }
 }
 
 // ── 기본값 ───────────────────────────────────────────────────────────────────
@@ -49,10 +49,10 @@ const EMPTY_FLOW = {
 type FlowForm = typeof EMPTY_FLOW
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-[#5e6ad2]/60 focus:bg-white dark:focus:bg-[#21262d] focus:ring-2 focus:ring-indigo-100 dark:focus:ring-[#5e6ad2]/15 outline-none transition-colors'
+  'w-full rounded-xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-200 dark:focus:border-[#1E293B]/60 focus:bg-white dark:focus:bg-[#21262d] focus:ring-2 focus:ring-slate-100 dark:focus:ring-[#1E293B]/15 outline-none transition-colors'
 
 const inputSmCls =
-  'w-full rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-indigo-300 dark:focus:border-[#5e6ad2]/60 focus:bg-white dark:focus:bg-[#21262d] outline-none transition-colors'
+  'w-full rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] focus:border-slate-200 dark:focus:border-[#1E293B]/60 focus:bg-white dark:focus:bg-[#21262d] outline-none transition-colors'
 
 const labelCls = 'block mb-1.5 text-xs font-bold text-slate-500 dark:text-[#8a8f98] uppercase tracking-wider'
 
@@ -180,8 +180,8 @@ export default function FlowDesignerPage() {
         <div className="px-4 py-4 border-b border-slate-200 dark:border-white/8">
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[#5e6ad2]/20 flex items-center justify-center">
-                <GitBranch className="h-3.5 w-3.5 text-[#7170ff]" />
+              <div className="w-6 h-6 rounded-lg bg-[#1E293B]/20 flex items-center justify-center">
+                <GitBranch className="h-3.5 w-3.5 text-[#334155]" />
               </div>
               <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">플로우 디자이너</span>
             </div>
@@ -194,7 +194,7 @@ export default function FlowDesignerPage() {
         <div className="px-3 py-2.5 border-b border-slate-100 dark:border-white/5">
           <button
             onClick={startNew}
-            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#5e6ad2]/15 hover:bg-[#5e6ad2]/25 border border-[#5e6ad2]/20 hover:border-[#5e6ad2]/40 px-3 py-2 text-xs font-semibold text-[#7170ff] transition-all"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#1E293B]/15 hover:bg-[#1E293B]/25 border border-[#1E293B]/20 hover:border-[#1E293B]/40 px-3 py-2 text-xs font-semibold text-[#334155] transition-all"
           >
             <Plus className="h-3.5 w-3.5" /> 새 플로우 만들기
           </button>
@@ -204,7 +204,7 @@ export default function FlowDesignerPage() {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="py-10 text-center text-sm text-slate-500 dark:text-[#8a8f98]">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-[#5e6ad2] mx-auto mb-2" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-[#1E293B] mx-auto mb-2" />
               불러오는 중...
             </div>
           ) : flows.length === 0 ? (
@@ -223,7 +223,7 @@ export default function FlowDesignerPage() {
                     ${isSelected ? 'bg-slate-100 dark:bg-[#1c1f26]' : 'hover:bg-slate-50 dark:hover:bg-white/[0.03]'}`}
                 >
                   {isSelected && (
-                    <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full bg-[#5e6ad2]" />
+                    <div className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full bg-[#1E293B]" />
                   )}
                   <div className="pl-2">
                     <div className="flex items-center justify-between mb-1.5">
@@ -236,7 +236,7 @@ export default function FlowDesignerPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#5e6ad2]/10 text-[#7170ff]">
+                      <span className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#1E293B]/10 text-[#334155]">
                         {dd.icon}{dd.label}
                       </span>
                       <span className="text-[10px] text-slate-500 dark:text-[#8a8f98]">{f.steps.length}단계</span>
@@ -254,8 +254,8 @@ export default function FlowDesignerPage() {
         {!showEditor ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="text-center max-w-xs">
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5e6ad2]/10 border border-[#5e6ad2]/20">
-                <GitBranch className="h-8 w-8 text-[#5e6ad2]" />
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1E293B]/10 border border-[#1E293B]/20">
+                <GitBranch className="h-8 w-8 text-[#1E293B]" />
               </div>
               <p className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8] mb-2">플로우를 선택하세요</p>
               <p className="text-sm text-slate-500 dark:text-[#8a8f98] leading-relaxed">
@@ -263,7 +263,7 @@ export default function FlowDesignerPage() {
               </p>
               <button
                 onClick={startNew}
-                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-[#5e6ad2] hover:bg-[#6b77e0] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+                className="mt-5 flex items-center gap-2 mx-auto rounded-xl bg-[#1E293B] hover:bg-[#334155] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
               >
                 <Plus className="h-4 w-4" /> 첫 플로우 만들기
               </button>
@@ -276,7 +276,7 @@ export default function FlowDesignerPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg bg-[#5e6ad2]/10 text-[#7170ff]">
+                    <span className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg bg-[#1E293B]/10 text-[#334155]">
                       {domainDesign.icon} {domainDesign.label}
                     </span>
                     {(selected?.isActive) && (
@@ -294,7 +294,7 @@ export default function FlowDesignerPage() {
                     <>
                       <button
                         onClick={() => activate(selected.id)}
-                        className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-[#5e6ad2] hover:bg-[#6b77e0] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-[#1E293B] hover:bg-[#334155] transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {selected.isActive ? <><Check className="h-3.5 w-3.5" /> 활성</> : <><Zap className="h-3.5 w-3.5" /> 활성화</>}
                       </button>
@@ -305,7 +305,7 @@ export default function FlowDesignerPage() {
                     </>
                   )}
                   <button onClick={save} disabled={saving}
-                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-[#5e6ad2] hover:bg-[#6b77e0] text-white disabled:opacity-50 transition-colors">
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold bg-[#1E293B] hover:bg-[#334155] text-white disabled:opacity-50 transition-colors">
                     <Save className="h-3.5 w-3.5" /> {saving ? '저장 중...' : '저장'}
                   </button>
                 </div>
@@ -396,7 +396,7 @@ export default function FlowDesignerPage() {
                                 <div
                                   className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
                                     ${isEditing
-                                      ? 'bg-[#5e6ad2] border-[#5e6ad2] text-white'
+                                      ? 'bg-[#1E293B] border-[#1E293B] text-white'
                                       : 'bg-slate-100 dark:bg-[#1c1f26] border-slate-300 dark:border-white/15 text-slate-500 dark:text-[#8a8f98]'
                                     }`}
                                 >
@@ -406,7 +406,7 @@ export default function FlowDesignerPage() {
 
                               {/* 스텝 카드 */}
                               <div className={`flex-1 rounded-xl border transition-all overflow-hidden
-                                ${isEditing ? 'border-[#5e6ad2]/40 bg-[#5e6ad2]/5' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
+                                ${isEditing ? 'border-[#1E293B]/40 bg-[#1E293B]/5' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
                                 {/* 스텝 헤더 */}
                                 <div
                                   className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors`}
@@ -433,7 +433,7 @@ export default function FlowDesignerPage() {
                                       <X className="h-3.5 w-3.5" />
                                     </button>
                                     {isEditing
-                                      ? <ChevronDown className="h-4 w-4 text-[#5e6ad2]" />
+                                      ? <ChevronDown className="h-4 w-4 text-[#1E293B]" />
                                       : <ChevronRight className="h-4 w-4 text-slate-400 dark:text-[#8a8f98]" />
                                     }
                                   </div>
@@ -464,7 +464,7 @@ export default function FlowDesignerPage() {
                                       <label className={labelCls}>검색 정책</label>
                                       <select value={step.searchPolicy}
                                         onChange={e => updateStep(i, { searchPolicy: e.target.value as 'auto' | 'always' | 'never' })}
-                                        className="rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-[#5e6ad2]/60">
+                                        className="rounded-lg border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#21262d] px-3 py-2 text-sm text-slate-900 dark:text-[#f7f8f8] outline-none focus:border-[#1E293B]/60">
                                         {[['auto', '자동'], ['always', '항상'], ['never', '사용 안 함']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                                       </select>
                                     </div>
@@ -481,10 +481,10 @@ export default function FlowDesignerPage() {
 
                 {/* 시뮬레이션 패널 */}
                 {selected && (
-                  <div className="rounded-2xl border border-[#5e6ad2]/25 bg-[#5e6ad2]/5 p-5">
+                  <div className="rounded-2xl border border-[#1E293B]/25 bg-[#1E293B]/5 p-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-7 h-7 rounded-lg bg-[#5e6ad2]/20 flex items-center justify-center">
-                        <Play className="h-3.5 w-3.5 text-[#7170ff]" />
+                      <div className="w-7 h-7 rounded-lg bg-[#1E293B]/20 flex items-center justify-center">
+                        <Play className="h-3.5 w-3.5 text-[#334155]" />
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">플로우 시뮬레이션</p>
@@ -498,11 +498,11 @@ export default function FlowDesignerPage() {
                         onChange={e => setSimInput(e.target.value)}
                         placeholder="테스트 메시지를 입력하세요..."
                         onKeyDown={e => e.key === 'Enter' && simulate()}
-                        className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#191a1b] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] outline-none focus:border-[#5e6ad2]/60"
+                        className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#191a1b] px-3 py-2.5 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-[#8a8f98] outline-none focus:border-[#1E293B]/60"
                       />
                       <button
                         onClick={simulate} disabled={simulating}
-                        className="rounded-xl px-4 py-2.5 bg-[#5e6ad2] hover:bg-[#6b77e0] text-white text-sm font-semibold disabled:opacity-50 transition-colors flex items-center gap-1.5"
+                        className="rounded-xl px-4 py-2.5 bg-[#1E293B] hover:bg-[#334155] text-white text-sm font-semibold disabled:opacity-50 transition-colors flex items-center gap-1.5"
                       >
                         {simulating ? <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Play className="h-3.5 w-3.5" />}
                         실행

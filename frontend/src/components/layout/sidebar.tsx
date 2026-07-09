@@ -146,9 +146,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       paddingBottom: '6px',
       fontSize: '13px',
       fontWeight: 500,
-      color: isActive ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-      backgroundColor: isActive ? 'var(--color-surface-hover)' : 'transparent',
-      borderLeft: isActive ? '2px solid var(--color-text-secondary)' : '2px solid transparent',
+      color: isActive ? 'var(--color-accent)' : 'var(--color-text-primary)',
+      backgroundColor: isActive ? 'var(--color-accent-bg)' : 'transparent',
+      borderLeft: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
     } as React.CSSProperties
   }
 
@@ -182,9 +182,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
         >
           <div
             className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
-            style={{ backgroundColor: '#f1f5f9' }}
+            style={{ backgroundColor: 'var(--color-accent-bg)' }}
           >
-            <Brain className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+            <Brain className="h-3.5 w-3.5" style={{ color: 'var(--color-accent)' }} />
           </div>
           <span className="flex-1" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Adaptive AI</span>
         </Link>
@@ -207,7 +207,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
           onClick={handleNewChat}
           className="flex w-full items-center justify-center gap-2 transition-colors"
           style={{
-            backgroundColor: '#334155',
+            backgroundColor: 'var(--color-accent)',
             color: '#ffffff',
             height: '32px',
             borderRadius: '6px',
@@ -216,8 +216,8 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             border: 'none',
             cursor: 'pointer',
           }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#475569')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#334155')}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-accent-text)')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--color-accent)')}
         >
           <Plus className="h-3.5 w-3.5" />
           새 대화

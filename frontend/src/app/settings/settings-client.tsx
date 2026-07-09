@@ -142,7 +142,7 @@ export function SettingsClient() {
       description: t('settings.showConfidenceDesc'),
       checked: settings.showConfidence,
       onChange: (v: boolean) => handleSetting('showConfidence', v),
-      iconCls: 'text-violet-500',
+      iconCls: 'text-slate-600',
     },
   ]
 

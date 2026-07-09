@@ -128,7 +128,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center dark:bg-[#08090a]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-slate-700 dark:border-t-[#5e6ad2]" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 dark:border-white/10 border-t-slate-700 dark:border-t-[#1E293B]" />
       </div>
     )
   }
@@ -139,7 +139,7 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-700 dark:bg-[#5e6ad2]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-700 dark:bg-[#1E293B]">
             <User className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -370,7 +370,7 @@ export default function ProfilePage() {
                 ? 'bg-red-500 hover:bg-red-600 active:bg-red-700'
                 : saved
                 ? 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'
-                : 'bg-slate-700 dark:bg-[#5e6ad2] hover:bg-slate-600 dark:hover:bg-[#6b77e0] active:bg-slate-600',
+                : 'bg-slate-700 dark:bg-[#1E293B] hover:bg-slate-600 dark:hover:bg-[#334155] active:bg-slate-600',
             ].join(' ')}
           >
             {saveError ? (

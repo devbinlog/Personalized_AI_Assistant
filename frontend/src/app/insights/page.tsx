@@ -121,7 +121,7 @@ export default function InsightsPage() {
               </div>
               <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-[#28282c] overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-slate-700 dark:bg-[#5e6ad2] transition-all duration-500"
+                  className="h-full rounded-full bg-slate-700 dark:bg-[#1E293B] transition-all duration-500"
                   style={{ width: `${Math.min((logCount / THRESHOLD) * 100, 100)}%` }}
                 />
               </div>
@@ -138,7 +138,7 @@ export default function InsightsPage() {
               </div>
               <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-[#28282c] overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-slate-700 dark:bg-[#5e6ad2] transition-all duration-500"
+                  className="h-full rounded-full bg-slate-700 dark:bg-[#1E293B] transition-all duration-500"
                   style={{ width: `${Math.min(((THRESHOLD - nextUpdateIn) / THRESHOLD) * 100, 100)}%` }}
                 />
               </div>
@@ -154,7 +154,7 @@ export default function InsightsPage() {
               ].map(item => (
                 <div
                   key={item.label}
-                  className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm border-l-4 border-l-slate-400 dark:border-l-[#5e6ad2]"
+                  className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm border-l-4 border-l-slate-400 dark:border-l-[#1E293B]"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span>{item.icon}</span>
@@ -204,13 +204,13 @@ export default function InsightsPage() {
                   return (
                     <div key={`v-${version.id}`} className="relative flex gap-4 pl-10">
                       <div className="absolute left-2.5 flex h-3 w-3 items-center justify-center">
-                        <div className="h-3 w-3 rounded-full border-2 border-indigo-500 dark:border-[#5e6ad2] bg-white dark:bg-[#191a1b]" />
+                        <div className="h-3 w-3 rounded-full border-2 border-slate-400 dark:border-[#1E293B] bg-white dark:bg-[#191a1b]" />
                       </div>
-                      <div className="flex-1 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#191a1b] p-4 space-y-3 shadow-sm">
+                      <div className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-[#191a1b] p-4 space-y-3 shadow-sm">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <BookMarked className="h-3.5 w-3.5 text-indigo-500 dark:text-[#818cf8]" />
-                            <span className="text-[10px] rounded border border-indigo-200 dark:border-indigo-800/40 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5">
+                            <BookMarked className="h-3.5 w-3.5 text-slate-600 dark:text-[#475569]" />
+                            <span className="text-[10px] rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-500 px-1.5 py-0.5">
                               메모리 v{version.version} 생성
                             </span>
                             <span className="text-xs text-slate-500 dark:text-[#8a8f98]">
@@ -259,7 +259,7 @@ export default function InsightsPage() {
                           <span className="text-[10px] rounded bg-slate-100 dark:bg-white/8 text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5 shrink-0">
                             {TASK_LABELS[log.taskType] ?? log.taskType}
                           </span>
-                          <span className="text-[10px] rounded bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 border border-indigo-100 dark:border-indigo-900/30 shrink-0">
+                          <span className="text-[10px] rounded bg-slate-50 dark:bg-slate-800/20 text-slate-700 dark:text-slate-500 px-1.5 py-0.5 border border-slate-200 dark:border-slate-600 shrink-0">
                             {STRATEGY_LABELS[log.selectedStrategy] ?? log.selectedStrategy}
                           </span>
                         </div>

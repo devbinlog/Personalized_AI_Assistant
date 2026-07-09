@@ -38,7 +38,7 @@ export default function PromptLabPage() {
       <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FlaskConical className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <FlaskConical className="h-5 w-5 text-slate-700 dark:text-slate-500" />
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">프롬프트 랩</h1>
               <p className="text-sm text-slate-500 dark:text-[#8a8f98]">

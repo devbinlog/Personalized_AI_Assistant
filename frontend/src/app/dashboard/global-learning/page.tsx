@@ -38,7 +38,7 @@ export default function GlobalLearningPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Globe className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <Globe className="h-5 w-5 text-slate-700 dark:text-slate-500" />
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">글로벌 학습</h1>
               <p className="text-sm text-slate-500 dark:text-[#8a8f98]">전체 대화에서 집계된 선호도 패턴</p>
@@ -89,7 +89,7 @@ export default function GlobalLearningPage() {
                   {topStrategies.map((item, i) => (
                     <div key={item.strategy} className="py-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="rounded-full border border-indigo-100 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5">
+                        <span className="rounded-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-400 text-xs px-2.5 py-0.5">
                           {item.strategy}
                         </span>
                         <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{item.count}x</span>
@@ -99,7 +99,7 @@ export default function GlobalLearningPage() {
                           style={{
                             height: '100%',
                             borderRadius: '9999px',
-                            backgroundColor: i === 0 ? '#6366f1' : `rgba(99,102,241,${0.8 - i * 0.12})`,
+                            backgroundColor: i === 0 ? '#1E293B' : `rgba(99,102,241,${0.8 - i * 0.12})`,
                             width: `${(item.count / maxCount) * 100}%`,
                           }}
                         />
@@ -120,7 +120,7 @@ export default function GlobalLearningPage() {
                   {memory.domainPreferences.map(dp => (
                     <div key={dp.domain} className="flex items-center justify-between py-3">
                       <span className="text-sm text-slate-700 dark:text-[#d0d6e0]">{dp.domain}</span>
-                      <span className="rounded-full border border-indigo-100 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5">
+                      <span className="rounded-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-400 text-xs px-2.5 py-0.5">
                         {dp.strategy}
                       </span>
                     </div>
@@ -139,9 +139,9 @@ export default function GlobalLearningPage() {
                   {memory.commonReasonTags.map(tag => (
                     <span
                       key={tag.tag}
-                      className="rounded-full border border-indigo-100 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-[11px] px-3 py-1"
+                      className="rounded-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-400 text-[11px] px-3 py-1"
                     >
-                      {tag.tag} <span className="text-indigo-400 dark:text-indigo-500">×{tag.count}</span>
+                      {tag.tag} <span className="text-slate-500 dark:text-slate-600">×{tag.count}</span>
                     </span>
                   ))}
                 </div>

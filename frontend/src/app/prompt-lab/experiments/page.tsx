@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20 dark:focus:bg-[#28282c]'
+  'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-100 outline-none dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-slate-400/50 dark:focus:ring-slate-400/20 dark:focus:bg-[#28282c]'
 const labelCls = 'block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-[#8a8f98]'
 
 type ProgressItem = {
@@ -133,7 +133,7 @@ export default function ExperimentsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FlaskConical className="h-5 w-5 text-indigo-600 dark:text-[#818cf8]" />
+            <FlaskConical className="h-5 w-5 text-slate-700 dark:text-[#475569]" />
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">프롬프트 실험</h1>
               <p className="text-sm text-slate-500 dark:text-[#8a8f98]">자동 평가를 통한 시스템 프롬프트 A/B 테스트</p>
@@ -141,7 +141,7 @@ export default function ExperimentsPage() {
           </div>
           <button
             onClick={() => setShowNew(true)}
-            className="flex items-center gap-1.5 rounded-xl px-4 py-2 bg-indigo-600 dark:bg-[#5e6ad2] text-white text-sm font-medium hover:bg-indigo-700 dark:hover:bg-[#6b77e0] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 bg-slate-700 dark:bg-[#1E293B] text-white text-sm font-medium hover:bg-slate-800 dark:hover:bg-[#334155] transition-colors cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" /> 새 실험
           </button>
@@ -162,7 +162,7 @@ export default function ExperimentsPage() {
         {running && (
           <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm">
             <div className="flex items-center gap-2.5 mb-4">
-              <Loader2 className="h-4 w-4 animate-spin text-indigo-600 dark:text-[#818cf8]" />
+              <Loader2 className="h-4 w-4 animate-spin text-slate-700 dark:text-[#475569]" />
               <span className="text-sm font-semibold text-slate-800 dark:text-[#f7f8f8]">
                 {runningExp?.name} 실행 중
               </span>
@@ -175,7 +175,7 @@ export default function ExperimentsPage() {
             {progressTotal > 0 && (
               <div className="h-1.5 bg-slate-100 dark:bg-white/8 rounded-full mb-4 overflow-hidden">
                 <div
-                  className="h-full bg-indigo-500 dark:bg-[#5e6ad2] rounded-full transition-all duration-500"
+                  className="h-full bg-slate-600 dark:bg-[#1E293B] rounded-full transition-all duration-500"
                   style={{ width: `${(progress.length / progressTotal) * 100}%` }}
                 />
               </div>
@@ -189,21 +189,21 @@ export default function ExperimentsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-slate-600 dark:text-[#d0d6e0] truncate mb-1.5">{item.input}</div>
                     <div className="flex gap-3">
-                      <div className={`flex items-center gap-1.5 ${item.preferred === 'A' ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
+                      <div className={`flex items-center gap-1.5 ${item.preferred === 'A' ? 'text-slate-700 dark:text-slate-500 font-semibold' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
                         <span className="text-[10px] font-bold">A</span>
                         <div className="w-16 h-1 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden">
-                          <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${item.scoreA * 100}%` }} />
+                          <div className="h-full bg-slate-400 rounded-full" style={{ width: `${item.scoreA * 100}%` }} />
                         </div>
                         <span className="text-[10px]">{(item.scoreA * 100).toFixed(0)}%</span>
-                        {item.preferred === 'A' && <span className="text-[9px] px-1 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">승</span>}
+                        {item.preferred === 'A' && <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800/30 text-slate-700 dark:text-slate-500">승</span>}
                       </div>
-                      <div className={`flex items-center gap-1.5 ${item.preferred === 'B' ? 'text-violet-600 dark:text-violet-400 font-semibold' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
+                      <div className={`flex items-center gap-1.5 ${item.preferred === 'B' ? 'text-slate-700 dark:text-slate-500 font-semibold' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
                         <span className="text-[10px] font-bold">B</span>
                         <div className="w-16 h-1 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden">
-                          <div className="h-full bg-violet-400 rounded-full" style={{ width: `${item.scoreB * 100}%` }} />
+                          <div className="h-full bg-slate-500 rounded-full" style={{ width: `${item.scoreB * 100}%` }} />
                         </div>
                         <span className="text-[10px]">{(item.scoreB * 100).toFixed(0)}%</span>
-                        {item.preferred === 'B' && <span className="text-[9px] px-1 py-0.5 rounded bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">승</span>}
+                        {item.preferred === 'B' && <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800/30 text-slate-700 dark:text-slate-500">승</span>}
                       </div>
                       {item.preferred === 'tie' && <span className="text-[10px] text-slate-400 dark:text-[#8a8f98]">동점</span>}
                     </div>
@@ -214,7 +214,7 @@ export default function ExperimentsPage() {
               {/* "in progress" step placeholder */}
               {progressTotal > 0 && progress.length < progressTotal && (
                 <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 px-3 py-2.5">
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-indigo-500" />
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-600" />
                   <span className="text-xs text-slate-500 dark:text-[#8a8f98]">입력 {progress.length + 1} 평가 중...</span>
                 </div>
               )}
@@ -247,14 +247,14 @@ export default function ExperimentsPage() {
                   <label className={labelCls}>프롬프트 A (시스템)</label>
                   <textarea value={newForm.promptA} onChange={e => setNewForm(f => ({ ...f, promptA: e.target.value }))} rows={4}
                     placeholder="You are a helpful assistant..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-indigo-500/50 dark:focus:bg-[#28282c]"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-200 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-slate-400/50 dark:focus:bg-[#28282c]"
                     style={{ resize: 'vertical' }} />
                 </div>
                 <div>
                   <label className={labelCls}>프롬프트 B (시스템)</label>
                   <textarea value={newForm.promptB} onChange={e => setNewForm(f => ({ ...f, promptB: e.target.value }))} rows={4}
                     placeholder="You are an expert assistant..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-indigo-500/50 dark:focus:bg-[#28282c]"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-200 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-slate-400/50 dark:focus:bg-[#28282c]"
                     style={{ resize: 'vertical' }} />
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function ExperimentsPage() {
                     <input type="text" value={inp}
                       onChange={e => setNewForm(f => ({ ...f, testInputs: f.testInputs.map((v, j) => j === i ? e.target.value : v) }))}
                       placeholder={`테스트 입력 ${i + 1}`}
-                      className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-indigo-500/50 dark:focus:bg-[#28282c]" />
+                      className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-200 focus:bg-white dark:border-white/8 dark:bg-[#28282c] dark:text-[#f7f8f8] dark:placeholder:text-[#8a8f98] dark:focus:border-slate-400/50 dark:focus:bg-[#28282c]" />
                     {newForm.testInputs.length > 1 && (
                       <button onClick={() => setNewForm(f => ({ ...f, testInputs: f.testInputs.filter((_, j) => j !== i) }))}
                         className="text-slate-400 dark:text-[#8a8f98] hover:text-slate-600 dark:hover:text-[#d0d6e0] transition-colors" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -275,7 +275,7 @@ export default function ExperimentsPage() {
                   </div>
                 ))}
                 <button onClick={() => setNewForm(f => ({ ...f, testInputs: [...f.testInputs, ''] }))}
-                  className="text-indigo-600 dark:text-[#818cf8] hover:text-indigo-700 dark:hover:text-indigo-400 text-sm transition-colors" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  className="text-slate-700 dark:text-[#475569] hover:text-slate-800 dark:hover:text-slate-500 text-sm transition-colors" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   + 입력 추가
                 </button>
               </div>
@@ -283,7 +283,7 @@ export default function ExperimentsPage() {
                 <button onClick={() => setShowNew(false)} className="rounded-xl border border-slate-200 dark:border-white/10 px-4 py-1.5 text-sm text-slate-600 dark:text-[#d0d6e0] hover:bg-slate-50 dark:hover:bg-[#28282c] transition-colors cursor-pointer bg-white dark:bg-transparent">
                   취소
                 </button>
-                <button onClick={create} className="rounded-xl px-4 py-1.5 bg-indigo-600 dark:bg-[#5e6ad2] text-white text-sm font-medium hover:bg-indigo-700 dark:hover:bg-[#6b77e0] transition-colors cursor-pointer" style={{ border: 'none' }}>
+                <button onClick={create} className="rounded-xl px-4 py-1.5 bg-slate-700 dark:bg-[#1E293B] text-white text-sm font-medium hover:bg-slate-800 dark:hover:bg-[#334155] transition-colors cursor-pointer" style={{ border: 'none' }}>
                   생성
                 </button>
               </div>
@@ -319,7 +319,7 @@ export default function ExperimentsPage() {
                         {STATUS_LABEL[exp.status as string] ?? exp.status}
                       </span>
                       {exp.winner && (
-                        <span className="text-[10px] rounded-full border border-indigo-100 dark:border-indigo-800/40 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 px-2 py-0.5">
+                        <span className="text-[10px] rounded-full border border-slate-200 dark:border-slate-600/40 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-500 px-2 py-0.5">
                           승자: 프롬프트 {exp.winner}
                         </span>
                       )}
@@ -329,7 +329,7 @@ export default function ExperimentsPage() {
                         <button
                           onClick={() => runExperiment(exp.id)}
                           disabled={!!running}
-                          className="flex items-center gap-1 rounded-xl px-3 py-1.5 bg-indigo-600 dark:bg-[#5e6ad2] text-white text-xs font-medium hover:bg-indigo-700 dark:hover:bg-[#6b77e0] disabled:opacity-40 transition-colors cursor-pointer"
+                          className="flex items-center gap-1 rounded-xl px-3 py-1.5 bg-slate-700 dark:bg-[#1E293B] text-white text-xs font-medium hover:bg-slate-800 dark:hover:bg-[#334155] disabled:opacity-40 transition-colors cursor-pointer"
                           style={{ border: 'none' }}
                         >
                           <Play className="h-3 w-3" />
@@ -363,7 +363,7 @@ export default function ExperimentsPage() {
               <div>
                 <span className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8]">결과: {selected.name}</span>
                 {selected.winner && (
-                  <span className="ml-2 text-xs rounded-full border border-indigo-100 dark:border-indigo-800/40 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 px-2 py-0.5">
+                  <span className="ml-2 text-xs rounded-full border border-slate-200 dark:border-slate-600/40 bg-slate-50 dark:bg-slate-800/30 text-slate-800 dark:text-slate-500 px-2 py-0.5">
                     최종 승자: 프롬프트 {selected.winner}
                   </span>
                 )}
@@ -380,28 +380,28 @@ export default function ExperimentsPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {/* Prompt A */}
-                    <div className={`p-3 rounded-xl border ${result.preferredByEvaluator === 'A' ? 'border-indigo-200 dark:border-indigo-800/40 bg-indigo-50 dark:bg-indigo-950/30' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
+                    <div className={`p-3 rounded-xl border ${result.preferredByEvaluator === 'A' ? 'border-slate-200 dark:border-slate-600/40 bg-slate-50 dark:bg-slate-800/30' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-xs font-semibold ${result.preferredByEvaluator === 'A' ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-500 dark:text-[#8a8f98]'}`}>
+                        <span className={`text-xs font-semibold ${result.preferredByEvaluator === 'A' ? 'text-slate-800 dark:text-slate-500' : 'text-slate-500 dark:text-[#8a8f98]'}`}>
                           프롬프트 A {result.preferredByEvaluator === 'A' ? '· 승자' : ''}
                         </span>
                         <span className="text-xs tabular-nums text-slate-400 dark:text-[#8a8f98]">{(result.scoreA * 100).toFixed(0)}점</span>
                       </div>
                       <div className="h-1.5 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden mb-3">
-                        <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${result.scoreA * 100}%` }} />
+                        <div className="h-full bg-slate-600 rounded-full transition-all" style={{ width: `${result.scoreA * 100}%` }} />
                       </div>
                       <div className="text-xs text-slate-600 dark:text-[#8a8f98] leading-relaxed line-clamp-4">{result.outputA}</div>
                     </div>
                     {/* Prompt B */}
-                    <div className={`p-3 rounded-xl border ${result.preferredByEvaluator === 'B' ? 'border-violet-200 dark:border-violet-800/40 bg-violet-50 dark:bg-violet-950/30' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
+                    <div className={`p-3 rounded-xl border ${result.preferredByEvaluator === 'B' ? 'border-slate-200 dark:border-slate-600/40 bg-slate-50 dark:bg-slate-800/30' : 'border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b]'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-xs font-semibold ${result.preferredByEvaluator === 'B' ? 'text-violet-700 dark:text-violet-400' : 'text-slate-500 dark:text-[#8a8f98]'}`}>
+                        <span className={`text-xs font-semibold ${result.preferredByEvaluator === 'B' ? 'text-slate-800 dark:text-slate-500' : 'text-slate-500 dark:text-[#8a8f98]'}`}>
                           프롬프트 B {result.preferredByEvaluator === 'B' ? '· 승자' : ''}
                         </span>
                         <span className="text-xs tabular-nums text-slate-400 dark:text-[#8a8f98]">{(result.scoreB * 100).toFixed(0)}점</span>
                       </div>
                       <div className="h-1.5 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden mb-3">
-                        <div className="h-full bg-violet-500 rounded-full transition-all" style={{ width: `${result.scoreB * 100}%` }} />
+                        <div className="h-full bg-slate-600 rounded-full transition-all" style={{ width: `${result.scoreB * 100}%` }} />
                       </div>
                       <div className="text-xs text-slate-600 dark:text-[#8a8f98] leading-relaxed line-clamp-4">{result.outputB}</div>
                     </div>

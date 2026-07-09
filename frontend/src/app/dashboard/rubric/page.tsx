@@ -36,7 +36,7 @@ export default function RubricPage() {
       <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <BarChart3 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          <BarChart3 className="h-5 w-5 text-slate-700 dark:text-slate-500" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f7f8f8]">루브릭 분석</h1>
             <p className="text-sm text-slate-500 dark:text-[#8a8f98]">18차원 응답 품질 상세 분석</p>
@@ -118,7 +118,7 @@ export default function RubricPage() {
                         style={{
                           height: '100%',
                           borderRadius: '9999px',
-                          backgroundColor: '#6366f1',
+                          backgroundColor: '#1E293B',
                           width: `${dim.value * 100}%`,
                           transition: 'width 0.3s ease',
                         }}

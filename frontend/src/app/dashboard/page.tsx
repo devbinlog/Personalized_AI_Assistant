@@ -116,7 +116,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/"
-              className="mt-2 rounded-xl bg-slate-700 dark:bg-[#5e6ad2] px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-600 dark:hover:bg-[#6b77e0] transition-colors"
+              className="mt-2 rounded-xl bg-slate-700 dark:bg-[#1E293B] px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-600 dark:hover:bg-[#334155] transition-colors"
             >
               먼저 대화해보세요
             </Link>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 rounded-full bg-slate-100 dark:bg-[#28282c] h-2">
                   <div
-                    className="h-2 rounded-full bg-slate-600 dark:bg-[#5e6ad2]"
+                    className="h-2 rounded-full bg-slate-600 dark:bg-[#1E293B]"
                     style={{ width: `${Math.round(evaluation.overallAvg * 100)}%` }}
                   />
                 </div>

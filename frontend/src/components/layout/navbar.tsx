@@ -71,14 +71,17 @@ function getNavItems(t: (k: string) => string): NavItem[] {
 
 function DropdownMenu({ items }: { items: DropdownItem[] }) {
   return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#21262d] py-1.5 shadow-lg shadow-slate-900/8 z-50">
+    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 rounded-xl border bg-white py-1.5 shadow-lg z-50" style={{ borderColor: 'var(--color-border)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
       {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+          className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+          style={{ color: 'var(--color-text-secondary)' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' }}
         >
-          <item.icon className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+          <item.icon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
           {item.label}
         </Link>
       ))}
@@ -109,12 +112,13 @@ function NavLink({ item }: { item: NavItem }) {
     return (
       <Link
         href={item.href}
-        className={cn(
-          'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          isActive
-            ? 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-100'
-            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100',
-        )}
+        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+        style={{
+          backgroundColor: isActive ? 'var(--color-accent-bg)' : 'transparent',
+          color: isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+        }}
+        onMouseEnter={e => { if (!isActive) { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' } }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = isActive ? 'var(--color-accent-bg)' : 'transparent'; e.currentTarget.style.color = isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}
       >
         {item.label}
       </Link>
@@ -125,12 +129,15 @@ function NavLink({ item }: { item: NavItem }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className={cn(
-          'flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          isActive
-            ? 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-100'
-            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100',
-        )}
+        className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+        style={{
+          backgroundColor: isActive ? 'var(--color-accent-bg)' : 'transparent',
+          color: isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+        onMouseEnter={e => { if (!isActive) { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' } }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = isActive ? 'var(--color-accent-bg)' : 'transparent'; e.currentTarget.style.color = isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}
       >
         {item.label}
         <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', open && 'rotate-180')} />
@@ -159,7 +166,10 @@ function UserMenu() {
     return (
       <Link
         href="/auth/signin"
-        className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-slate-100 transition-colors"
+        className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+        style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' }}
       >
         {t('nav.signin')}
       </Link>
@@ -173,9 +183,12 @@ function UserMenu() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors"
+        style={{ color: 'var(--color-text-secondary)', border: 'none', background: 'transparent', cursor: 'pointer' }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
       >
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: 'var(--color-accent)' }}>
           {initials}
         </div>
         <span className="max-w-[90px] truncate text-xs font-medium">{name}</span>
@@ -183,12 +196,12 @@ function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#21262d] py-1.5 shadow-lg shadow-slate-900/8 z-50">
-          <div className="border-b border-slate-100 dark:border-white/10 px-3 pb-2 pt-1.5 mb-1">
-            <p className="truncate text-xs font-medium text-slate-900 dark:text-slate-100">{name}</p>
-            <p className="truncate text-xs text-slate-400 dark:text-slate-500">{session.user?.email}</p>
+        <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border bg-white py-1.5 z-50" style={{ borderColor: 'var(--color-border)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <div className="px-3 pb-2 pt-1.5 mb-1" style={{ borderBottom: '1px solid var(--color-border)' }}>
+            <p className="truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{name}</p>
+            <p className="truncate text-xs" style={{ color: 'var(--color-text-muted)' }}>{session.user?.email}</p>
             {isAdmin && (
-              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-800 dark:text-slate-200">
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}>
                 <Shield className="h-2.5 w-2.5" />
                 {t('common.admin')}
               </span>
@@ -198,25 +211,34 @@ function UserMenu() {
             <Link
               href="/admin"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' }}
             >
-              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <Shield className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
               {t('nav.adminDashboard')}
             </Link>
           )}
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+            style={{ color: 'var(--color-text-secondary)' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' }}
           >
-            <User className="h-3.5 w-3.5 shrink-0" />
+            <User className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
             {t('nav.profile')}
           </Link>
           <button
             onClick={() => { setOpen(false); signOut({ callbackUrl: '/' }) }}
-            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+            style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FEF2F2'; e.currentTarget.style.color = '#DC2626' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' }}
           >
-            <LogOut className="h-3.5 w-3.5 shrink-0" />
+            <LogOut className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
             {t('nav.signout')}
           </button>
         </div>
@@ -233,14 +255,14 @@ export function Navbar() {
   const navItems = getNavItems(t)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d1117]">
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b bg-white" style={{ borderColor: 'var(--color-border)' }}>
       <div className="flex h-full items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-700 dark:bg-slate-600">
-            <Brain className="h-4 w-4 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ backgroundColor: 'var(--color-accent-bg)' }}>
+            <Brain className="h-4 w-4" style={{ color: 'var(--color-accent)' }} />
           </div>
-          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Adaptive AI</span>
+          <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Adaptive AI</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -254,12 +276,13 @@ export function Navbar() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setMode(isLearning ? 'NORMAL' : 'LEARNING')}
-            className={cn(
-              'hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-              isLearning
-                ? 'bg-slate-700 dark:bg-slate-600 text-white'
-                : 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5',
-            )}
+            className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all"
+            style={isLearning
+              ? { backgroundColor: 'var(--color-accent)', color: '#ffffff', border: 'none' }
+              : { border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', background: 'transparent' }
+            }
+            onMouseEnter={e => { if (!isLearning) { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' } }}
+            onMouseLeave={e => { if (!isLearning) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-secondary)' } }}
           >
             <Sparkles className="h-3 w-3" />
             {isLearning ? t('nav.learningOn') : t('nav.learningOff')}
@@ -268,7 +291,10 @@ export function Navbar() {
           {/* Language toggle */}
           <button
             onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
-            className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-xs font-semibold"
+            className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg transition-colors text-xs font-semibold"
+            style={{ color: 'var(--color-text-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; e.currentTarget.style.color = 'var(--color-text-primary)' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)' }}
             aria-label="언어 변경"
           >
             {language === 'ko' ? 'EN' : 'KO'}
@@ -279,7 +305,10 @@ export function Navbar() {
           <UserMenu />
           {/* Mobile hamburger */}
           <button
-            className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'var(--color-text-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
             onClick={() => setMobileOpen(o => !o)}
             aria-label="메뉴"
           >
@@ -290,7 +319,7 @@ export function Navbar() {
 
       {/* Mobile menu drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-100 dark:border-white/10 bg-white dark:bg-[#0d1117] shadow-lg">
+        <div className="md:hidden bg-white shadow-lg" style={{ borderTop: '1px solid var(--color-border)' }}>
           <nav className="flex flex-col py-2">
             {navItems.map((item) => (
               item.href && !item.dropdown ? (
@@ -298,25 +327,31 @@ export function Navbar() {
                   key={item.label}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
-                  <item.icon className="h-4 w-4 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <item.icon className="h-4 w-4 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
                   {item.label}
                 </Link>
               ) : (
                 <div key={item.label}>
                   <div className="flex items-center gap-3 px-4 py-2">
-                    <item.icon className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0" />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{item.label}</span>
+                    <item.icon className="h-4 w-4 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{item.label}</span>
                   </div>
                   {item.dropdown?.map(d => (
                     <Link
                       key={d.href}
                       href={d.href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)' }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
                     >
-                      <d.icon className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                      <d.icon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--color-text-muted)' }} />
                       {d.label}
                     </Link>
                   ))}
@@ -325,30 +360,27 @@ export function Navbar() {
             ))}
 
             {/* Mobile bottom controls */}
-            <div className="border-t border-slate-100 dark:border-white/10 mt-2 pt-2 px-4 pb-2 space-y-2">
+            <div className="mt-2 pt-2 px-4 pb-2 space-y-2" style={{ borderTop: '1px solid var(--color-border)' }}>
               <button
                 onClick={() => { setMode(isLearning ? 'NORMAL' : 'LEARNING'); setMobileOpen(false) }}
-                className={cn(
-                  'flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  isLearning
-                    ? 'bg-slate-700 dark:bg-slate-600 text-white'
-                    : 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300',
-                )}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+                style={isLearning
+                  ? { backgroundColor: 'var(--color-accent)', color: '#ffffff', border: 'none', cursor: 'pointer' }
+                  : { border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', background: 'transparent', cursor: 'pointer' }
+                }
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 {isLearning ? t('nav.learningOn') : t('nav.learningOff')}
               </button>
 
-              {/* Mobile language toggle */}
               <button
                 onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
-                className="flex w-full items-center gap-2 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+                style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', background: 'transparent', cursor: 'pointer' }}
               >
                 <span className="text-xs font-bold">{language === 'ko' ? 'EN' : 'KO'}</span>
                 <span>{language === 'ko' ? 'Switch to English' : '한국어로 전환'}</span>
               </button>
-
-              {/* Mobile theme toggle — hidden */}
             </div>
           </nav>
         </div>

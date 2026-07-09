@@ -38,7 +38,7 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
               className={cn(
                 'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer',
                 isSelected
-                  ? 'border border-indigo-400 dark:border-[#5e6ad2] bg-indigo-50 dark:bg-[#5e6ad2]/20 text-indigo-700 dark:text-[#7170ff]'
+                  ? 'border border-slate-300 dark:border-[#1E293B] bg-slate-50 dark:bg-[#1E293B]/20 text-slate-800 dark:text-[#334155]'
                   : 'border border-slate-200 dark:border-white/10 bg-white dark:bg-[#21262d] text-slate-600 dark:text-[#d0d6e0] hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-[#30363d]',
               )}
             >
@@ -54,7 +54,7 @@ export function TagSelector({ onSubmit, isSubmitting }: TagSelectorProps) {
           onClick={() => onSubmit(selected)}
           disabled={isSubmitting}
           className={cn(
-            'flex items-center gap-2 rounded-xl bg-indigo-600 dark:bg-[#5e6ad2] px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-700 dark:hover:bg-[#6b77e0] transition-colors',
+            'flex items-center gap-2 rounded-xl bg-slate-700 dark:bg-[#1E293B] px-5 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:hover:bg-[#334155] transition-colors',
             isSubmitting && 'opacity-40 cursor-not-allowed',
           )}
         >
