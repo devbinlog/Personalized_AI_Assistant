@@ -97,19 +97,33 @@ export async function createExperiment(
   return dbToExperiment(row as Record<string, unknown>)
 }
 
-export async function runExperiment(id: string): Promise<PromptExperiment> {
+type StepResult = {
+  step: number
+  total: number
+  input: string
+  outputA: string
+  outputB: string
+  scoreA: number
+  scoreB: number
+  preferred: string
+}
+
+export async function runExperimentWithProgress(
+  id: string,
+  onProgress: (result: StepResult) => void,
+): Promise<PromptExperiment> {
   const expRow = await prisma.promptExperiment.findUniqueOrThrow({ where: { id } })
   const exp = dbToExperiment(expRow as Record<string, unknown>)
 
   await prisma.promptExperiment.update({ where: { id }, data: { status: 'RUNNING' } as never })
 
   const provider = getLLMProvider()
-  let totalA = 0,
-    totalB = 0
+  let totalA = 0, totalB = 0
+  const total = (exp.testInputs as string[]).length
 
-  for (const input of exp.testInputs) {
-    let outputA = '',
-      outputB = ''
+  for (let step = 0; step < total; step++) {
+    const input = (exp.testInputs as string[])[step]
+    let outputA = '', outputB = ''
     try {
       const [resA, resB] = await Promise.all([
         generateText({ model: provider.getModel(), system: exp.promptA, prompt: input }),
@@ -127,12 +141,12 @@ export async function runExperiment(id: string): Promise<PromptExperiment> {
       evaluateCandidatesExpanded(input, [{ strategy: 'STRUCTURED', content: outputB, index: 0 }], null),
     ])
 
-    const evalA = evalsA[0]
-    const evalB = evalsB[0]
-    const scoreA = evalA?.overallScore ?? 0.7
-    const scoreB = evalB?.overallScore ?? 0.7
+    const scoreA = evalsA[0]?.overallScore ?? 0.7
+    const scoreB = evalsB[0]?.overallScore ?? 0.7
     totalA += scoreA
     totalB += scoreB
+
+    const preferred = scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'tie'
 
     await prisma.promptExperimentResult.create({
       data: {
@@ -140,18 +154,19 @@ export async function runExperiment(id: string): Promise<PromptExperiment> {
         input,
         outputA,
         outputB,
-        evaluationA: JSON.stringify(evalA ?? {}),
-        evaluationB: JSON.stringify(evalB ?? {}),
-        preferredByEvaluator: scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'tie',
+        evaluationA: JSON.stringify(evalsA[0] ?? {}),
+        evaluationB: JSON.stringify(evalsB[0] ?? {}),
+        preferredByEvaluator: preferred,
         scoreA,
         scoreB,
       } as never,
     })
+
+    onProgress({ step: step + 1, total, input, outputA, outputB, scoreA, scoreB, preferred })
   }
 
-  const count = exp.testInputs.length
-  const avgA = count > 0 ? totalA / count : 0
-  const avgB = count > 0 ? totalB / count : 0
+  const avgA = total > 0 ? totalA / total : 0
+  const avgB = total > 0 ? totalB / total : 0
   const winner = avgA > avgB ? 'A' : avgB > avgA ? 'B' : 'tie'
 
   const updated = await prisma.promptExperiment.update({
@@ -159,6 +174,10 @@ export async function runExperiment(id: string): Promise<PromptExperiment> {
     data: { status: 'COMPLETED', winner } as never,
   })
   return dbToExperiment(updated as Record<string, unknown>)
+}
+
+export async function runExperiment(id: string): Promise<PromptExperiment> {
+  return runExperimentWithProgress(id, () => {})
 }
 
 /**
