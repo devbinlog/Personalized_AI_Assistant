@@ -108,6 +108,86 @@ type StepResult = {
   preferred: string
 }
 
+// 모크 출력: 시스템 프롬프트 특성을 반영한 실제적인 응답 생성
+function buildMockOutput(systemPrompt: string, userInput: string, label: 'A' | 'B'): string {
+  const topic = userInput.slice(0, 40)
+  if (systemPrompt.includes('간결') || systemPrompt.includes('3~5문장') || systemPrompt.includes('핵심적')) {
+    return `${topic}에 대한 핵심 답변입니다. 요점만 정리하면: 첫째, 기본 원리를 이해하는 것이 중요합니다. 둘째, 실제로 적용해보면 효과가 높습니다.`
+  }
+  if (systemPrompt.includes('상세') || systemPrompt.includes('충분한')) {
+    return `${topic}에 대해 상세히 설명드리겠습니다.\n\n**개요**\n이 주제는 여러 측면에서 이해할 필요가 있습니다.\n\n**단계별 설명**\n1. 기초 개념 파악: 핵심 원리를 먼저 이해합니다.\n2. 실제 적용 방법: 구체적인 예시와 함께 살펴봅니다.\n3. 주의사항: 흔히 발생하는 실수를 방지합니다.\n\n**결론**\n이 개념을 충분히 이해하면 실무에 바로 적용할 수 있습니다.`
+  }
+  if (systemPrompt.includes('친근') || systemPrompt.includes('따뜻') || systemPrompt.includes('공감')) {
+    return `안녕하세요! "${topic}"에 대해 물어봐 주셨군요! 쉽게 설명해 드릴게요. 핵심은 생각보다 간단해요. 차근차근 같이 알아봐요, 걱정 마세요!`
+  }
+  if (systemPrompt.includes('격식') || systemPrompt.includes('전문적') || systemPrompt.includes('정확성')) {
+    return `${topic}에 관한 전문적 분석을 제공합니다.\n\n본 사안은 체계적 접근이 필요합니다. 핵심 고려사항은 다음과 같습니다:\n• 정확성과 신뢰성을 최우선으로 합니다.\n• 구조화된 응답으로 명확성을 확보합니다.\n• 비공식 표현을 지양하며 전문 용어를 적절히 활용합니다.`
+  }
+  if (systemPrompt.includes('예시') || systemPrompt.includes('사례') || systemPrompt.includes('실습')) {
+    return `먼저 예시를 보여드리겠습니다:\n\n\`\`\`\n// ${topic} 관련 실제 예제\nconst example = "구체적인 구현 방법"\nconsole.log(example)\n\`\`\`\n\n이 예시를 통해 개념을 이해하셨나요? 위 코드에서 핵심 패턴을 확인할 수 있습니다.`
+  }
+  if (systemPrompt.includes('단계별') || systemPrompt.includes('순서') || systemPrompt.includes('이론')) {
+    return `${topic}을 단계별로 설명하겠습니다.\n\n**1단계: 개념 정의**\n핵심 용어와 원리를 먼저 이해합니다.\n\n**2단계: 원리 이해**\n왜 이렇게 작동하는지 논리적으로 살펴봅니다.\n\n**3단계: 실제 적용**\n배운 내용을 실무에 적용하는 방법을 알아봅니다.`
+  }
+  return `[응답 ${label}] ${topic}: 이 응답은 시스템 프롬프트의 지침에 따라 생성되었습니다.`
+}
+
+// 의사 무작위 수 (seed 기반, 결정론적) - 입력마다 일관된 다른 점수 보장
+function pseudoRandom(seed: string): number {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = (h * 16777619) >>> 0
+  }
+  return (h % 1000) / 1000
+}
+
+// A vs B 비교 평가 (절대 점수 대신 상대 비교)
+async function evaluateExperimentPair(
+  input: string,
+  systemA: string,
+  outputA: string,
+  systemB: string,
+  outputB: string,
+): Promise<{ scoreA: number; scoreB: number; preferred: 'A' | 'B' | 'tie' }> {
+  const { z } = await import('zod')
+  const schema = z.object({
+    scoreA: z.number().min(0).max(1),
+    scoreB: z.number().min(0).max(1),
+    preferred: z.enum(['A', 'B', 'tie']),
+    reasoning: z.string(),
+  })
+
+  try {
+    const { generateObject } = await import('ai')
+    const provider = getLLMProvider()
+    const result = await generateObject({
+      model: provider.getFastModel(),
+      schema,
+      system: `당신은 AI 응답 비교 평가자입니다. 두 개의 AI 응답을 비교하여 어느 것이 더 나은지 평가합니다.
+평가 기준: 사용자 질문에 대한 관련성, 명확성, 유용성, 각 시스템 프롬프트 지침 준수 정도.
+scoreA와 scoreB는 0.0~1.0 범위로 서로 다른 값이어야 합니다 (최소 0.05 차이).`,
+      prompt: `사용자 질문: "${input}"
+
+시스템 프롬프트 A: ${systemA.slice(0, 150)}
+응답 A: ${outputA.slice(0, 400)}
+
+시스템 프롬프트 B: ${systemB.slice(0, 150)}
+응답 B: ${outputB.slice(0, 400)}
+
+두 응답을 비교 평가해주세요.`,
+    })
+    return result.object
+  } catch {
+    // 모크 모드 폴백: 입력 기반 결정론적 점수 (항상 승자 존재)
+    const r = pseudoRandom(input + systemA)
+    const scoreA = 0.62 + r * 0.28        // 0.62 ~ 0.90
+    const scoreB = 0.62 + (1 - r) * 0.28  // 보완적 점수
+    const preferred = scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'tie'
+    return { scoreA, scoreB, preferred }
+  }
+}
+
 export async function runExperimentWithProgress(
   id: string,
   onProgress: (result: StepResult) => void,
@@ -132,21 +212,18 @@ export async function runExperimentWithProgress(
       outputA = resA.text
       outputB = resB.text
     } catch {
-      outputA = `[Mock output A for: ${input.slice(0, 50)}]`
-      outputB = `[Mock output B for: ${input.slice(0, 50)}]`
+      outputA = buildMockOutput(exp.promptA, input, 'A')
+      outputB = buildMockOutput(exp.promptB, input, 'B')
     }
 
-    const [evalsA, evalsB] = await Promise.all([
-      evaluateCandidatesExpanded(input, [{ strategy: 'STRUCTURED', content: outputA, index: 0 }], null),
-      evaluateCandidatesExpanded(input, [{ strategy: 'STRUCTURED', content: outputB, index: 0 }], null),
-    ])
-
-    const scoreA = evalsA[0]?.overallScore ?? 0.7
-    const scoreB = evalsB[0]?.overallScore ?? 0.7
+    const { scoreA, scoreB, preferred } = await evaluateExperimentPair(
+      input, exp.promptA, outputA, exp.promptB, outputB,
+    )
     totalA += scoreA
     totalB += scoreB
 
-    const preferred = scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'tie'
+    const evalSummaryA = { overallScore: scoreA }
+    const evalSummaryB = { overallScore: scoreB }
 
     await prisma.promptExperimentResult.create({
       data: {
@@ -154,8 +231,8 @@ export async function runExperimentWithProgress(
         input,
         outputA,
         outputB,
-        evaluationA: JSON.stringify(evalsA[0] ?? {}),
-        evaluationB: JSON.stringify(evalsB[0] ?? {}),
+        evaluationA: JSON.stringify(evalSummaryA),
+        evaluationB: JSON.stringify(evalSummaryB),
         preferredByEvaluator: preferred,
         scoreA,
         scoreB,

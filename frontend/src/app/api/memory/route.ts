@@ -12,19 +12,32 @@ export async function GET(_req: NextRequest) {
       getMemory(userId),
       prisma.preferenceLog.count({ where: { userId } }),
     ])
-    const versions = await prisma.preferenceMemoryVersion.findMany({
-      where: { memoryId: memory?.id ?? '' },
-      orderBy: { version: 'desc' },
-      take: 10,
-    }).catch(() => [])
+    const [versions, recentLogs] = await Promise.all([
+      prisma.preferenceMemoryVersion.findMany({
+        where: { memoryId: memory?.id ?? '' },
+        orderBy: { version: 'desc' },
+        take: 10,
+      }).catch(() => []),
+      prisma.preferenceLog.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: { id: true, taskType: true, selectedStrategy: true, selectedTags: true, userQuery: true, createdAt: true },
+      }).catch(() => []),
+    ])
 
     const threshold = 3
     const lastCount = memory?.logCount ?? 0
     const nextUpdateIn = Math.max(0, threshold - (logCount - lastCount))
 
-    return NextResponse.json({ memory, versions, logCount, threshold, nextUpdateIn })
+    const logs = recentLogs.map(l => ({
+      ...l,
+      selectedTags: JSON.parse((l.selectedTags as string) || '[]'),
+    }))
+
+    return NextResponse.json({ memory, versions, logCount, threshold, nextUpdateIn, logs })
   } catch {
-    return NextResponse.json({ memory: null, versions: [], logCount: 0, threshold: 3 })
+    return NextResponse.json({ memory: null, versions: [], logCount: 0, threshold: 3, logs: [] })
   }
 }
 

@@ -1,12 +1,24 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Lightbulb, Brain, TrendingUp, RefreshCw, Info } from 'lucide-react'
+import { Lightbulb, Brain, TrendingUp, RefreshCw, Info, MessageSquare, BookMarked } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatDate, memoryFieldLabel } from '@/lib/utils'
 import type { PreferenceMemory } from '@/types'
 
 const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
+
+const TASK_LABELS: Record<string, string> = {
+  PROGRAMMING: '프로그래밍', DEBUGGING: '디버깅', CODE_REVIEW: '코드 리뷰',
+  CAREER: '커리어', INTERVIEW: '면접', RESEARCH: '리서치', ANALYSIS: '분석',
+  LEARNING: '학습', EDUCATION: '교육', WRITING: '작성', PROFESSIONAL: '전문',
+  PLANNING: '기획', TRANSLATION: '번역', GENERAL: '일반',
+}
+
+const STRATEGY_LABELS: Record<string, string> = {
+  STRUCTURED: '구조화', CONVERSATIONAL: '대화형', ANALYTICAL: '분석형',
+  CREATIVE: '창의형', TECHNICAL: '기술형', CONCISE: '간결형',
+}
 
 interface MemoryVersion {
   id: string
@@ -17,9 +29,19 @@ interface MemoryVersion {
   createdAt: string
 }
 
+interface PreferenceLogEntry {
+  id: string
+  taskType: string
+  selectedStrategy: string
+  selectedTags: string[]
+  userQuery: string
+  createdAt: string
+}
+
 export default function InsightsPage() {
   const [memory, setMemory] = useState<PreferenceMemory | null>(null)
   const [versions, setVersions] = useState<MemoryVersion[]>([])
+  const [logs, setLogs] = useState<PreferenceLogEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [logCount, setLogCount] = useState(0)
   const [nextUpdateIn, setNextUpdateIn] = useState(3)
@@ -29,6 +51,7 @@ export default function InsightsPage() {
     const res = await fetch('/api/memory').then(r => r.json()).catch(() => ({}))
     if (res.memory) setMemory(res.memory)
     if (res.versions) setVersions(res.versions)
+    if (res.logs) setLogs(res.logs)
     if (res.logCount !== undefined) setLogCount(res.logCount)
     if (res.nextUpdateIn !== undefined) setNextUpdateIn(res.nextUpdateIn)
   }
@@ -37,6 +60,16 @@ export default function InsightsPage() {
     setIsLoading(true)
     fetchData().finally(() => setIsLoading(false))
   }, [])
+
+  // Merge versions + logs into a single chronological timeline
+  type TimelineEntry =
+    | { kind: 'version'; data: MemoryVersion }
+    | { kind: 'log'; data: PreferenceLogEntry }
+
+  const timeline: TimelineEntry[] = [
+    ...versions.map(v => ({ kind: 'version' as const, data: v, date: v.createdAt })),
+    ...logs.map(l => ({ kind: 'log' as const, data: l, date: l.createdAt })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
     <div className="min-h-full bg-slate-50 dark:bg-[#08090a]">
@@ -78,7 +111,6 @@ export default function InsightsPage() {
             )}
           </div>
 
-          {/* 진행 상황 */}
           {!memory && logCount > 0 && (
             <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
@@ -144,86 +176,128 @@ export default function InsightsPage() {
           )}
         </section>
 
-        {/* Memory evolution timeline */}
+        {/* Learning timeline */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-slate-700 dark:text-[#d0d6e0]" />
             <h2 className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8]">학습 타임라인</h2>
+            {timeline.length > 0 && (
+              <span className="text-[10px] rounded border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5">
+                {timeline.length}개 이벤트
+              </span>
+            )}
           </div>
 
-          {versions.length === 0 ? (
+          {timeline.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-8 text-center shadow-sm">
               <TrendingUp className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-[#8a8f98]" />
-              <p className="text-sm text-slate-500 dark:text-[#8a8f98]">메모리 변화 이력이 여기에 표시됩니다</p>
+              <p className="text-sm text-slate-500 dark:text-[#8a8f98]">학습 모드에서 채팅하면 여기에 기록이 쌓입니다</p>
             </div>
           ) : (
             <div className="relative space-y-3">
               {/* Timeline line */}
               <div className="absolute left-4 top-4 bottom-4 w-px bg-slate-100 dark:bg-white/8" />
 
-              {versions.map((version) => (
-                <div key={version.id} className="relative flex gap-4 pl-10">
-                  {/* Timeline dot */}
-                  <div className="absolute left-2.5 flex h-3 w-3 items-center justify-center">
-                    <div
-                      className="h-3 w-3 rounded-full border-2 border-slate-400 dark:border-[#5e6ad2] bg-white dark:bg-[#191a1b]"
-                    />
-                  </div>
-
-                  <div className="flex-1 rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-4 space-y-3 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] rounded border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5">v{version.version}</span>
-                        <span className="text-xs text-slate-500 dark:text-[#8a8f98]">
-                          선호도 {version.triggerLogCount}회 후 갱신
-                        </span>
+              {timeline.map((entry) => {
+                if (entry.kind === 'version') {
+                  const version = entry.data
+                  return (
+                    <div key={`v-${version.id}`} className="relative flex gap-4 pl-10">
+                      <div className="absolute left-2.5 flex h-3 w-3 items-center justify-center">
+                        <div className="h-3 w-3 rounded-full border-2 border-indigo-500 dark:border-[#5e6ad2] bg-white dark:bg-[#191a1b]" />
                       </div>
-                      <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{formatDate(version.createdAt)}</span>
-                    </div>
-
-                    {version.diff && version.diff.length > 0 ? (
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">이전 버전과 달라진 점:</p>
-                        {version.diff.map((change, j) => (
-                          <div
-                            key={j}
-                            className="flex items-center gap-3 rounded-lg border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-2 text-xs"
-                          >
-                            <span className="font-medium text-slate-700 dark:text-[#d0d6e0] capitalize">
-                              {change.field.replace('preferred', '')}
+                      <div className="flex-1 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#191a1b] p-4 space-y-3 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <BookMarked className="h-3.5 w-3.5 text-indigo-500 dark:text-[#818cf8]" />
+                            <span className="text-[10px] rounded border border-indigo-200 dark:border-indigo-800/40 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5">
+                              메모리 v{version.version} 생성
                             </span>
-                            <span className="text-slate-400 dark:text-[#8a8f98] line-through">
-                              {change.previousValue ?? 'none'}
+                            <span className="text-xs text-slate-500 dark:text-[#8a8f98]">
+                              선호도 {version.triggerLogCount}회 기반
                             </span>
-                            <span className="text-slate-400 dark:text-[#8a8f98]">→</span>
-                            <span className="text-slate-700 dark:text-[#d0d6e0]">{change.currentValue ?? 'none'}</span>
                           </div>
-                        ))}
+                          <span className="text-xs text-slate-400 dark:text-[#8a8f98]">{formatDate(version.createdAt)}</span>
+                        </div>
+                        {version.diff && version.diff.length > 0 ? (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-slate-600 dark:text-[#d0d6e0]">변경된 선호도:</p>
+                            {version.diff.map((change, j) => (
+                              <div key={j} className="flex items-center gap-2 rounded-lg border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] px-3 py-1.5 text-xs">
+                                <span className="font-medium text-slate-700 dark:text-[#d0d6e0] capitalize">
+                                  {change.field.replace('preferred', '')}
+                                </span>
+                                <span className="text-slate-400 dark:text-[#8a8f98] line-through">{change.previousValue ?? 'none'}</span>
+                                <span className="text-slate-400 dark:text-[#8a8f98]">→</span>
+                                <span className="text-slate-700 dark:text-[#d0d6e0]">{change.currentValue ?? 'none'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-400 dark:text-[#8a8f98]">첫 번째 선호도 프로필 생성됨</p>
+                        )}
                       </div>
-                    ) : (
-                      <p className="text-xs text-slate-400 dark:text-[#8a8f98]">첫 번째 메모리 생성됨</p>
-                    )}
+                    </div>
+                  )
+                }
+
+                // preference log entry
+                const log = entry.data
+                const tags = log.selectedTags as string[]
+                return (
+                  <div key={`l-${log.id}`} className="relative flex gap-4 pl-10">
+                    <div className="absolute left-2.5 flex h-3 w-3 items-center justify-center">
+                      <div className="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-[#8a8f98]" />
+                    </div>
+                    <div className="flex-1 rounded-xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] px-4 py-3 shadow-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-wrap min-w-0">
+                          <MessageSquare className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-[#8a8f98]" />
+                          <span className="text-xs text-slate-600 dark:text-[#d0d6e0] truncate max-w-xs">
+                            {log.userQuery.slice(0, 60)}{log.userQuery.length > 60 ? '...' : ''}
+                          </span>
+                          <span className="text-[10px] rounded bg-slate-100 dark:bg-white/8 text-slate-500 dark:text-[#8a8f98] px-1.5 py-0.5 shrink-0">
+                            {TASK_LABELS[log.taskType] ?? log.taskType}
+                          </span>
+                          <span className="text-[10px] rounded bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 border border-indigo-100 dark:border-indigo-900/30 shrink-0">
+                            {STRATEGY_LABELS[log.selectedStrategy] ?? log.selectedStrategy}
+                          </span>
+                        </div>
+                        <span className="text-xs text-slate-400 dark:text-[#8a8f98] shrink-0">{formatDate(log.createdAt)}</span>
+                      </div>
+                      {tags.length > 0 && (
+                        <div className="flex gap-1 mt-2 flex-wrap">
+                          {tags.map((tag, i) => (
+                            <span key={i} className="text-[10px] rounded px-1.5 py-0.5 bg-slate-50 dark:bg-[#28282c] text-slate-500 dark:text-[#8a8f98] border border-slate-100 dark:border-white/8">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </section>
 
         {/* XAI explainer note */}
-        {!isMock && <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#191a1b] p-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="h-5 w-5 shrink-0 mt-0.5 text-slate-700 dark:text-[#d0d6e0]" />
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">왜 이 답변인가? (XAI)</p>
-              <p className="text-xs text-slate-600 dark:text-[#d0d6e0] leading-relaxed">
-                일반 모드에서 생성된 모든 응답에는 설명이 포함됩니다.
-                AI 메시지 아래 <strong className="text-slate-700 dark:text-[#f7f8f8]">왜 이 답변인가?</strong>를 클릭하면
-                선호도 메모리가 응답 전략에 어떤 영향을 미쳤는지 확인할 수 있습니다.
-              </p>
+        {!isMock && (
+          <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-[#191a1b] p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="h-5 w-5 shrink-0 mt-0.5 text-slate-700 dark:text-[#d0d6e0]" />
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-900 dark:text-[#f7f8f8]">왜 이 답변인가? (XAI)</p>
+                <p className="text-xs text-slate-600 dark:text-[#d0d6e0] leading-relaxed">
+                  일반 모드에서 생성된 모든 응답에는 설명이 포함됩니다.
+                  AI 메시지 아래 <strong className="text-slate-700 dark:text-[#f7f8f8]">왜 이 답변인가?</strong>를 클릭하면
+                  선호도 메모리가 응답 전략에 어떤 영향을 미쳤는지 확인할 수 있습니다.
+                </p>
+              </div>
             </div>
           </div>
-        </div>}
+        )}
       </div>
     </div>
   )

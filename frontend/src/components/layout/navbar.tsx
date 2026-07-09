@@ -274,14 +274,7 @@ export function Navbar() {
             {language === 'ko' ? 'EN' : 'KO'}
           </button>
 
-          {/* Theme toggle */}
-          <button
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-            aria-label="테마 변경"
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          {/* Theme toggle — hidden */}
 
           <UserMenu />
           {/* Mobile hamburger */}
@@ -355,16 +348,7 @@ export function Navbar() {
                 <span>{language === 'ko' ? 'Switch to English' : '한국어로 전환'}</span>
               </button>
 
-              {/* Mobile theme toggle */}
-              <button
-                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                className="flex w-full items-center gap-2 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors"
-              >
-                {theme === 'dark'
-                  ? <Sun className="h-3.5 w-3.5" />
-                  : <Moon className="h-3.5 w-3.5" />}
-                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
-              </button>
+              {/* Mobile theme toggle — hidden */}
             </div>
           </nav>
         </div>

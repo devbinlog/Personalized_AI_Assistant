@@ -8,7 +8,7 @@ const isMock = process.env.NEXT_PUBLIC_LLM_PROVIDER === 'mock'
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'bg-slate-100 text-slate-600 dark:bg-white/8 dark:text-[#8a8f98]',
-  RUNNING: 'bg-amber-50 border border-amber-200 text-amber-700 dark:bg-amber-950/20 dark:border-amber-800/30 dark:text-amber-400',
+  RUNNING: 'bg-slate-50 border border-slate-200 text-slate-600 dark:bg-white/5 dark:border-white/10 dark:text-[#d0d6e0]',
   COMPLETED: 'bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800/40 dark:text-emerald-400',
 }
 
@@ -160,22 +160,22 @@ export default function ExperimentsPage() {
 
         {/* Live progress panel */}
         {running && (
-          <div className="rounded-2xl border border-amber-200 dark:border-amber-800/30 bg-amber-50 dark:bg-amber-950/10 p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-[#191a1b] p-5 shadow-sm">
             <div className="flex items-center gap-2.5 mb-4">
-              <Loader2 className="h-4 w-4 animate-spin text-amber-600 dark:text-amber-400" />
-              <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+              <Loader2 className="h-4 w-4 animate-spin text-indigo-600 dark:text-[#818cf8]" />
+              <span className="text-sm font-semibold text-slate-800 dark:text-[#f7f8f8]">
                 {runningExp?.name} 실행 중
               </span>
-              <span className="ml-auto text-xs text-amber-600 dark:text-amber-500">
+              <span className="ml-auto text-xs text-slate-500 dark:text-[#8a8f98]">
                 {progressTotal > 0 ? `${progress.length} / ${progressTotal} 완료` : '준비 중...'}
               </span>
             </div>
 
             {/* Progress bar */}
             {progressTotal > 0 && (
-              <div className="h-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-4 overflow-hidden">
+              <div className="h-1.5 bg-slate-100 dark:bg-white/8 rounded-full mb-4 overflow-hidden">
                 <div
-                  className="h-full bg-amber-500 dark:bg-amber-400 rounded-full transition-all duration-500"
+                  className="h-full bg-indigo-500 dark:bg-[#5e6ad2] rounded-full transition-all duration-500"
                   style={{ width: `${(progress.length / progressTotal) * 100}%` }}
                 />
               </div>
@@ -184,7 +184,7 @@ export default function ExperimentsPage() {
             {/* Completed steps */}
             <div className="space-y-2">
               {progress.map((item, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-xl bg-white dark:bg-[#191a1b] border border-amber-100 dark:border-white/8 px-3 py-2.5">
+                <div key={i} className="flex items-start gap-3 rounded-xl bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 px-3 py-2.5">
                   <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-emerald-500" />
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-slate-600 dark:text-[#d0d6e0] truncate mb-1.5">{item.input}</div>
@@ -213,8 +213,8 @@ export default function ExperimentsPage() {
 
               {/* "in progress" step placeholder */}
               {progressTotal > 0 && progress.length < progressTotal && (
-                <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-[#191a1b] border border-amber-100 dark:border-white/8 px-3 py-2.5">
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-500" />
+                <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 px-3 py-2.5">
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-indigo-500" />
                   <span className="text-xs text-slate-500 dark:text-[#8a8f98]">입력 {progress.length + 1} 평가 중...</span>
                 </div>
               )}
