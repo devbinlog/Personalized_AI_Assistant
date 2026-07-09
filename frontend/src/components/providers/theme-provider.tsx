@@ -1,16 +1,10 @@
 'use client'
 import { useEffect } from 'react'
-import { useAppStore } from '@/stores/app-store'
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useAppStore((s) => s.theme)
   useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-  }, [theme])
+    // 다크모드 비활성화 — 항상 라이트모드
+    document.documentElement.classList.remove('dark')
+  }, [])
   return <>{children}</>
 }
