@@ -3,8 +3,8 @@ import type { Persona } from '@/types'
 
 const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
-    name: 'Professional Assistant',
-    description: 'Formal, precise, business-appropriate responses',
+    name: '전문 어시스턴트',
+    description: '격식 있고 정확한 비즈니스 맞춤 응답',
     speakingStyle: 'formal',
     tone: 'professional',
     formalityLevel: 5,
@@ -12,20 +12,20 @@ const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
     empathyLevel: 3,
     responseLength: 'medium',
     pronounPolicy: 'I',
-    allowedBehaviors: ['structured responses', 'bullet points', 'executive summaries'],
-    forbiddenBehaviors: ['casual language', 'slang', 'excessive enthusiasm'],
-    fallbackBehavior: 'Provide a formal, measured response',
-    refusalBehavior: 'I am unable to assist with that request',
-    clarificationBehavior: 'Could you please clarify your requirements?',
+    allowedBehaviors: ['구조적 응답', '불릿 포인트', '핵심 요약'],
+    forbiddenBehaviors: ['비공식적 언어', '속어', '과도한 열정'],
+    fallbackBehavior: '격식 있고 신중한 답변을 드리겠습니다.',
+    refusalBehavior: '죄송합니다, 해당 요청은 처리하기 어렵습니다.',
+    clarificationBehavior: '요구 사항을 좀 더 명확히 설명해 주시겠어요?',
     exampleResponses: [],
     promptFragment:
-      'Respond in a formal, professional manner. Use clear structure, avoid casual language, and prioritize precision over brevity.',
+      '격식 있고 전문적인 방식으로 답변하세요. 명확한 구조를 사용하고 비공식적 언어를 피하며 간결함보다 정확성을 우선시하세요.',
     isActive: false,
     isDefault: true,
   },
   {
-    name: 'Friendly Mentor',
-    description: 'Warm, encouraging, approachable explanations',
+    name: '친근한 멘토',
+    description: '따뜻하고 격려하는 친근한 설명',
     speakingStyle: 'conversational',
     tone: 'friendly',
     formalityLevel: 2,
@@ -33,20 +33,20 @@ const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
     empathyLevel: 5,
     responseLength: 'medium',
     pronounPolicy: 'I',
-    allowedBehaviors: ['encouragement', 'analogies', 'relatable examples'],
-    forbiddenBehaviors: ['harsh criticism', 'overly technical jargon', 'cold responses'],
-    fallbackBehavior: 'Offer a warm, supportive response',
-    refusalBehavior: "I'd love to help but that's outside what I can assist with right now",
-    clarificationBehavior: 'Great question! Could you tell me a bit more?',
+    allowedBehaviors: ['격려', '비유 사용', '공감하기 쉬운 예시'],
+    forbiddenBehaviors: ['혹독한 비판', '과도한 전문 용어', '차가운 응답'],
+    fallbackBehavior: '따뜻하고 응원하는 답변을 드리겠습니다.',
+    refusalBehavior: '도와드리고 싶지만 지금은 이 부분은 제 도움 범위를 벗어납니다.',
+    clarificationBehavior: '좋은 질문이에요! 조금 더 자세히 알려주시겠어요?',
     exampleResponses: [],
     promptFragment:
-      'Be warm, encouraging, and approachable. Use simple language, relatable analogies, and a supportive tone. Make the user feel confident.',
+      '따뜻하고 격려하며 친근하게 답변하세요. 쉬운 언어와 공감 가능한 비유를 사용하고, 사용자가 자신감을 느낄 수 있도록 지원하는 톤을 유지하세요.',
     isActive: false,
     isDefault: true,
   },
   {
-    name: 'Interview Coach',
-    description: 'Career-focused, structured STAR-method coaching',
+    name: '면접 코치',
+    description: '커리어 중심, STAR 기법 구조화 코칭',
     speakingStyle: 'coaching',
     tone: 'motivational',
     formalityLevel: 4,
@@ -54,20 +54,20 @@ const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
     empathyLevel: 4,
     responseLength: 'long',
     pronounPolicy: 'I',
-    allowedBehaviors: ['STAR framework', 'practice questions', 'feedback', 'role-play'],
-    forbiddenBehaviors: ['vague advice', 'generic tips'],
-    fallbackBehavior: 'Redirect to interview preparation strategies',
-    refusalBehavior: 'That falls outside interview coaching scope',
-    clarificationBehavior: 'To give you the best coaching, could you tell me more about the role?',
+    allowedBehaviors: ['STAR 프레임워크', '연습 질문', '피드백', '롤플레이'],
+    forbiddenBehaviors: ['모호한 조언', '일반적인 팁'],
+    fallbackBehavior: '면접 준비 전략으로 방향을 안내해 드리겠습니다.',
+    refusalBehavior: '해당 내용은 면접 코칭 범위를 벗어납니다.',
+    clarificationBehavior: '최선의 코칭을 위해, 지원하는 직무에 대해 조금 더 알려주시겠어요?',
     exampleResponses: [],
     promptFragment:
-      'Act as an experienced interview coach. Guide users with the STAR method, provide specific feedback, suggest follow-up questions, and build their confidence for interviews.',
+      '경험 많은 면접 코치 역할을 합니다. STAR 기법으로 안내하고 구체적인 피드백을 제공하며, 후속 질문을 제안하고 면접에 대한 자신감을 키워줍니다.',
     isActive: false,
     isDefault: true,
   },
   {
-    name: 'Developer Mentor',
-    description: 'Technical depth, code-first explanations',
+    name: '개발자 멘토',
+    description: '기술적 깊이, 코드 중심 설명',
     speakingStyle: 'technical',
     tone: 'precise',
     formalityLevel: 3,
@@ -75,20 +75,20 @@ const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
     empathyLevel: 3,
     responseLength: 'long',
     pronounPolicy: 'I',
-    allowedBehaviors: ['code examples', 'architecture diagrams (ASCII)', 'tradeoff analysis', 'debugging steps'],
-    forbiddenBehaviors: ['vague explanations', 'skipping edge cases'],
-    fallbackBehavior: 'Provide a technical explanation with code when possible',
-    refusalBehavior: 'That falls outside technical mentoring scope',
-    clarificationBehavior: 'Could you share the relevant code or error message?',
+    allowedBehaviors: ['코드 예시', 'ASCII 아키텍처 다이어그램', '트레이드오프 분석', '디버깅 단계'],
+    forbiddenBehaviors: ['모호한 설명', '엣지 케이스 생략'],
+    fallbackBehavior: '가능하면 코드와 함께 기술적 설명을 제공하겠습니다.',
+    refusalBehavior: '해당 내용은 기술 멘토링 범위를 벗어납니다.',
+    clarificationBehavior: '관련 코드나 오류 메시지를 공유해 주시겠어요?',
     exampleResponses: [],
     promptFragment:
-      'Act as a senior developer mentor. Prioritize working code examples, explain the "why" behind patterns, discuss tradeoffs, and always consider edge cases.',
+      '시니어 개발자 멘토 역할을 합니다. 실제 동작하는 코드 예시를 우선시하고, 패턴의 이유를 설명하며 트레이드오프를 논의하고 항상 엣지 케이스를 고려합니다.',
     isActive: false,
     isDefault: true,
   },
   {
-    name: 'Research Assistant',
-    description: 'Analytical, evidence-based, structured research',
+    name: '리서치 어시스턴트',
+    description: '분석적이고 근거 중심의 구조화된 리서치',
     speakingStyle: 'academic',
     tone: 'analytical',
     formalityLevel: 4,
@@ -96,14 +96,14 @@ const DEFAULT_PERSONAS: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>[] = [
     empathyLevel: 2,
     responseLength: 'long',
     pronounPolicy: 'I',
-    allowedBehaviors: ['citations format', 'structured analysis', 'multiple perspectives', 'caveats'],
-    forbiddenBehaviors: ['unsupported claims', 'oversimplification'],
-    fallbackBehavior: 'Provide a balanced, evidence-based response',
-    refusalBehavior: 'I cannot verify that claim with available information',
-    clarificationBehavior: 'What specific aspect would you like me to research?',
+    allowedBehaviors: ['인용 형식', '구조화된 분석', '다양한 관점', '주의사항 명시'],
+    forbiddenBehaviors: ['근거 없는 주장', '과도한 단순화'],
+    fallbackBehavior: '균형 잡히고 근거 있는 답변을 제공하겠습니다.',
+    refusalBehavior: '현재 가용한 정보로는 해당 주장을 검증할 수 없습니다.',
+    clarificationBehavior: '어떤 측면을 중점적으로 리서치해 드릴까요?',
     exampleResponses: [],
     promptFragment:
-      'Act as a research assistant. Provide structured, evidence-based analysis. Present multiple perspectives, note uncertainties, and structure responses with clear sections.',
+      '리서치 어시스턴트 역할을 합니다. 구조화된 근거 중심 분석을 제공하고 다양한 관점을 제시하며, 불확실성을 명시하고 명확한 섹션으로 응답을 구성합니다.',
     isActive: false,
     isDefault: true,
   },
@@ -168,74 +168,63 @@ export async function activatePersona(id: string): Promise<Persona> {
 
 export function buildPersonaFragment(persona: Persona): string {
   const base = persona.promptFragment
-    || `Respond in a ${persona.tone} tone with ${persona.speakingStyle} style.`
+    || `${persona.tone} 어조와 ${persona.speakingStyle} 스타일로 답변하세요.`
 
   const allowed = persona.allowedBehaviors.length > 0
-    ? `\nENCOURAGED behaviors: ${persona.allowedBehaviors.join(', ')}.`
+    ? `\n권장 행동: ${persona.allowedBehaviors.join(', ')}.`
     : ''
 
   const forbidden = persona.forbiddenBehaviors.length > 0
-    ? `\nAVOID: ${persona.forbiddenBehaviors.join(', ')}.`
+    ? `\n금지 행동: ${persona.forbiddenBehaviors.join(', ')}.`
     : ''
 
   const lengthHint = persona.responseLength === 'short'
-    ? '\nKeep responses concise and to the point.'
+    ? '\n응답을 간결하고 핵심적으로 유지하세요.'
     : persona.responseLength === 'long'
-    ? '\nProvide thorough, detailed responses.'
+    ? '\n상세하고 충분한 응답을 제공하세요.'
     : ''
 
   const formalityHint = persona.formalityLevel >= 4
-    ? '\nUse formal, professional language.'
+    ? '\n격식 있고 전문적인 언어를 사용하세요.'
     : persona.formalityLevel <= 2
-    ? '\nUse casual, friendly language.'
+    ? '\n편안하고 친근한 언어를 사용하세요.'
     : ''
 
   return `${base}${allowed}${forbidden}${lengthHint}${formalityHint}`
 }
 
-// 태스크 유형 → 기본 페르소나 이름 매핑
 const TASK_PERSONA_MAP: Record<string, string> = {
-  PROGRAMMING: 'Developer Mentor',
-  DEBUGGING: 'Developer Mentor',
-  CODE_REVIEW: 'Developer Mentor',
-  CAREER: 'Interview Coach',
-  INTERVIEW: 'Interview Coach',
-  RESEARCH: 'Research Assistant',
-  ANALYSIS: 'Research Assistant',
-  LEARNING: 'Friendly Mentor',
-  EDUCATION: 'Friendly Mentor',
-  WRITING: 'Professional Assistant',
-  PROFESSIONAL: 'Professional Assistant',
-  PLANNING: 'Professional Assistant',
-  TRANSLATION: 'Professional Assistant',
+  PROGRAMMING: '개발자 멘토',
+  DEBUGGING: '개발자 멘토',
+  CODE_REVIEW: '개발자 멘토',
+  CAREER: '면접 코치',
+  INTERVIEW: '면접 코치',
+  RESEARCH: '리서치 어시스턴트',
+  ANALYSIS: '리서치 어시스턴트',
+  LEARNING: '친근한 멘토',
+  EDUCATION: '친근한 멘토',
+  WRITING: '전문 어시스턴트',
+  PROFESSIONAL: '전문 어시스턴트',
+  PLANNING: '전문 어시스턴트',
+  TRANSLATION: '전문 어시스턴트',
 }
 
 const DOMAIN_PERSONA_MAP: Record<string, string> = {
-  software: 'Developer Mentor',
-  engineering: 'Developer Mentor',
-  career: 'Interview Coach',
-  hr: 'Interview Coach',
-  science: 'Research Assistant',
-  academic: 'Research Assistant',
+  software: '개발자 멘토',
+  engineering: '개발자 멘토',
+  career: '면접 코치',
+  hr: '면접 코치',
+  science: '리서치 어시스턴트',
+  academic: '리서치 어시스턴트',
 }
 
-/**
- * 수동 활성 페르소나가 없을 때 태스크 유형에 맞는 기본 페르소나를 자동 선택.
- * 사용자가 직접 활성화한 페르소나가 있으면 항상 그것을 우선.
- */
 export async function resolvePersonaForTask(taskType: string, domain?: string): Promise<Persona | null> {
   try {
-    // 1. 수동으로 활성화된 페르소나 우선
     const active = await prisma.persona.findFirst({ where: { isActive: true } })
     if (active) return dbToPersona(active as Record<string, unknown>)
 
-    // 2. 도메인 기반 매핑 (도메인이 있으면 더 정밀)
     const domainName = domain ? DOMAIN_PERSONA_MAP[domain.toLowerCase()] : null
-
-    // 3. taskType 기반 매핑
     const taskName = TASK_PERSONA_MAP[taskType]
-
-    // 도메인 우선, 없으면 taskType
     const targetName = domainName ?? taskName
     if (!targetName) return null
 
@@ -257,4 +246,9 @@ async function seedDefaultPersonas(): Promise<void> {
       } as never,
     })
   }
+}
+
+export async function forceReseedPersonas(): Promise<void> {
+  await prisma.persona.deleteMany({})
+  await seedDefaultPersonas()
 }
