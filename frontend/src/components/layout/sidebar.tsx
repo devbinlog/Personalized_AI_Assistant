@@ -448,22 +448,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
           </span>
         </button>
 
-        {/* Theme toggle icon */}
-        <button
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          title={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors"
-          style={{
-            border: '1px solid transparent',
-            backgroundColor: 'transparent',
-            cursor: 'pointer',
-            color: isDark ? '#8a8f98' : '#78716c',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f1f5f9' }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
-        >
-          {isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-        </button>
+        {/* Theme toggle — hidden */}
       </div>
 
       {/* Footer — border-top이 채팅 입력창 border와 같은 높이 */}

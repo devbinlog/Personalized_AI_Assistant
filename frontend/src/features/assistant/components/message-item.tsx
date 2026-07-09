@@ -87,6 +87,12 @@ export function MessageItem({
             <div className="prose-chat text-sm">
               <ReactMarkdown
                 components={{
+                  strong({ children }) {
+                    return <span>{children}</span>
+                  },
+                  em({ children }) {
+                    return <span>{children}</span>
+                  },
                   code({ className, children, ...props }) {
                     const match = /language-(\w+)/.exec(className || '')
                     if (!match) {
@@ -98,7 +104,7 @@ export function MessageItem({
                     }
                     return (
                       <SyntaxHighlighter
-                        style={(theme === 'dark' ? oneDark : oneLight) as never}
+                        style={oneLight as never}
                         language={match[1]}
                         PreTag="div"
                         className="!rounded-lg !text-xs !mt-2"

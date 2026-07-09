@@ -84,7 +84,7 @@ export function CandidateCards({ candidates, onSelect, isSubmitting }: Candidate
               {/* Full content always rendered; collapsed shows preview */}
               {isExpanded ? (
                 <div className="mt-3 max-h-[400px] overflow-y-auto text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed prose-chat">
-                  <ReactMarkdown>{candidate.content}</ReactMarkdown>
+                  <ReactMarkdown components={{ strong: ({ children }) => <span>{children}</span>, em: ({ children }) => <span>{children}</span> }}>{candidate.content}</ReactMarkdown>
                 </div>
               ) : (
                 <p className="mt-3 text-sm text-slate-700 dark:text-[#d0d6e0] leading-relaxed line-clamp-3">
