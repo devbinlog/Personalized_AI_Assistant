@@ -66,6 +66,7 @@ export const ROUTES = {
   EXPERIMENTS: '/prompt-lab/experiments',
   GLOBAL_LEARNING: '/dashboard/global-learning',
   RUBRIC: '/dashboard/rubric',
+  EXECUTION: '/execution',
 } as const
 
 // API routes

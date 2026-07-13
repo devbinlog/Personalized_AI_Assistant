@@ -12,6 +12,8 @@ interface AppState {
   sidebarRefreshKey: number
   theme: 'light' | 'dark'
   language: 'ko' | 'en'
+  executionGoalId: string | null      // null = 실행 모드 OFF
+  executionGoalTitle: string | null   // 사이드바 표시용
 
   setSessionId: (id: string) => void
   setMode: (mode: ConversationMode) => void
@@ -20,6 +22,7 @@ interface AppState {
   refreshSidebar: () => void
   setTheme: (theme: 'light' | 'dark') => void
   setLanguage: (language: 'ko' | 'en') => void
+  setExecutionGoal: (goalId: string | null, title?: string | null) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -31,6 +34,8 @@ export const useAppStore = create<AppState>()(
       sidebarRefreshKey: 0,
       theme: 'light',
       language: 'ko',
+      executionGoalId: null,
+      executionGoalTitle: null,
       settings: {
         defaultMode: 'NORMAL',
         autoSearch: true,
@@ -46,6 +51,7 @@ export const useAppStore = create<AppState>()(
       refreshSidebar: () => set((state) => ({ sidebarRefreshKey: state.sidebarRefreshKey + 1 })),
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
+      setExecutionGoal: (goalId, title = null) => set({ executionGoalId: goalId, executionGoalTitle: title }),
     }),
     {
       name: 'aai-app-state',
@@ -55,6 +61,8 @@ export const useAppStore = create<AppState>()(
         settings: state.settings,
         theme: state.theme,
         language: state.language,
+        executionGoalId: state.executionGoalId,
+        executionGoalTitle: state.executionGoalTitle,
       }),
     },
   ),

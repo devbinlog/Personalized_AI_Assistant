@@ -21,6 +21,7 @@ import {
   X,
   Sun,
   Moon,
+  Target,
 } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { cn, formatDate } from '@/lib/utils'
@@ -38,6 +39,7 @@ interface Conversation {
 const NAV_ITEMS = [
   { label: '채팅', href: ROUTES.CHAT, icon: MessageSquare },
   { label: '대시보드', href: ROUTES.DASHBOARD, icon: LayoutDashboard },
+  { label: '실행 모드', href: ROUTES.EXECUTION, icon: Target },
   { label: '프롬프트 랩', href: ROUTES.PROMPT_LAB, icon: FlaskConical },
   { label: '인사이트', href: ROUTES.INSIGHTS, icon: Lightbulb },
   { label: '설정', href: ROUTES.SETTINGS, icon: Settings },
@@ -60,8 +62,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
-  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey, theme, setTheme } = useAppStore()
+  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey, theme, setTheme, executionGoalId, executionGoalTitle, setExecutionGoal } = useAppStore()
   const isLearning = mode === 'LEARNING'
+  const isExecution = !!executionGoalId
   const isDark = theme === 'dark'
 
   const isInDesignSection = DESIGN_NAV_ITEMS.some(item => pathname.startsWith(item.href))
@@ -415,11 +418,12 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
       {/* Spacer when no conversations */}
       {!showConversations && <div className="flex-1" />}
 
-      {/* Learning Mode Toggle + Theme Toggle */}
-      <div className="shrink-0 px-3 py-2 flex items-center gap-2">
+      {/* Learning Mode + Execution Mode Toggles */}
+      <div className="shrink-0 px-3 py-2 space-y-1">
+        {/* 학습 모드 */}
         <button
           onClick={() => setMode(isLearning ? 'NORMAL' : 'LEARNING')}
-          className="flex flex-1 items-center gap-2 rounded-md text-left transition-colors"
+          className="flex w-full items-center gap-2 rounded-md text-left transition-colors"
           style={{
             padding: '6px 8px',
             borderRadius: '6px',
@@ -448,7 +452,50 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
           </span>
         </button>
 
-        {/* Theme toggle — hidden */}
+        {/* 실행 모드 */}
+        <button
+          onClick={() => {
+            if (isExecution) {
+              setExecutionGoal(null, null)
+            } else {
+              router.push('/execution')
+            }
+          }}
+          className="flex w-full items-center gap-2 rounded-md text-left transition-colors"
+          style={{
+            padding: '6px 8px',
+            borderRadius: '6px',
+            backgroundColor: isExecution ? '#eff6ff' : 'transparent',
+            border: isExecution ? '1px solid #bfdbfe' : '1px solid transparent',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e => {
+            if (!isExecution) e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f8fafc'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = isExecution ? (isDark ? 'rgba(30,41,59,0.2)' : '#eff6ff') : 'transparent'
+          }}
+        >
+          <div
+            className="flex h-6 w-6 items-center justify-center rounded-full shrink-0"
+            style={{ backgroundColor: isExecution ? (isDark ? 'rgba(30,41,59,0.3)' : '#dbeafe') : (isDark ? '#28282c' : '#f5f5f4') }}
+          >
+            <Target
+              className="h-3 w-3"
+              style={{ color: isExecution ? '#1d4ed8' : (isDark ? '#8a8f98' : '#a8a29e') }}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span style={{ fontSize: '13px', fontWeight: 600, color: isExecution ? '#1d4ed8' : (isDark ? '#d0d6e0' : '#44403c') }}>
+              실행 모드 {isExecution ? 'ON' : 'OFF'}
+            </span>
+            {isExecution && executionGoalTitle && (
+              <div className="truncate" style={{ fontSize: '10px', color: '#3b82f6', marginTop: '1px' }}>
+                {executionGoalTitle}
+              </div>
+            )}
+          </div>
+        </button>
       </div>
 
       {/* Footer — border-top이 채팅 입력창 border와 같은 높이 */}

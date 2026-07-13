@@ -245,8 +245,11 @@ export async function POST(req: NextRequest) {
       }
     : await analyzeTask(userMessage, history)
 
-  // ── 3.5. Auto-resolve persona based on task type ─────────
-  const activePersona = await resolvePersonaForTask(taskAnalysis.taskType, taskAnalysis.domain)
+  // ── 3.5. Auto-resolve persona + active flow ─────────────
+  const [activePersona, activeFlow] = await Promise.all([
+    resolvePersonaForTask(taskAnalysis.taskType, taskAnalysis.domain),
+    prisma.conversationFlow.findFirst({ where: { isActive: true } }).catch(() => null),
+  ])
 
   // ── 4. Web Search (if needed) ────────────────────────────
   // Skip if LangGraph already handled context; otherwise run locally
@@ -275,7 +278,7 @@ export async function POST(req: NextRequest) {
   // Use LangGraph system_prompt if available; otherwise build locally
   const built = buildSystemPrompt(
     taskAnalysis, memory, [], searchContext,
-    activePersona, undefined, undefined,
+    activePersona, activeFlow as never, undefined,
     userProfile as never,
     recentSummaries as string[],
     messageCount,

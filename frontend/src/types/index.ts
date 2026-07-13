@@ -127,7 +127,7 @@ export interface PreferenceMemoryVersion {
 
 // ── Conversation & Messages ────────────────────
 
-export type ConversationMode = 'NORMAL' | 'LEARNING'
+export type ConversationMode = 'NORMAL' | 'LEARNING' | 'EXECUTION'
 export type MessageRole = 'USER' | 'ASSISTANT' | 'SYSTEM'
 
 export interface Message {
@@ -453,6 +453,76 @@ export interface DatasetExport {
   filePath: string | null
   createdAt: Date
 }
+
+// ── 실행 모드 (Execution Mode) ─────────────────────────────
+
+export type GoalCategory =
+  | 'career'    // 커리어
+  | 'learning'  // 학습
+  | 'project'   // 프로젝트
+  | 'health'    // 건강
+  | 'startup'   // 창업
+  | 'personal'  // 개인
+  | 'general'   // 일반
+
+export type GoalStatus = 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ARCHIVED'
+export type ItemStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED'
+export type RecommendationType = 'NEXT_ACTION' | 'REPLANNING' | 'WARNING' | 'INSIGHT'
+export type RecommendationStatus = 'PENDING' | 'ACTED' | 'DISMISSED'
+
+export interface ExecutionStep {
+  id: string
+  milestoneId: string
+  title: string
+  description: string | null
+  instruction: string | null
+  order: number
+  status: ItemStatus
+  isCurrent: boolean
+  userNote: string | null
+  aiSummary: string | null
+  completedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ExecutionMilestone {
+  id: string
+  goalId: string
+  title: string
+  description: string | null
+  order: number
+  status: ItemStatus
+  steps: ExecutionStep[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ExecutionGoal {
+  id: string
+  userId: string
+  title: string
+  description: string | null
+  category: GoalCategory
+  status: GoalStatus
+  progress: number
+  context: string | null
+  milestones: ExecutionMilestone[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ExecutionRecommendation {
+  id: string
+  goalId: string
+  stepId: string | null
+  content: string
+  type: RecommendationType
+  status: RecommendationStatus
+  createdAt: Date
+}
+
+// ── Dataset Pipeline ───────────────────────────
 
 export interface DPORecord {
   prompt: string

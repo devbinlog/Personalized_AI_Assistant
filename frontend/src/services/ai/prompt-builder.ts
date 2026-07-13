@@ -50,7 +50,7 @@ export function buildSystemPrompt(
 
   const profileContext = userProfile ? buildProfileContext(userProfile) : ''
   const flowContext = activeFlow
-    ? `CONVERSATION FLOW (${activeFlow.name}):\n${activeFlow.fallbackPolicy}`
+    ? buildFlowContext(activeFlow)
     : ''
 
   const taskContext = buildTaskContext(taskAnalysis)
@@ -117,6 +117,26 @@ function buildMemoryContext(memory: PreferenceMemory): string {
 
 function buildExamplesContext(examples: string[]): string {
   return `RECENT HIGH-QUALITY EXAMPLES:\n${examples.slice(0, 2).map((e, i) => `[${i + 1}] ${e}`).join('\n\n')}`
+}
+
+function buildFlowContext(flow: ConversationFlow): string {
+  const lines: string[] = [`CONVERSATION FLOW — "${flow.name}" (domain: ${flow.domain})`]
+  if (flow.description) lines.push(`Purpose: ${flow.description}`)
+  if (flow.triggerCondition) lines.push(`Trigger: ${flow.triggerCondition}`)
+
+  const steps = Array.isArray(flow.steps)
+    ? flow.steps
+    : JSON.parse((flow.steps as unknown as string) || '[]')
+
+  if (steps.length > 0) {
+    lines.push('Steps to follow in order:')
+    steps.forEach((s: { name: string; instruction: string; searchPolicy?: string }, i: number) => {
+      lines.push(`  ${i + 1}. ${s.name}: ${s.instruction}${s.searchPolicy && s.searchPolicy !== 'auto' ? ` [search: ${s.searchPolicy}]` : ''}`)
+    })
+  }
+  if (flow.fallbackPolicy) lines.push(`Fallback: ${flow.fallbackPolicy}`)
+  if (flow.clarificationPolicy) lines.push(`On unclear input: ${flow.clarificationPolicy}`)
+  return lines.join('\n')
 }
 
 function buildProfileContext(profile: UserProfile): string {

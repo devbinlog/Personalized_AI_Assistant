@@ -357,9 +357,17 @@ export default function ExperimentsPage() {
         )}
 
         {/* Results panel */}
-        {selected && selected.results && selected.results.length > 0 && (
+        {selected && selected.results && selected.results.length > 0 && (() => {
+          const results = selected.results!
+          const aWins = results.filter(r => r.preferredByEvaluator === 'A').length
+          const bWins = results.filter(r => r.preferredByEvaluator === 'B').length
+          const ties  = results.filter(r => r.preferredByEvaluator === 'tie').length
+          const avgA  = results.reduce((s, r) => s + r.scoreA, 0) / results.length
+          const avgB  = results.reduce((s, r) => s + r.scoreB, 0) / results.length
+          const maxAvg = Math.max(avgA, avgB) || 1
+          return (
           <div className="rounded-2xl border border-slate-100 dark:border-white/8 bg-white dark:bg-[#191a1b] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-5">
               <div>
                 <span className="text-base font-semibold text-slate-900 dark:text-[#f7f8f8]">결과: {selected.name}</span>
                 {selected.winner && (
@@ -372,8 +380,69 @@ export default function ExperimentsPage() {
                 <X className="h-4 w-4" />
               </button>
             </div>
+
+            {/* ── 요약 통계 ── */}
+            <div className="mb-6 rounded-xl border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] p-4">
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-[#8a8f98] uppercase tracking-wider mb-3">요약 통계</p>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {/* 승리 횟수 */}
+                <div className="rounded-lg bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 p-3 text-center">
+                  <div className="text-xs text-slate-400 dark:text-[#8a8f98] mb-1">A 승리</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-[#f7f8f8]">{aWins}</div>
+                  <div className="text-[10px] text-slate-400 dark:text-[#8a8f98]">/ {results.length}회</div>
+                </div>
+                <div className="rounded-lg bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 p-3 text-center">
+                  <div className="text-xs text-slate-400 dark:text-[#8a8f98] mb-1">동점</div>
+                  <div className="text-2xl font-bold text-slate-500 dark:text-[#8a8f98]">{ties}</div>
+                  <div className="text-[10px] text-slate-400 dark:text-[#8a8f98]">/ {results.length}회</div>
+                </div>
+                <div className="rounded-lg bg-white dark:bg-[#191a1b] border border-slate-100 dark:border-white/8 p-3 text-center">
+                  <div className="text-xs text-slate-400 dark:text-[#8a8f98] mb-1">B 승리</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-[#f7f8f8]">{bWins}</div>
+                  <div className="text-[10px] text-slate-400 dark:text-[#8a8f98]">/ {results.length}회</div>
+                </div>
+              </div>
+
+              {/* 평균 점수 비교 바 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-[#8a8f98] w-16 shrink-0">프롬프트 A</span>
+                  <div className="flex-1 h-2 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${avgA >= avgB ? 'bg-slate-700 dark:bg-[#1E293B]' : 'bg-slate-400 dark:bg-[#475569]'}`}
+                      style={{ width: `${(avgA / maxAvg) * 100}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs tabular-nums w-10 text-right font-medium ${avgA >= avgB ? 'text-slate-800 dark:text-[#f7f8f8]' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
+                    {(avgA * 100).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-[#8a8f98] w-16 shrink-0">프롬프트 B</span>
+                  <div className="flex-1 h-2 bg-slate-100 dark:bg-white/8 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${avgB > avgA ? 'bg-slate-700 dark:bg-[#1E293B]' : 'bg-slate-400 dark:bg-[#475569]'}`}
+                      style={{ width: `${(avgB / maxAvg) * 100}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs tabular-nums w-10 text-right font-medium ${avgB > avgA ? 'text-slate-800 dark:text-[#f7f8f8]' : 'text-slate-400 dark:text-[#8a8f98]'}`}>
+                    {(avgB * 100).toFixed(1)}
+                  </span>
+                </div>
+              </div>
+
+              {/* 승률 요약 문장 */}
+              <p className="mt-3 text-xs text-slate-500 dark:text-[#8a8f98]">
+                {selected.winner === 'tie'
+                  ? '두 프롬프트의 성능이 동일합니다.'
+                  : `프롬프트 ${selected.winner}가 ${selected.winner === 'A' ? aWins : bWins}/${results.length}회 승리하며 평균 ${((selected.winner === 'A' ? avgA : avgB) * 100).toFixed(1)}점을 기록했습니다.`}
+              </p>
+            </div>
+
+            {/* ── 개별 결과 ── */}
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-[#8a8f98] uppercase tracking-wider mb-3">개별 결과</p>
             <div className="space-y-4">
-              {selected.results.map((result, i) => (
+              {results.map((result, i) => (
                 <div key={result.id} className="rounded-xl border border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-[#28282c] p-4">
                   <div className="text-xs font-semibold text-slate-500 dark:text-[#8a8f98] mb-3">
                     입력 {i + 1}: <span className="font-normal text-slate-700 dark:text-[#d0d6e0]">{result.input}</span>
@@ -410,7 +479,8 @@ export default function ExperimentsPage() {
               ))}
             </div>
           </div>
-        )}
+          )
+        })()}
       </div>
     </div>
   )

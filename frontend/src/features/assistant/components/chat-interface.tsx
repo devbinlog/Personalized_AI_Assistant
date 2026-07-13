@@ -10,7 +10,7 @@ import { CandidateCards } from '@/features/learning/components/candidate-cards'
 import { TagSelector } from '@/features/learning/components/tag-selector'
 import { SuggestionBanner } from '@/features/preference-manager/components/suggestion-banner'
 import { useAppStore } from '@/stores/app-store'
-import { Brain, Sparkles, LogIn, User, Settings, LogOut, ChevronDown } from 'lucide-react'
+import { Brain, Sparkles, LogIn, User, Settings, LogOut, ChevronDown, Target, CheckCircle2, ChevronRight, X } from 'lucide-react'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
 import type { ConversationMode, PreferenceTag, ResponseStrategy } from '@/types'
@@ -49,8 +49,13 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const mode = useAppStore(s => s.mode)
   const chatResetKey = useAppStore(s => s.chatResetKey)
   const refreshSidebar = useAppStore(s => s.refreshSidebar)
+  const executionGoalId = useAppStore(s => s.executionGoalId)
+  const setExecutionGoal = useAppStore(s => s.setExecutionGoal)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [executionGoal, setExecutionGoalData] = useState<null | { id: string; title: string; progress: number; milestones: Array<{ id: string; title: string; status: string; steps: Array<{ id: string; title: string; status: string; isCurrent: boolean }> }> }>(null)
+  const [lastRecommendation, setLastRecommendation] = useState<string | null>(null)
+  const prevIsLoading = useRef(false)
   // DB-loaded assistant message IDs — msg.id is already the DB ID for these
   const loadedDbMessageIds = useRef<Set<string>>(new Set(
     initialMessages?.filter(m => m.role === 'assistant').map(m => m.id) ?? []
@@ -213,6 +218,32 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     clearLearningCandidates()
   }, [learningState, learningCandidates, messages, meta.conversationId, setMessages, clearLearningCandidates])
 
+  // 실행 모드: 목표 데이터 로드
+  useEffect(() => {
+    if (!executionGoalId) { setExecutionGoalData(null); setLastRecommendation(null); return }
+    fetch(`/api/goals/${executionGoalId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.goal) setExecutionGoalData(d.goal) })
+      .catch(() => {})
+  }, [executionGoalId])
+
+  // 실행 모드: 스트리밍 완료 직후 다음 추천 생성
+  useEffect(() => {
+    if (prevIsLoading.current && !isLoading && executionGoalId && messages.length >= 2) {
+      const lastUser = [...messages].reverse().find(m => m.role === 'user')?.content ?? ''
+      const lastAi = [...messages].reverse().find(m => m.role === 'assistant')?.content ?? ''
+      fetch(`/api/goals/${executionGoalId}/recommend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lastUserMessage: lastUser, lastAiResponse: lastAi }),
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.recommendation) setLastRecommendation(d.recommendation.content) })
+        .catch(() => {})
+    }
+    prevIsLoading.current = isLoading
+  }, [isLoading])
+
   const showWelcome = messages.length === 0 && !isLearningLoading && !learningCandidates
 
   return (
@@ -251,6 +282,44 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
       </div>
 
       <SuggestionBanner />
+
+      {/* 실행 모드 패널 */}
+      {executionGoalId && executionGoal && (
+        <ExecutionGoalPanel
+          goal={executionGoal}
+          onClose={() => setExecutionGoal(null, null)}
+          onStepComplete={async (stepId) => {
+            const res = await fetch(`/api/goals/${executionGoalId}/steps/${stepId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'COMPLETED' }),
+            })
+            const d = await res.json()
+            if (d.goal) setExecutionGoalData(d.goal)
+          }}
+        />
+      )}
+
+      {/* 다음 추천 카드 */}
+      {executionGoalId && lastRecommendation && (
+        <div
+          className="mx-4 mt-2 mb-0 flex items-start gap-2.5 rounded-xl border p-3"
+          style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}
+        >
+          <Target className="h-4 w-4 mt-0.5 shrink-0 text-sky-600" />
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold text-sky-700 mb-0.5">다음 추천</div>
+            <p className="text-xs text-sky-800 leading-relaxed">{lastRecommendation}</p>
+          </div>
+          <button
+            onClick={() => setLastRecommendation(null)}
+            className="shrink-0 text-sky-400 hover:text-sky-600 transition-colors"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-none">
         {showWelcome ? (
@@ -318,11 +387,134 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         isStreaming={isLoading}
         isLoading={isLearningLoading}
         placeholder={
-          mode === 'LEARNING'
-            ? '무엇이든 물어보세요 — 3가지 스타일 중 선택하게 됩니다…'
-            : '무엇이든 물어보세요…'
+          executionGoalId && executionGoal
+            ? `"${executionGoal.title}" 목표를 위해 무엇을 도와드릴까요?`
+            : mode === 'LEARNING'
+              ? '무엇이든 물어보세요 — 3가지 스타일 중 선택하게 됩니다…'
+              : '무엇이든 물어보세요…'
         }
       />
+    </div>
+  )
+}
+
+// ── 실행 모드 목표 패널 ─────────────────────────────────────
+type GoalPanelGoal = {
+  id: string
+  title: string
+  progress: number
+  milestones: Array<{
+    id: string
+    title: string
+    status: string
+    steps: Array<{ id: string; title: string; status: string; isCurrent: boolean }>
+  }>
+}
+
+function ExecutionGoalPanel({
+  goal,
+  onClose,
+  onStepComplete,
+}: {
+  goal: GoalPanelGoal
+  onClose: () => void
+  onStepComplete: (stepId: string) => Promise<void>
+}) {
+  const [expanded, setExpanded] = useState(true)
+  const [completing, setCompleting] = useState<string | null>(null)
+  const activeMilestone = goal.milestones.find(m => m.status === 'IN_PROGRESS') ?? goal.milestones[0]
+  const currentStep = activeMilestone?.steps.find(s => s.isCurrent)
+
+  async function handleComplete(stepId: string) {
+    setCompleting(stepId)
+    try { await onStepComplete(stepId) } finally { setCompleting(null) }
+  }
+
+  return (
+    <div
+      className="mx-0 shrink-0 border-b"
+      style={{ background: '#f8faff', borderColor: '#bfdbfe' }}
+    >
+      {/* 헤더 */}
+      <div
+        className="flex items-center gap-2 px-4 py-2 cursor-pointer"
+        onClick={() => setExpanded(e => !e)}
+      >
+        <Target className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-blue-900 truncate">{goal.title}</span>
+            <span className="text-[10px] text-blue-500 shrink-0">{goal.progress.toFixed(0)}%</span>
+          </div>
+          {/* 프로그레스 바 */}
+          <div className="h-1 rounded-full overflow-hidden mt-0.5" style={{ background: '#dbeafe' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700 bg-blue-500"
+              style={{ width: `${goal.progress}%` }}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <ChevronRight
+            className="h-3.5 w-3.5 text-blue-400 transition-transform"
+            style={{ transform: expanded ? 'rotate(90deg)' : 'none' }}
+          />
+          <button
+            onClick={e => { e.stopPropagation(); onClose() }}
+            className="text-blue-300 hover:text-blue-500 transition-colors"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 4px' }}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* 확장 패널: 마일스톤 + 단계 */}
+      {expanded && activeMilestone && (
+        <div className="px-4 pb-3 space-y-2">
+          <div className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider">
+            현재 마일스톤: {activeMilestone.title}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {activeMilestone.steps.map(step => (
+              <div
+                key={step.id}
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 border text-xs transition-colors"
+                style={{
+                  background: step.status === 'COMPLETED' ? '#ecfdf5' : step.isCurrent ? '#eff6ff' : 'white',
+                  borderColor: step.status === 'COMPLETED' ? '#a7f3d0' : step.isCurrent ? '#93c5fd' : '#e2e8f0',
+                  color: step.status === 'COMPLETED' ? '#059669' : step.isCurrent ? '#1d4ed8' : '#64748b',
+                }}
+              >
+                {step.status === 'COMPLETED'
+                  ? <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                  : step.isCurrent
+                    ? <div className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />
+                    : <div className="h-2 w-2 rounded-full bg-slate-200 shrink-0" />
+                }
+                <span>{step.title}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 현재 단계 완료 버튼 */}
+          {currentStep && currentStep.status !== 'COMPLETED' && (
+            <button
+              onClick={() => handleComplete(currentStep.id)}
+              disabled={!!completing}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 transition-opacity"
+              style={{ background: '#1d4ed8', border: 'none', cursor: completing ? 'wait' : 'pointer' }}
+            >
+              {completing ? (
+                <span className="h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-3 w-3" />
+              )}
+              "{currentStep.title}" 완료
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
