@@ -135,7 +135,7 @@ export default function ExecutionPage() {
                 type="text"
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="예: 플러스엑스 합격, 포트폴리오 완성, 영어 공부"
+                placeholder="예: 디자인 회사 합격, 포트폴리오 완성, 영어 공부"
                 className="w-full rounded-xl border px-3 py-2 text-sm outline-none transition-colors"
                 style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-2)', color: 'var(--color-text-primary)' }}
                 onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = 'var(--color-surface)' }}
