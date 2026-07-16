@@ -57,6 +57,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const chatResetKey = useAppStore(s => s.chatResetKey)
   const refreshSidebar = useAppStore(s => s.refreshSidebar)
   const executionGoalId = useAppStore(s => s.executionGoalId)
+  const executionGoalTitle = useAppStore(s => s.executionGoalTitle)
   const setExecutionGoal = useAppStore(s => s.setExecutionGoal)
   const language = useAppStore(s => s.language)
   const setLanguage = useAppStore(s => s.setLanguage)
@@ -122,16 +123,30 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Restore mode when loading a past conversation
+  // Restore mode + execution goal when loading a past conversation
   useEffect(() => {
-    if (!conversationId) return
-    const savedMode = typeof window !== 'undefined'
-      ? localStorage.getItem(`conv_mode_${conversationId}`) as ConversationMode | null
-      : null
+    if (!conversationId || typeof window === 'undefined') return
+    const savedMode = localStorage.getItem(`conv_mode_${conversationId}`) as ConversationMode | null
     if (savedMode === 'LEARNING' || savedMode === 'NORMAL') {
       setMode(savedMode)
     }
+    const savedGoal = localStorage.getItem(`conv_executionGoal_${conversationId}`)
+    if (savedGoal) {
+      try {
+        const { id, title } = JSON.parse(savedGoal)
+        setExecutionGoal(id, title)
+      } catch {}
+    }
   }, [conversationId])
+
+  // Persist execution goal mapping for this conversation
+  useEffect(() => {
+    if (!meta.conversationId || !executionGoalId || typeof window === 'undefined') return
+    localStorage.setItem(
+      `conv_executionGoal_${meta.conversationId}`,
+      JSON.stringify({ id: executionGoalId, title: executionGoalTitle }),
+    )
+  }, [meta.conversationId, executionGoalId, executionGoalTitle])
 
   // Load past conversation messages client-side (reliable across RSC caching)
   useEffect(() => {

@@ -205,8 +205,8 @@ export default function HomePage() {
               </h1>
 
               <p className="text-base leading-relaxed mb-10 max-w-sm" style={{ color: '#6B6B68' }}>
-                3가지 응답 후보 선택이 쌓일수록 AI가 어조, 길이, 스타일 취향을 학습하고,
-                다음 대화부터 최적 답변을 자동 생성합니다.
+                3가지 응답 후보 선택이 쌓일수록 AI가 어조, 길이, 스타일
+                취향을 학습하고, 다음 대화부터 최적 답변을 자동 생성합니다.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">

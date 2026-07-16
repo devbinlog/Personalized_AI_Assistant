@@ -457,6 +457,18 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
               setExecutionGoal(null, null)
             } else {
               if (typeof window !== 'undefined') {
+                // If current conversation has a saved execution goal, restore it directly
+                const match = window.location.pathname.match(/\/chat\/(.+)/)
+                if (match) {
+                  const savedGoal = localStorage.getItem(`conv_executionGoal_${match[1]}`)
+                  if (savedGoal) {
+                    try {
+                      const { id, title } = JSON.parse(savedGoal)
+                      setExecutionGoal(id, title)
+                      return
+                    } catch {}
+                  }
+                }
                 sessionStorage.setItem('executionReturnUrl', window.location.pathname)
               }
               router.push('/execution')
