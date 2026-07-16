@@ -254,7 +254,7 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b bg-white" style={{ borderColor: 'var(--color-border)' }}>
-      <div className="flex h-full items-center justify-between px-4 md:px-6">
+      <div className="relative flex h-full items-center px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ backgroundColor: 'var(--color-accent-bg)' }}>
@@ -263,15 +263,15 @@ export function Navbar() {
           <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Adaptive AI</span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-0.5">
+        {/* Desktop Nav — absolutely centered */}
+        <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
           {navItems.map((item) => (
             <NavLink key={item.label} item={item} />
           ))}
         </nav>
 
         {/* Right */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
           <button
             onClick={() => setMode(isLearning ? 'NORMAL' : 'LEARNING')}
             className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all"
