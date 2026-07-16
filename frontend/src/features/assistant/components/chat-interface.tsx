@@ -109,6 +109,19 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     language,
   )
 
+  // New chat: clear stale execution goal unless just navigated from execution page
+  useEffect(() => {
+    if (conversationId) return
+    if (typeof window === 'undefined') return
+    const justSet = sessionStorage.getItem('executionGoalJustSet')
+    if (justSet) {
+      sessionStorage.removeItem('executionGoalJustSet')
+    } else {
+      setExecutionGoal(null, null)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Restore mode when loading a past conversation
   useEffect(() => {
     if (!conversationId) return

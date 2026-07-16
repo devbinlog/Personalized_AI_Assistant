@@ -60,6 +60,7 @@ export default function ExecutionPage() {
       const d = await res.json()
       if (d.goal) {
         setExecutionGoal(d.goal.id, d.goal.title)
+        sessionStorage.setItem('executionGoalJustSet', '1')
         router.push(getReturnUrl())
       }
     } finally {
@@ -69,6 +70,7 @@ export default function ExecutionPage() {
 
   function activateGoal(goal: ExecutionGoal) {
     setExecutionGoal(goal.id, goal.title)
+    sessionStorage.setItem('executionGoalJustSet', '1')
     router.push(getReturnUrl())
   }
 
