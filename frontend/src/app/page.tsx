@@ -51,10 +51,10 @@ const FEATURES = [
 ]
 
 const PIPELINE = [
-  { step: '태스크 분석', desc: '질문 유형 분류 · 웹 검색 판단 · 복잡도 평가' },
+  { step: '태스크 분석', desc: '질문 유형 분류, 웹 검색 판단, 복잡도 평가' },
   { step: '컨텍스트 조립', desc: '개인 메모리 + 페르소나 + 플로우 + 전역 패턴' },
-  { step: '후보 생성', desc: '구조화 · 서술형 · 간결형 전략 3가지 동시 생성' },
-  { step: '9차원 평가', desc: '명확성 · 완성도 · 구조 · 선호도 매칭 정량 채점' },
+  { step: '후보 생성', desc: '구조화 / 서술형 / 간결형 전략 3가지 동시 생성' },
+  { step: '9차원 평가', desc: '명확성, 완성도, 구조, 선호도 매칭 정량 채점' },
   { step: '랭킹 & 스트리밍', desc: '선호도 가중 점수로 최적 후보 선택 후 실시간 전송' },
 ]
 
@@ -205,7 +205,7 @@ export default function HomePage() {
               </h1>
 
               <p className="text-base leading-relaxed mb-10 max-w-sm" style={{ color: '#6B6B68' }}>
-                3가지 응답 후보 선택이 쌓일수록 AI가 어조·길이·스타일 취향을 학습하고,
+                3가지 응답 후보 선택이 쌓일수록 AI가 어조, 길이, 스타일 취향을 학습하고,
                 다음 대화부터 최적 답변을 자동 생성합니다.
               </p>
 
@@ -219,10 +219,11 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="text-sm font-medium transition-colors hover:text-[#141413]"
-                  style={{ color: '#A8A8A4' }}
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors hover:bg-[#F0F2F5]"
+                  style={{ border: '1px solid #D1D1CE', color: '#1E293B' }}
                 >
-                  대시보드 →
+                  대시보드
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -344,7 +345,7 @@ export default function HomePage() {
       <footer className="px-6 md:px-8 py-8" style={{ borderTop: '1px solid #E4E4E0', backgroundColor: '#FFFFFF' }}>
         <div className="mx-auto max-w-6xl flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <span className="text-sm font-black tracking-tight" style={{ color: '#141413' }}>Adaptive AI</span>
-          <p className="text-xs" style={{ color: '#A8A8A4' }}>김태빈 · devbinlog8@gmail.com</p>
+          <p className="text-xs" style={{ color: '#A8A8A4' }}>김태빈  devbinlog8@gmail.com</p>
           <div className="flex items-center gap-5 text-xs" style={{ color: '#A8A8A4' }}>
             <Link href="/chat" className="transition-colors hover:text-[#141413]">채팅</Link>
             <Link href="/dashboard" className="transition-colors hover:text-[#141413]">대시보드</Link>
