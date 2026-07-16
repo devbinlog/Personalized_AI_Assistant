@@ -38,6 +38,16 @@ export default function ExecutionPage() {
       .catch(() => setLoading(false))
   }, [])
 
+  function getReturnUrl() {
+    if (typeof window === 'undefined') return '/chat'
+    const saved = sessionStorage.getItem('executionReturnUrl')
+    if (saved && saved.startsWith('/chat')) {
+      sessionStorage.removeItem('executionReturnUrl')
+      return saved
+    }
+    return '/chat'
+  }
+
   async function createGoal() {
     if (!form.title.trim()) return
     setCreating(true)
@@ -50,7 +60,7 @@ export default function ExecutionPage() {
       const d = await res.json()
       if (d.goal) {
         setExecutionGoal(d.goal.id, d.goal.title)
-        router.push('/chat')
+        router.push(getReturnUrl())
       }
     } finally {
       setCreating(false)
@@ -59,7 +69,7 @@ export default function ExecutionPage() {
 
   function activateGoal(goal: ExecutionGoal) {
     setExecutionGoal(goal.id, goal.title)
-    router.push('/chat')
+    router.push(getReturnUrl())
   }
 
   const activeGoals = goals.filter(g => g.status === 'ACTIVE' || g.status === 'PAUSED')
@@ -276,11 +286,8 @@ export default function ExecutionPage() {
 }
 
 function GoalCard({ goal, isActive, onClick }: { goal: ExecutionGoal; isActive: boolean; onClick: () => void }) {
-  const totalSteps = goal.milestones.flatMap(m => m.steps).length
-  const doneSteps = goal.milestones.flatMap(m => m.steps).filter(s => s.status === 'COMPLETED').length
   const categoryColor = CATEGORY_COLORS[goal.category] ?? CATEGORY_COLORS.general
   const categoryLabel = CATEGORY_LABELS[goal.category] ?? goal.category
-  const currentMilestone = goal.milestones.find(m => m.status === 'IN_PROGRESS') ?? goal.milestones[0]
 
   return (
     <button
@@ -312,24 +319,12 @@ function GoalCard({ goal, isActive, onClick }: { goal: ExecutionGoal; isActive: 
         <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" style={{ color: 'var(--color-text-muted)' }} />
       </div>
 
-      <div className="font-semibold text-sm mb-0.5 truncate" style={{ color: 'var(--color-text-primary)' }}>{goal.title}</div>
-      {currentMilestone && goal.status !== 'COMPLETED' && (
-        <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-          현재: {currentMilestone.title}
+      <div className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>{goal.title}</div>
+      {goal.description && (
+        <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-muted)' }}>
+          {goal.description}
         </div>
       )}
-
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-2)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{ width: `${goal.progress}%`, background: goal.status === 'COMPLETED' ? '#10b981' : '#1d4ed8' }}
-          />
-        </div>
-        <span className="text-[11px] tabular-nums shrink-0" style={{ color: 'var(--color-text-muted)' }}>
-          {doneSteps}/{totalSteps} · {goal.progress.toFixed(0)}%
-        </span>
-      </div>
     </button>
   )
 }

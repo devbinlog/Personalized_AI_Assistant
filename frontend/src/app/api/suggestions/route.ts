@@ -15,6 +15,20 @@ export async function GET(_req: NextRequest) {
   }
 }
 
+export async function DELETE(_req: NextRequest) {
+  const userId = await resolveUserId()
+  if (userId === 'anonymous') return NextResponse.json({ deleted: 0 })
+
+  try {
+    const result = await prisma.preferenceSuggestion.deleteMany({
+      where: { userId, status: 'PENDING' },
+    })
+    return NextResponse.json({ deleted: result.count })
+  } catch {
+    return NextResponse.json({ deleted: 0 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   const { suggestionId, accepted } = await req.json()
 

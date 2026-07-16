@@ -15,17 +15,25 @@ export async function generateRecommendation(
 ): Promise<{ content: string; type: string }> {
   const currentMilestone = goal.milestones.find(m => m.status === 'IN_PROGRESS') ?? goal.milestones[0]
   const currentStep = currentMilestone?.steps.find(s => s.isCurrent) ?? currentMilestone?.steps[0]
-  const completedCount = goal.milestones.flatMap(m => m.steps).filter(s => s.status === 'COMPLETED').length
-  const totalCount = goal.milestones.flatMap(m => m.steps).length
+
+  const isFirstMessage = !lastUserMessage && !lastAiResponse
 
   try {
     const provider = getLLMProvider()
     const result = await generateObject({
       model: provider.getFastModel(),
       schema: RecommendationSchema,
-      system: `당신은 목표 달성 코치입니다. 사용자의 현재 진행 상황을 파악하고 다음 행동을 추천하세요.
-추천은 구체적이고 실행 가능해야 합니다. 한국어로 2~3문장으로 작성하세요.`,
-      prompt: `목표: "${goal.title}" (진행률 ${goal.progress.toFixed(0)}%, ${completedCount}/${totalCount} 단계 완료)
+      system: `당신은 목표 달성 코치입니다. 사용자가 현재 단계에서 구체적으로 행동하도록 유도하는 질문을 던지세요.
+지시나 조언이 아니라 사용자의 생각/현황을 이끌어내는 질문 형태로 작성하세요.
+예: "지금 가장 막히는 부분이 뭐예요?", "이 단계에서 어디까지 해봤어요?", "어떤 방향으로 접근하려고 해요?"
+한국어로 1~2문장, 자연스럽고 따뜻한 말투로 작성하세요.`,
+      prompt: isFirstMessage
+        ? `목표: "${goal.title}"
+현재 단계: ${currentStep?.title ?? currentMilestone?.title ?? '시작'}
+
+이 목표를 처음 시작하는 사용자에게 현재 상황을 파악하기 위한 첫 번째 질문을 하세요.
+사용자가 어디서부터 시작해야 할지 함께 파악하는 가벼운 도입 질문이어야 합니다.`
+        : `목표: "${goal.title}"
 현재 마일스톤: ${currentMilestone?.title ?? '없음'}
 현재 단계: ${currentStep?.title ?? '없음'}
 
@@ -33,16 +41,15 @@ export async function generateRecommendation(
 사용자: ${lastUserMessage.slice(0, 300)}
 AI: ${lastAiResponse.slice(0, 500)}
 
-이 대화를 바탕으로 사용자가 다음에 해야 할 행동을 추천하세요.
-남은 단계를 고려해 가장 적절한 다음 액션을 제안하세요.`,
+이 대화를 이어받아 현재 단계에서 사용자가 더 깊이 생각하거나 행동하도록 유도하는 후속 질문을 하세요.`,
     })
     return result.object as { content: string; type: string }
   } catch {
-    const nextStep = currentMilestone?.steps.find(s => s.status === 'PENDING')
+    const stepTitle = currentStep?.title ?? currentMilestone?.title ?? '목표'
     return {
-      content: nextStep
-        ? `다음 단계로 "${nextStep.title}"을 진행해보세요. 궁금한 점이 있으면 언제든지 질문하세요.`
-        : `현재 마일스톤이 잘 진행되고 있습니다. 계속 이어가세요!`,
+      content: isFirstMessage
+        ? `"${goal.title}"을 시작하게 됐군요! 지금 어떤 상황인지 간단히 얘기해줄 수 있어요?`
+        : `"${stepTitle}"에서 지금 어디까지 진행해봤어요? 막히는 부분이 있으면 같이 풀어봐요.`,
       type: 'NEXT_ACTION',
     }
   }

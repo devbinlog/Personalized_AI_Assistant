@@ -19,8 +19,6 @@ import {
   Sparkles,
   Trash2,
   X,
-  Sun,
-  Moon,
   Target,
 } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
@@ -62,10 +60,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
-  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey, theme, setTheme, executionGoalId, executionGoalTitle, setExecutionGoal } = useAppStore()
+  const { mode, setMode, resetChat, chatResetKey, sidebarRefreshKey, language, setLanguage, executionGoalId, executionGoalTitle, setExecutionGoal } = useAppStore()
   const isLearning = mode === 'LEARNING'
   const isExecution = !!executionGoalId
-  const isDark = theme === 'dark'
 
   const isInDesignSection = DESIGN_NAV_ITEMS.some(item => pathname.startsWith(item.href))
   const [designOpen, setDesignOpen] = useState(isInDesignSection)
@@ -113,6 +110,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
 
   function handleNewChat() {
     resetChat()
+    setExecutionGoal(null, null)
     router.push('/chat')
     onClose?.()
   }
@@ -371,7 +369,7 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
                           backgroundColor: isActive ? 'var(--color-surface-hover)' : 'transparent',
                           color: isActive ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
                         }}
-                        onClick={onClose}
+                        onClick={() => { setExecutionGoal(null, null); onClose?.() }}
                         onMouseEnter={e => {
                           if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'
                         }}
@@ -432,22 +430,22 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             cursor: 'pointer',
           }}
           onMouseEnter={e => {
-            if (!isLearning) e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f8fafc'
+            if (!isLearning) e.currentTarget.style.backgroundColor = '#f8fafc'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = isLearning ? (isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5') : 'transparent'
+            e.currentTarget.style.backgroundColor = isLearning ? '#ecfdf5' : 'transparent'
           }}
         >
           <div
             className="flex h-6 w-6 items-center justify-center rounded-full shrink-0"
-            style={{ backgroundColor: isLearning ? (isDark ? 'rgba(16,185,129,0.2)' : '#d1fae5') : (isDark ? '#28282c' : '#f5f5f4') }}
+            style={{ backgroundColor: isLearning ? '#d1fae5' : '#f5f5f4' }}
           >
             <Sparkles
               className="h-3 w-3"
-              style={{ color: isLearning ? '#059669' : (isDark ? '#8a8f98' : '#a8a29e') }}
+              style={{ color: isLearning ? '#059669' : '#a8a29e' }}
             />
           </div>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: isLearning ? '#059669' : (isDark ? '#d0d6e0' : '#44403c') }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: isLearning ? '#059669' : '#44403c' }}>
             학습 모드 {isLearning ? 'ON' : 'OFF'}
           </span>
         </button>
@@ -458,6 +456,9 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             if (isExecution) {
               setExecutionGoal(null, null)
             } else {
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem('executionReturnUrl', window.location.pathname)
+              }
               router.push('/execution')
             }
           }}
@@ -470,23 +471,23 @@ export function Sidebar({ showConversations = false, isOpen = false, onClose }: 
             cursor: 'pointer',
           }}
           onMouseEnter={e => {
-            if (!isExecution) e.currentTarget.style.backgroundColor = isDark ? '#28282c' : '#f8fafc'
+            if (!isExecution) e.currentTarget.style.backgroundColor = '#f8fafc'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = isExecution ? (isDark ? 'rgba(30,41,59,0.2)' : '#eff6ff') : 'transparent'
+            e.currentTarget.style.backgroundColor = isExecution ? '#eff6ff' : 'transparent'
           }}
         >
           <div
             className="flex h-6 w-6 items-center justify-center rounded-full shrink-0"
-            style={{ backgroundColor: isExecution ? (isDark ? 'rgba(30,41,59,0.3)' : '#dbeafe') : (isDark ? '#28282c' : '#f5f5f4') }}
+            style={{ backgroundColor: isExecution ? '#dbeafe' : '#f5f5f4' }}
           >
             <Target
               className="h-3 w-3"
-              style={{ color: isExecution ? '#1d4ed8' : (isDark ? '#8a8f98' : '#a8a29e') }}
+              style={{ color: isExecution ? '#1d4ed8' : '#a8a29e' }}
             />
           </div>
           <div className="flex-1 min-w-0">
-            <span style={{ fontSize: '13px', fontWeight: 600, color: isExecution ? '#1d4ed8' : (isDark ? '#d0d6e0' : '#44403c') }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: isExecution ? '#1d4ed8' : '#44403c' }}>
               실행 모드 {isExecution ? 'ON' : 'OFF'}
             </span>
             {isExecution && executionGoalTitle && (

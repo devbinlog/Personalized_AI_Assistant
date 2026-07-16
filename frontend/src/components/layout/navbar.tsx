@@ -25,8 +25,6 @@ import {
   User,
   Menu,
   X,
-  Sun,
-  Moon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/lib/constants'
@@ -248,7 +246,7 @@ function UserMenu() {
 }
 
 export function Navbar() {
-  const { mode, setMode, theme, setTheme, language, setLanguage } = useAppStore()
+  const { mode, setMode, language, setLanguage } = useAppStore()
   const isLearning = mode === 'LEARNING'
   const [mobileOpen, setMobileOpen] = useState(false)
   const t = useT()

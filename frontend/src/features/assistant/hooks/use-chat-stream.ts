@@ -29,6 +29,7 @@ export function useChatStream(
   onConversationCreated?: (id: string) => void,
   onStreamFinish?: (text: string) => void,
   initialMessages?: Message[],
+  language?: 'ko' | 'en',
 ) {
   const [meta, setMeta] = useState<ChatMeta>({
     conversationId: conversationId ?? null,
@@ -45,10 +46,14 @@ export function useChatStream(
   const [messageIdMap, setMessageIdMap] = useState<Record<string, string>>({})
   const pendingDbMessageId = useRef<string | null>(null)
   const messagesRef = useRef<Message[]>([])
+  const modeRef = useRef(mode)
+  modeRef.current = mode
+  const languageRef = useRef(language ?? 'ko')
+  languageRef.current = language ?? 'ko'
 
   const chat = useChat({
     api: '/api/chat',
-    body: { mode, conversationId: meta.conversationId },
+    body: { conversationId: meta.conversationId },
     initialMessages,
     onResponse: (response) => {
       const newConvId = response.headers.get('X-Conversation-Id')
@@ -91,8 +96,8 @@ export function useChatStream(
   messagesRef.current = chat.messages
 
   const submitNormal = useCallback((files?: AttachedFile[]) => {
-    const opts = files && files.length > 0 ? { body: { files } } : undefined
-    chat.handleSubmit(undefined, opts)
+    const bodyExtra = files && files.length > 0 ? { files } : {}
+    chat.handleSubmit(undefined, { body: { mode: modeRef.current, language: languageRef.current, ...bodyExtra } })
   }, [chat])
 
   // Used by voice mode: bypasses the `input` state, sends text directly via append
@@ -100,7 +105,7 @@ export function useChatStream(
     const bodyExtra = files && files.length > 0 ? { files } : {}
     chat.append(
       { role: 'user', content: text },
-      { body: bodyExtra },
+      { body: { mode: modeRef.current, language: languageRef.current, ...bodyExtra } },
     )
   }, [chat])
 
@@ -121,6 +126,7 @@ export function useChatStream(
         body: JSON.stringify({
           messages: [...history, { role: 'user', content: userMessage }],
           mode: 'LEARNING',
+          language: languageRef.current,
           conversationId: meta.conversationId,
           files: files && files.length > 0 ? files : undefined,
         }),

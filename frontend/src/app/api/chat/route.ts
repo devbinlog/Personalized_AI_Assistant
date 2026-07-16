@@ -133,11 +133,13 @@ export async function POST(req: NextRequest) {
     messages,
     conversationId,
     mode = 'NORMAL',
+    language = 'ko',
     files,
   }: {
     messages: Array<{ role: string; content: string }>
     conversationId?: string
     mode?: ConversationMode
+    language?: 'ko' | 'en'
     files?: AttachedFile[]
   } = body
 
@@ -285,6 +287,10 @@ export async function POST(req: NextRequest) {
   )
   let systemPrompt = lgResult?.system_prompt ?? built.systemPrompt
   const components = built.components
+  // 언어 오버라이드: 사용자가 명시적으로 영어를 선택한 경우
+  if (language === 'en') {
+    systemPrompt += '\n\n[CRITICAL LANGUAGE OVERRIDE — this rule takes absolute priority over all previous language rules, including the LANGUAGE RULE above]: The user has explicitly switched the interface to English mode. You MUST respond in English only, regardless of what language the user writes in. Do NOT follow the "detect language" rule for this conversation. Every response must be in English.'
+  }
   // A/B 실험 승자 프롬프트 반영
   const winningPrompt = await getWinningSystemPrompt()
   if (winningPrompt) {

@@ -18,14 +18,14 @@ const SuggestionSchema = z.object({
 
 type SuggestionData = z.infer<typeof SuggestionSchema>
 
-const SYSTEM_PROMPT = `You are analyzing a user's AI preference behavior to proactively suggest preference updates.
+const SYSTEM_PROMPT = `사용자의 AI 응답 선호도 행동 패턴을 분석하여 선호도 업데이트를 선제적으로 제안합니다.
 
-Look for strong emerging patterns in their recent selections.
-Only suggest a preference update if there's clear evidence (3+ consistent selections).
-Write rationale as a human-readable explanation the user will see.
-Example rationale: "In your last 8 conversations about programming, you selected structured step-by-step responses 7 times. Would you like to set this as your default for technical questions?"
+최근 선택에서 강하게 나타나는 패턴을 찾으세요.
+일관된 선택이 3번 이상 있을 때만 선호도 업데이트를 제안하세요.
+rationale은 사용자가 읽을 수 있는 자연스러운 한국어로 작성하세요.
+예시: "최근 8번의 대화에서 구조적 응답 방식을 7번 선택하셨어요. 이 스타일을 기본값으로 설정할까요?"
 
-Return only high-confidence suggestions.`
+확신도가 높은 제안만 반환하세요.`
 
 export async function detectSuggestions(
   userId: string,
