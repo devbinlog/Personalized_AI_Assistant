@@ -650,8 +650,7 @@ Vercel AI SDK의 `generateObject`는 Zod v3 스키마만 지원합니다. v4 마
 
 <div align="center">
 
-**[데모 보기](https://frontend-mu-liard-59.vercel.app)** · Demo 계정: `demo@adaptive-ai.com` / `demo1234!`
-
+**[데모 보기](https://frontend-mu-liard-59.vercel.app)** 
 로그인 없이도 채팅 5회까지 무료로 체험할 수 있습니다.
 
 </div>
