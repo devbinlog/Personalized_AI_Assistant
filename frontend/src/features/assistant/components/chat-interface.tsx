@@ -405,10 +405,10 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
 
   // 실행 모드: 목표 로드 직후 첫 질문을 채팅 버블로 주입
   useEffect(() => {
-    if (!executionGoalId || !executionGoal || hasInitRecommendation.current) return
+    if (!executionGoalId || !executionGoal || hasInitRecommendation.current || messages.length > 0) return
     hasInitRecommendation.current = true
-    const lastUser = [...messages].reverse().find(m => m.role === 'user')?.content ?? ''
-    const lastAi = [...messages].reverse().find(m => m.role === 'assistant')?.content ?? ''
+    const lastUser = ''
+    const lastAi = ''
     fetch(`/api/goals/${executionGoalId}/recommend`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
