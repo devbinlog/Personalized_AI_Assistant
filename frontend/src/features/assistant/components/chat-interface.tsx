@@ -66,6 +66,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
   const [executionGoal, setExecutionGoalData] = useState<null | { id: string; title: string; progress: number; milestones: Array<{ id: string; title: string; status: string; steps: Array<{ id: string; title: string; status: string; isCurrent: boolean }> }> }>(null)
   const prevIsLoading = useRef(false)
   const hasInitRecommendation = useRef(false)
+  const hasSubmittedTagsRef = useRef(false)
   // DB-loaded assistant message IDs — msg.id is already the DB ID for these
   const loadedDbMessageIds = useRef<Set<string>>(new Set(
     initialMessages?.filter(m => m.role === 'assistant').map(m => m.id) ?? []
@@ -218,6 +219,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     setMessages([])
     setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
     clearLearningCandidates()
+    hasSubmittedTagsRef.current = false
     window.history.pushState({}, '', '/chat')
   }, [chatResetKey])
 
@@ -283,33 +285,109 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
       setShowLoginModal(true)
       return
     }
+    if (hasSubmittedTagsRef.current) {
+      // 두 번째 이후 선택 — 태그 단계 건너뜀
+      const convId = meta.conversationId || conversationId
+      if (convId) {
+        fetch('/api/preferences', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversationId: convId,
+            selectedContent: candidate.content,
+            selectedStrategy: candidate.strategy,
+            selectedTags: [],
+            taskType: learningCandidates?.taskAnalysis?.taskType ?? 'CONVERSATION',
+            domain: learningCandidates?.taskAnalysis?.domain ?? 'general',
+            complexity: learningCandidates?.taskAnalysis?.complexity ?? 'LOW',
+            userQuery: messages[messages.length - 1]?.content ?? '',
+            taskAnalysis: learningCandidates?.taskAnalysis ?? null,
+          }),
+        }).catch(() => {})
+      }
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: candidate.content,
+      }])
+      setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
+      clearLearningCandidates()
+      if (executionGoalId) {
+        const lastUser = messages[messages.length - 1]?.content ?? ''
+        const userAskedQuestion = lastUser.includes('?') || lastUser.includes('？')
+        const aiEndsWithQuestion = /[?？]\s*$/.test(candidate.content)
+        const userShortAck = lastUser.trim().length <= 10
+        if (!userAskedQuestion && !aiEndsWithQuestion && !userShortAck) {
+          fetch(`/api/goals/${executionGoalId}/recommend`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lastUserMessage: lastUser, lastAiResponse: candidate.content }),
+          })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => {
+              if (d?.recommendation?.content) {
+                setMessages(prev => [...prev, {
+                  id: `exec-${Date.now()}`,
+                  role: 'assistant',
+                  content: d.recommendation.content,
+                }])
+              }
+            })
+            .catch(() => {})
+        }
+      }
+      return
+    }
     setLearningState(prev => ({ ...prev, step: 'tags', selectedCandidate: candidate }))
-  }, [isGuest])
+  }, [isGuest, meta.conversationId, conversationId, learningCandidates, messages, executionGoalId, setMessages, clearLearningCandidates])
 
   const onTagsSubmit = useCallback(async (tags: PreferenceTag[]) => {
     if (!learningState.selectedCandidate || !meta.conversationId) return
+    const aiContent = learningState.selectedCandidate.content
+    const lastUser = messages[messages.length - 1]?.content ?? ''
     await fetch('/api/preferences', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         conversationId: meta.conversationId,
-        selectedContent: learningState.selectedCandidate.content,
+        selectedContent: aiContent,
         selectedStrategy: learningState.selectedCandidate.strategy,
         selectedTags: tags,
         taskType: learningCandidates?.taskAnalysis?.taskType ?? 'CONVERSATION',
         domain: learningCandidates?.taskAnalysis?.domain ?? 'general',
         complexity: learningCandidates?.taskAnalysis?.complexity ?? 'LOW',
-        userQuery: messages[messages.length - 1]?.content ?? '',
+        userQuery: lastUser,
         taskAnalysis: learningCandidates?.taskAnalysis ?? null,
       }),
     }).catch(() => {})
-    setMessages(prev => [
-      ...prev,
-      { id: Date.now().toString(), role: 'assistant', content: learningState.selectedCandidate!.content },
-    ])
+    setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: aiContent }])
     setLearningState({ step: 'done', selectedCandidate: null, messageId: null, candidateId: null })
     clearLearningCandidates()
-  }, [learningState, learningCandidates, messages, meta.conversationId, setMessages, clearLearningCandidates])
+    hasSubmittedTagsRef.current = true
+    if (executionGoalId) {
+      const userAskedQuestion = lastUser.includes('?') || lastUser.includes('？')
+      const aiEndsWithQuestion = /[?？]\s*$/.test(aiContent)
+      const userShortAck = lastUser.trim().length <= 10
+      if (!userAskedQuestion && !aiEndsWithQuestion && !userShortAck) {
+        fetch(`/api/goals/${executionGoalId}/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lastUserMessage: lastUser, lastAiResponse: aiContent }),
+        })
+          .then(r => r.ok ? r.json() : null)
+          .then(d => {
+            if (d?.recommendation?.content) {
+              setMessages(prev => [...prev, {
+                id: `exec-${Date.now()}`,
+                role: 'assistant',
+                content: d.recommendation.content,
+              }])
+            }
+          })
+          .catch(() => {})
+      }
+    }
+  }, [learningState, learningCandidates, messages, meta.conversationId, executionGoalId, setMessages, clearLearningCandidates])
 
   // 실행 모드: 목표 데이터 로드
   useEffect(() => {
@@ -349,27 +427,32 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
       .catch(() => {})
   }, [executionGoal])
 
-  // 실행 모드: 스트리밍 완료 직후 다음 질문을 채팅 버블로 주입
+  // 실행 모드: 스트리밍 완료 직후 다음 질문을 채팅 버블로 주입 (사용자가 직접 질문/단순 반응, AI가 이미 질문으로 마무리한 경우 제외)
   useEffect(() => {
     if (prevIsLoading.current && !isLoading && executionGoalId && messages.length >= 2) {
       const lastUser = [...messages].reverse().find(m => m.role === 'user')?.content ?? ''
       const lastAi = [...messages].reverse().find(m => m.role === 'assistant')?.content ?? ''
-      fetch(`/api/goals/${executionGoalId}/recommend`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lastUserMessage: lastUser, lastAiResponse: lastAi }),
-      })
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
-          if (d?.recommendation?.content) {
-            setMessages(prev => [...prev, {
-              id: `exec-${Date.now()}`,
-              role: 'assistant',
-              content: d.recommendation.content,
-            }])
-          }
+      const userAskedQuestion = lastUser.includes('?') || lastUser.includes('？')
+      const aiEndsWithQuestion = /[?？]\s*$/.test(lastAi)
+      const userShortAck = lastUser.trim().length <= 10
+      if (!userAskedQuestion && !aiEndsWithQuestion && !userShortAck) {
+        fetch(`/api/goals/${executionGoalId}/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lastUserMessage: lastUser, lastAiResponse: lastAi }),
         })
-        .catch(() => {})
+          .then(r => r.ok ? r.json() : null)
+          .then(d => {
+            if (d?.recommendation?.content) {
+              setMessages(prev => [...prev, {
+                id: `exec-${Date.now()}`,
+                role: 'assistant',
+                content: d.recommendation.content,
+              }])
+            }
+          })
+          .catch(() => {})
+      }
     }
     prevIsLoading.current = isLoading
   }, [isLoading])

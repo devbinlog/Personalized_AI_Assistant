@@ -287,9 +287,11 @@ export async function POST(req: NextRequest) {
   )
   let systemPrompt = lgResult?.system_prompt ?? built.systemPrompt
   const components = built.components
-  // 언어 오버라이드: 사용자가 명시적으로 영어를 선택한 경우
+  // 언어 오버라이드: 사용자가 선택한 언어로 강제 응답
   if (language === 'en') {
     systemPrompt += '\n\n[CRITICAL LANGUAGE OVERRIDE — this rule takes absolute priority over all previous language rules, including the LANGUAGE RULE above]: The user has explicitly switched the interface to English mode. You MUST respond in English only, regardless of what language the user writes in. Do NOT follow the "detect language" rule for this conversation. Every response must be in English.'
+  } else {
+    systemPrompt += '\n\n[CRITICAL LANGUAGE OVERRIDE — this rule takes absolute priority over all previous language rules, including the LANGUAGE RULE above]: The user interface is set to Korean mode. You MUST respond in Korean only, regardless of what language the user writes in. The user may include English text (e.g., example sentences, code, proper nouns) but your explanation and response must be in Korean. Do NOT switch to English even if the message contains English content.'
   }
   // A/B 실험 승자 프롬프트 반영
   const winningPrompt = await getWinningSystemPrompt()
