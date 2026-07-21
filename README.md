@@ -15,7 +15,7 @@
 
 ---
 
-<!-- IMAGE_PLACEHOLDER: 전체 데모 GIF (Learning Mode에서 3개 후보 선택 → Normal Mode 자동 스트리밍 전환 장면, 약 30초) -->
+[![웹 페이지 방문](https://img.shields.io/badge/Live_Demo-Visit-5e6ad2?style=for-the-badge)](https://frontend-mu-liard-59.vercel.app)
 
 ---
 
