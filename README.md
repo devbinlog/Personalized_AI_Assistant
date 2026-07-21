@@ -6,7 +6,6 @@
 
 선택 행동을 학습 신호로 변환하여 응답 전략을 지속적으로 진화시키는 **AX(AI Experience) 시스템**
 
-[![Demo](https://img.shields.io/badge/Live_Demo-Visit-5e6ad2?style=for-the-badge)](https://frontend-mu-liard-59.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js_15-App_Router-black?style=flat-square)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript_5-blue?style=flat-square)](https://typescriptlang.org)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2-green?style=flat-square)](https://langchain-ai.github.io/langgraph)
