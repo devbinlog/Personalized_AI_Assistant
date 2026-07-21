@@ -14,7 +14,7 @@
 
 ---
 
-[![웹 페이지 방문](https://img.shields.io/badge/Live_Demo-Visit-5e6ad2?style=for-the-badge)](https://frontend-mu-liard-59.vercel.app)
+[![웹 페이지 방문](https://img.shields.io/badge/실제-웹-페이지-방문-5e6ad2?style=for-the-badge)](https://frontend-mu-liard-59.vercel.app)
 
 ---
 
