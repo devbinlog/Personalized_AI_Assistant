@@ -151,7 +151,7 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     }
   }, [conversationId])
 
-  // Persist execution goal mapping for this conversation
+  // Persist execution goal mapping for this conversation (localStorage + DB)
   useEffect(() => {
     // meta.conversationId: 새 채팅에서 첫 메시지 후 설정
     // conversationId: 기존 채팅방 재진입 시 이미 존재
@@ -161,6 +161,12 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
       `conv_executionGoal_${convId}`,
       JSON.stringify({ id: executionGoalId, title: executionGoalTitle }),
     )
+    // DB에도 저장해서 localStorage 없이도 복원 가능하게 함
+    fetch(`/api/conversations/${convId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ executionGoalId }),
+    }).catch(() => {})
   }, [meta.conversationId, conversationId, executionGoalId, executionGoalTitle])
 
   // Load past conversation messages client-side (reliable across RSC caching)
@@ -175,6 +181,17 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
           setMode(convMode)
           if (typeof window !== 'undefined') {
             localStorage.setItem(`conv_mode_${conversationId}`, convMode)
+          }
+        }
+        // Restore execution goal from DB (authoritative source)
+        const dbGoalId = data?.conversation?.executionGoalId as string | null | undefined
+        if (dbGoalId) {
+          setExecutionGoal(dbGoalId, null)  // title은 goal fetch useEffect가 채워줌
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(
+              `conv_executionGoal_${conversationId}`,
+              JSON.stringify({ id: dbGoalId, title: '' }),
+            )
           }
         }
         const msgs = data?.conversation?.messages

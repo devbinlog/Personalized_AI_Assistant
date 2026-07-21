@@ -33,3 +33,23 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const userId = await resolveUserId()
+  const { id } = await params
+  if (userId === 'anonymous') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  try {
+    const { executionGoalId } = await req.json()
+    await prisma.conversation.updateMany({
+      where: { id, userId },
+      data: { executionGoalId: executionGoalId ?? null },
+    })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'Failed to update' }, { status: 500 })
+  }
+}
