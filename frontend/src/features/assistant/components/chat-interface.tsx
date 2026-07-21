@@ -135,18 +135,27 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
       try {
         const { id, title } = JSON.parse(savedGoal)
         setExecutionGoal(id, title)
-      } catch {}
+      } catch {
+        setExecutionGoal(null, null)
+      }
+    } else {
+      // 이 채팅방에 저장된 실행 목표가 없으면 반드시 초기화
+      // (다른 채팅방의 목표가 오염되는 것을 방지)
+      setExecutionGoal(null, null)
     }
   }, [conversationId])
 
   // Persist execution goal mapping for this conversation
   useEffect(() => {
-    if (!meta.conversationId || !executionGoalId || typeof window === 'undefined') return
+    // meta.conversationId: 새 채팅에서 첫 메시지 후 설정
+    // conversationId: 기존 채팅방 재진입 시 이미 존재
+    const convId = meta.conversationId || conversationId
+    if (!convId || !executionGoalId || typeof window === 'undefined') return
     localStorage.setItem(
-      `conv_executionGoal_${meta.conversationId}`,
+      `conv_executionGoal_${convId}`,
       JSON.stringify({ id: executionGoalId, title: executionGoalTitle }),
     )
-  }, [meta.conversationId, executionGoalId, executionGoalTitle])
+  }, [meta.conversationId, conversationId, executionGoalId, executionGoalTitle])
 
   // Load past conversation messages client-side (reliable across RSC caching)
   useEffect(() => {
