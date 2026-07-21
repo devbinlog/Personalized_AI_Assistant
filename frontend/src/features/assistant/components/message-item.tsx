@@ -6,7 +6,6 @@ import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/pris
 import { cn, strategyLabel, confidencePercent } from '@/lib/utils'
 import { Brain, Globe, User, Sparkles } from 'lucide-react'
 import type { Message } from 'ai'
-import { ExplanationPanel } from '@/features/xai/components/explanation-panel'
 import { useAppStore } from '@/stores/app-store'
 
 interface MessageItemProps {
@@ -122,13 +121,6 @@ export function MessageItem({
           )}
         </div>
 
-        {!isMock && !isUser && !isStreaming && messageId && settings.showExplanations && (
-          <ExplanationPanel
-            messageId={messageId}
-            initialConfidence={confidence}
-            initialStrategy={strategy}
-          />
-        )}
       </div>
     </div>
   )
