@@ -35,7 +35,13 @@ export async function GET(_req: NextRequest) {
       selectedTags: JSON.parse((l.selectedTags as string) || '[]'),
     }))
 
-    return NextResponse.json({ memory, versions, logCount, threshold, nextUpdateIn, logs })
+    const parsedVersions = versions.map(v => ({
+      ...v,
+      snapshot: (() => { try { return JSON.parse(v.snapshot as string) } catch { return {} } })(),
+      diff: (() => { try { return v.diff ? JSON.parse(v.diff as string) : null } catch { return null } })(),
+    }))
+
+    return NextResponse.json({ memory, versions: parsedVersions, logCount, threshold, nextUpdateIn, logs })
   } catch {
     return NextResponse.json({ memory: null, versions: [], logCount: 0, threshold: 3, logs: [] })
   }

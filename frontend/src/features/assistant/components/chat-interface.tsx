@@ -139,9 +139,15 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
         setExecutionGoal(null, null)
       }
     } else {
-      // 이 채팅방에 저장된 실행 목표가 없으면 반드시 초기화
-      // (다른 채팅방의 목표가 오염되는 것을 방지)
-      setExecutionGoal(null, null)
+      // 실행 페이지에서 기존 채팅으로 돌아온 경우 — 방금 설정한 목표를 지우지 않음
+      const justSet = sessionStorage.getItem('executionGoalJustSet')
+      if (justSet) {
+        sessionStorage.removeItem('executionGoalJustSet')
+        // Zustand에 목표가 이미 있음 — persist useEffect가 localStorage에 저장할 것임
+      } else {
+        // 다른 채팅방의 목표가 이 채팅방으로 오염되는 것을 방지
+        setExecutionGoal(null, null)
+      }
     }
   }, [conversationId])
 
@@ -163,6 +169,14 @@ export function ChatInterface({ conversationId, initialMessages }: ChatInterface
     fetch(`/api/conversations/${conversationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
+        // Restore mode from DB (authoritative source) and sync to localStorage
+        const convMode = data?.conversation?.mode as ConversationMode | undefined
+        if (convMode === 'LEARNING' || convMode === 'NORMAL') {
+          setMode(convMode)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`conv_mode_${conversationId}`, convMode)
+          }
+        }
         const msgs = data?.conversation?.messages
         if (msgs?.length > 0) {
           // Track assistant message IDs — msg.id IS the DB ID for loaded messages
