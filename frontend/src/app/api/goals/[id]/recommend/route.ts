@@ -6,6 +6,36 @@ import type { ExecutionGoal } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
+const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8000'
+
+async function getRecommendationFromLangGraph(
+  goal: ExecutionGoal,
+  lastUserMessage: string,
+  lastAiResponse: string,
+): Promise<{ content: string; type: string } | null> {
+  try {
+    const currentMilestone = goal.milestones?.find(m => m.status === 'IN_PROGRESS') ?? goal.milestones?.[0]
+    const currentStep = currentMilestone?.steps?.find(s => s.isCurrent) ?? currentMilestone?.steps?.[0]
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/assistant/recommend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        goal_title: goal.title,
+        milestone_title: currentMilestone?.title ?? null,
+        step_title: currentStep?.title ?? null,
+        last_user_message: lastUserMessage,
+        last_ai_response: lastAiResponse,
+      }),
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return null
+    return await res.json() as { content: string; type: string }
+  } catch {
+    return null
+  }
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -30,7 +60,10 @@ export async function POST(
     })
     if (!goal) return NextResponse.json({ error: '목표를 찾을 수 없습니다.' }, { status: 404 })
 
-    const rec = await generateRecommendation(goal as unknown as ExecutionGoal, lastUserMessage, lastAiResponse)
+    // LangGraph 백엔드 우선 호출 → 실패 시 Next.js 서비스 fallback
+    const rec =
+      (await getRecommendationFromLangGraph(goal as unknown as ExecutionGoal, lastUserMessage, lastAiResponse)) ??
+      (await generateRecommendation(goal as unknown as ExecutionGoal, lastUserMessage, lastAiResponse))
 
     const saved = await prisma.executionRecommendation.create({
       data: {

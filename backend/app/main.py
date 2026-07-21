@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import get_settings
 from app.features.assistant.router import router as assistant_router
+from app.features.assistant.recommend_router import router as recommend_router
 from app.features.persona.router import router as persona_router
 from app.features.flow.router import router as flow_router
 from app.features.evaluation.router import router as evaluation_router
@@ -53,6 +54,9 @@ async def health():
 
 # Assistant router — LangGraph rule-based pipeline
 app.include_router(assistant_router, prefix="/api/v1")
+
+# Recommendation router — LangGraph + LLM (실제 AI 연결)
+app.include_router(recommend_router, prefix="/api/v1/assistant")
 
 # Design Studio feature routers
 app.include_router(persona_router)

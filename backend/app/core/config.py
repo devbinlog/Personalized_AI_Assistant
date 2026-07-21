@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = ""
 
+    # OpenAI
+    openai_api_key: str = ""
+
     # Anthropic
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-6"
