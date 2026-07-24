@@ -16,6 +16,7 @@
 
 [![Demo](https://img.shields.io/badge/Live_Demo-Visit-5e6ad2?style=for-the-badge)](https://frontend-mu-liard-59.vercel.app)
 
+<img width="1440" height="722" alt="스크린샷 2026-07-24 오후 5 25 39" src="https://github.com/user-attachments/assets/7432ff64-a908-4378-bd64-b5d6b5ff39ae" />
 
 ---
 
